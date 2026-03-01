@@ -1,11 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-
-const USERS_KEY = 'lwf_users';
-const SESSION_KEY = 'lwf_session';
-
-function getUsers() { try { return JSON.parse(localStorage.getItem(USERS_KEY) || '{}'); } catch { return {}; } }
-function saveUsers(u) { localStorage.setItem(USERS_KEY, JSON.stringify(u)); }
+import { supabase } from '../lib/supabase';
 
 export default function Login({ onLogin }) {
     const [mode, setMode] = useState('login'); // login | signup | forgot | profile
@@ -15,68 +10,86 @@ export default function Login({ onLogin }) {
     const [confirmPass, setConfirmPass] = useState('');
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
+    const [loading, setLoading] = useState(false);
     const [user, setUser] = useState(null);
 
     useEffect(() => {
-        try {
-            const session = JSON.parse(localStorage.getItem(SESSION_KEY) || 'null');
-            if (session?.email) { setUser(session); onLogin?.(session); }
-        } catch { }
+        // Check current session on mount
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            if (session?.user) {
+                const u = buildUser(session.user);
+                setUser(u);
+                onLogin?.(u);
+            }
+        });
+
+        // Listen to auth state changes
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+            if (session?.user) {
+                const u = buildUser(session.user);
+                setUser(u);
+                onLogin?.(u);
+            } else {
+                setUser(null);
+                onLogin?.(null);
+            }
+        });
+
+        return () => subscription.unsubscribe();
     }, []);
 
-    const handleLogin = (e) => {
-        e.preventDefault(); setError(''); setSuccess('');
-        const users = getUsers();
-        if (!users[email]) { setError('No account found. Please sign up first.'); return; }
-        if (users[email].password !== password) { setError('Wrong password. Try again or reset.'); return; }
-        const session = { email, name: users[email].name, avatar: users[email].name?.[0]?.toUpperCase() || 'U' };
-        localStorage.setItem(SESSION_KEY, JSON.stringify(session));
-        setUser(session); onLogin?.(session);
+    const buildUser = (supaUser) => ({
+        id: supaUser.id,
+        email: supaUser.email,
+        name: supaUser.user_metadata?.full_name || supaUser.email?.split('@')[0] || 'User',
+        avatar: (supaUser.user_metadata?.full_name || supaUser.email)?.[0]?.toUpperCase() || 'U',
+        createdAt: supaUser.created_at,
+    });
+
+    const handleLogin = async (e) => {
+        e.preventDefault(); setError(''); setLoading(true);
+        const { error: err } = await supabase.auth.signInWithPassword({ email, password });
+        setLoading(false);
+        if (err) setError(err.message);
     };
 
-    const handleSignup = (e) => {
-        e.preventDefault(); setError(''); setSuccess('');
+    const handleSignup = async (e) => {
+        e.preventDefault(); setError('');
         if (password.length < 6) { setError('Password must be at least 6 characters.'); return; }
         if (password !== confirmPass) { setError('Passwords do not match.'); return; }
-        const users = getUsers();
-        if (users[email]) { setError('Account already exists. Please login.'); return; }
-        users[email] = { name, password, createdAt: Date.now() };
-        saveUsers(users);
-        const session = { email, name, avatar: name?.[0]?.toUpperCase() || 'U' };
-        localStorage.setItem(SESSION_KEY, JSON.stringify(session));
-        setUser(session); onLogin?.(session);
+        setLoading(true);
+        const { error: err } = await supabase.auth.signUp({
+            email,
+            password,
+            options: { data: { full_name: name } }
+        });
+        setLoading(false);
+        if (err) { setError(err.message); }
+        else { setSuccess('Account created! Check your email to confirm, then login.'); setMode('login'); }
     };
 
-    const handleForgot = (e) => {
-        e.preventDefault(); setError(''); setSuccess('');
-        const users = getUsers();
-        if (!users[email]) { setError('No account with this email found.'); return; }
-        if (password.length < 6) { setError('New password must be at least 6 characters.'); return; }
-        if (password !== confirmPass) { setError('Passwords do not match.'); return; }
-        users[email].password = password;
-        saveUsers(users);
-        setSuccess('Password reset! You can login now.');
-        setTimeout(() => { setMode('login'); setSuccess(''); setPassword(''); setConfirmPass(''); }, 1500);
+    const handleForgot = async (e) => {
+        e.preventDefault(); setError(''); setLoading(true);
+        const { error: err } = await supabase.auth.resetPasswordForEmail(email, {
+            redirectTo: `${window.location.origin}/?reset=true`
+        });
+        setLoading(false);
+        if (err) setError(err.message);
+        else { setSuccess('Password reset email sent! Check your inbox.'); }
     };
 
-    const handleLogout = () => {
-        localStorage.removeItem(SESSION_KEY);
+    const handleLogout = async () => {
+        await supabase.auth.signOut();
         setUser(null); onLogin?.(null);
         setMode('login'); setEmail(''); setPassword(''); setName('');
     };
 
-    const handleKeyDown = (e) => {
-        if (e.key === 'Enter') e.target.form?.requestSubmit();
-    };
-
     // Profile view (logged in)
     if (user) {
-        const users = getUsers();
-        const userData = users[user.email] || {};
-        const memberSince = userData.createdAt ? new Date(userData.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : 'Recently';
-        const qs = parseInt(localStorage.getItem('lwf_qs') || '0');
-        const streak = parseInt(localStorage.getItem('lwf_streak') || '1');
-        const score = localStorage.getItem('lwf_score') || '--';
+        const memberSince = user.createdAt ? new Date(user.createdAt).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) : 'Recently';
+        const qs = typeof window !== 'undefined' ? parseInt(localStorage.getItem('lwf_qs') || '0') : 0;
+        const streak = typeof window !== 'undefined' ? parseInt(localStorage.getItem('lwf_streak') || '1') : 1;
+        const score = typeof window !== 'undefined' ? (localStorage.getItem('lwf_score') || '--') : '--';
 
         return (
             <div className="auth-container">
@@ -115,18 +128,19 @@ export default function Login({ onLogin }) {
                         <form onSubmit={handleLogin}>
                             <div className="auth-field">
                                 <label>Email</label>
-                                <input type="email" required value={email} onChange={e => setEmail(e.target.value)} onKeyDown={handleKeyDown} placeholder="you@example.com" />
+                                <input type="email" required value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" />
                             </div>
                             <div className="auth-field">
                                 <label>Password</label>
-                                <input type="password" required value={password} onChange={e => setPassword(e.target.value)} onKeyDown={handleKeyDown} placeholder="Enter password" />
+                                <input type="password" required value={password} onChange={e => setPassword(e.target.value)} placeholder="Enter password" />
                             </div>
                             {error && <div className="auth-error">{error}</div>}
-                            <button type="submit" className="auth-btn">Login →</button>
+                            {success && <div className="auth-success">{success}</div>}
+                            <button type="submit" className="auth-btn" disabled={loading}>{loading ? 'Logging in...' : 'Login →'}</button>
                         </form>
                         <div className="auth-footer">
-                            <button className="auth-link" onClick={() => { setMode('forgot'); setError(''); }}>Forgot Password?</button>
-                            <button className="auth-link" onClick={() => { setMode('signup'); setError(''); }}>Create Account</button>
+                            <button className="auth-link" onClick={() => { setMode('forgot'); setError(''); setSuccess(''); }}>Forgot Password?</button>
+                            <button className="auth-link" onClick={() => { setMode('signup'); setError(''); setSuccess(''); }}>Create Account</button>
                         </div>
                     </>
                 )}
@@ -138,25 +152,26 @@ export default function Login({ onLogin }) {
                         <form onSubmit={handleSignup}>
                             <div className="auth-field">
                                 <label>Full Name</label>
-                                <input type="text" required value={name} onChange={e => setName(e.target.value)} onKeyDown={handleKeyDown} placeholder="Your name" />
+                                <input type="text" required value={name} onChange={e => setName(e.target.value)} placeholder="Your name" />
                             </div>
                             <div className="auth-field">
                                 <label>Email</label>
-                                <input type="email" required value={email} onChange={e => setEmail(e.target.value)} onKeyDown={handleKeyDown} placeholder="you@example.com" />
+                                <input type="email" required value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" />
                             </div>
                             <div className="auth-field">
                                 <label>Password</label>
-                                <input type="password" required value={password} onChange={e => setPassword(e.target.value)} onKeyDown={handleKeyDown} placeholder="Min 6 characters" />
+                                <input type="password" required value={password} onChange={e => setPassword(e.target.value)} placeholder="Min 6 characters" />
                             </div>
                             <div className="auth-field">
                                 <label>Confirm Password</label>
-                                <input type="password" required value={confirmPass} onChange={e => setConfirmPass(e.target.value)} onKeyDown={handleKeyDown} placeholder="Re-enter password" />
+                                <input type="password" required value={confirmPass} onChange={e => setConfirmPass(e.target.value)} placeholder="Re-enter password" />
                             </div>
                             {error && <div className="auth-error">{error}</div>}
-                            <button type="submit" className="auth-btn">Sign Up →</button>
+                            {success && <div className="auth-success">{success}</div>}
+                            <button type="submit" className="auth-btn" disabled={loading}>{loading ? 'Creating account...' : 'Sign Up →'}</button>
                         </form>
                         <div className="auth-footer">
-                            <button className="auth-link" onClick={() => { setMode('login'); setError(''); }}>Already have an account? Login</button>
+                            <button className="auth-link" onClick={() => { setMode('login'); setError(''); setSuccess(''); }}>Already have an account? Login</button>
                         </div>
                     </>
                 )}
@@ -164,23 +179,15 @@ export default function Login({ onLogin }) {
                 {mode === 'forgot' && (
                     <>
                         <h2 className="auth-title">Reset Password</h2>
-                        <p className="auth-sub">Enter your email and set a new password</p>
+                        <p className="auth-sub">We'll send a reset link to your email</p>
                         <form onSubmit={handleForgot}>
                             <div className="auth-field">
                                 <label>Email</label>
-                                <input type="email" required value={email} onChange={e => setEmail(e.target.value)} onKeyDown={handleKeyDown} placeholder="you@example.com" />
-                            </div>
-                            <div className="auth-field">
-                                <label>New Password</label>
-                                <input type="password" required value={password} onChange={e => setPassword(e.target.value)} onKeyDown={handleKeyDown} placeholder="Min 6 characters" />
-                            </div>
-                            <div className="auth-field">
-                                <label>Confirm New Password</label>
-                                <input type="password" required value={confirmPass} onChange={e => setConfirmPass(e.target.value)} onKeyDown={handleKeyDown} placeholder="Re-enter password" />
+                                <input type="email" required value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" />
                             </div>
                             {error && <div className="auth-error">{error}</div>}
                             {success && <div className="auth-success">{success}</div>}
-                            <button type="submit" className="auth-btn">Reset Password →</button>
+                            <button type="submit" className="auth-btn" disabled={loading}>{loading ? 'Sending...' : 'Send Reset Email →'}</button>
                         </form>
                         <div className="auth-footer">
                             <button className="auth-link" onClick={() => { setMode('login'); setError(''); setSuccess(''); }}>← Back to Login</button>

@@ -1,10 +1,17 @@
 'use client';
 import { useState } from 'react';
+import { supabase } from '../lib/supabase';
 
-export default function Navbar({ currentPage, showPage, user }) {
+export default function Navbar({ currentPage, showPage, user, onLogout }) {
     const [menuOpen, setMenuOpen] = useState(false);
 
     const navTo = (page) => { setMenuOpen(false); showPage(page); };
+
+    const handleLogout = async () => {
+        setMenuOpen(false);
+        await supabase.auth.signOut();
+        onLogout?.();
+    };
 
     const links = [
         { id: 'home', label: 'Home' },
@@ -35,14 +42,31 @@ export default function Navbar({ currentPage, showPage, user }) {
                             {l.label}
                         </button>
                     ))}
-                    <button className={`nav-profile-btn${currentPage === 'profile' ? ' active' : ''}`} onClick={() => navTo('profile')} title={user ? user.name : 'Login'}>
-                        {user ? user.avatar : '👤'}
-                    </button>
+                    {user ? (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <button className={`nav-profile-btn${currentPage === 'profile' ? ' active' : ''}`} onClick={() => navTo('profile')} title={user.name}>
+                                {user.avatar}
+                            </button>
+                            <button className="nav-btn" onClick={handleLogout} title="Logout" style={{ fontSize: 13, color: '#dc2626', fontWeight: 700, padding: '6px 12px' }}>
+                                Logout
+                            </button>
+                        </div>
+                    ) : (
+                        <button className={`nav-profile-btn${currentPage === 'profile' ? ' active' : ''}`} onClick={() => navTo('profile')} title="Login">
+                            👤
+                        </button>
+                    )}
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <button className="nav-profile-btn" onClick={() => navTo('profile')} title={user ? user.name : 'Login'} style={{ display: 'flex' }}>
-                        {user ? user.avatar : '👤'}
-                    </button>
+                    {user ? (
+                        <button className="nav-profile-btn" onClick={() => navTo('profile')} title={user.name} style={{ display: 'flex' }}>
+                            {user.avatar}
+                        </button>
+                    ) : (
+                        <button className="nav-profile-btn" onClick={() => navTo('profile')} title="Login" style={{ display: 'flex' }}>
+                            👤
+                        </button>
+                    )}
                     <button className={`hamburger${menuOpen ? ' open' : ''}`} onClick={() => setMenuOpen(!menuOpen)} aria-label="Menu">
                         <span /><span /><span />
                     </button>
@@ -53,7 +77,14 @@ export default function Navbar({ currentPage, showPage, user }) {
                 {links.map(l => (
                     <button key={l.id} className="mob-btn" onClick={() => navTo(l.id)}>{l.label}</button>
                 ))}
-                <button className="mob-btn" onClick={() => navTo('profile')}>{user ? `👤 ${user.name}` : '👤 Login / Sign Up'}</button>
+                {user ? (
+                    <>
+                        <button className="mob-btn" onClick={() => navTo('profile')}>👤 {user.name}</button>
+                        <button className="mob-btn" onClick={handleLogout} style={{ color: '#dc2626' }}>🚪 Logout</button>
+                    </>
+                ) : (
+                    <button className="mob-btn" onClick={() => navTo('profile')}>👤 Login / Sign Up</button>
+                )}
             </div>
         </>
     );
