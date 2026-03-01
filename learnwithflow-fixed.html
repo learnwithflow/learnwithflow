@@ -1,0 +1,2045 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LearnWithFlow — Your Path from Inter to Career</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&family=Syne:wght@700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs/loader.min.js"></script>
+<script>
+// Load Chart.js with fallback
+(function(){
+  const s=document.createElement('script');
+  s.src='https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js';
+  s.onerror=function(){
+    const s2=document.createElement('script');
+    s2.src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.2/chart.umd.min.js';
+    document.head.appendChild(s2);
+  };
+  document.head.appendChild(s);
+})();
+</script>
+<style>
+/* ===== MOBILE HAMBURGER ===== */
+.hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:6px;border:none;background:transparent}
+.hamburger span{display:block;width:22px;height:2px;background:var(--ink);border-radius:2px;transition:all 0.3s}
+.hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.hamburger.open span:nth-child(2){opacity:0}
+.hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+.mobile-drawer{display:none;position:fixed;top:56px;left:0;right:0;bottom:0;background:rgba(245,242,235,0.98);backdrop-filter:blur(16px);z-index:190;flex-direction:column;padding:20px;gap:6px;overflow-y:auto}
+.mobile-drawer.open{display:flex}
+.mob-btn{width:100%;text-align:left;padding:14px 18px;border-radius:12px;font-size:15px;font-weight:600;cursor:pointer;border:none;font-family:'Plus Jakarta Sans',sans-serif;background:transparent;color:var(--ink);transition:background 0.2s}
+.mob-btn:hover{background:var(--bg2)}
+.mob-lang{display:flex;gap:8px;padding:14px 18px;margin-top:8px}
+@media(max-width:768px){
+  .hamburger{display:flex}
+  .nav-links{display:none}
+  .hero h1{font-size:clamp(34px,9vw,60px)}
+  .hero{padding:80px 16px 40px}
+  .feat-row{grid-template-columns:1fr 1fr!important}
+  .exam-layout{flex-direction:column!important;gap:16px}
+  .q-palette-wrap{display:flex;flex-wrap:wrap;gap:6px}
+  .dash-grid{grid-template-columns:1fr 1fr!important}
+  .dash-main{grid-template-columns:1fr!important}
+  .exam-wrap{padding:72px 14px 40px!important}
+  .quiz-wrap{padding:72px 14px 40px!important}
+  .testi-grid{grid-template-columns:1fr!important}
+  .loop-wrap{padding:72px 14px 40px!important}
+}
+:root{
+  --bg:#f5f2eb;--bg2:#ede9e0;--surface:#fff;--ink:#1a1208;--ink2:#4a3f2a;
+  --muted:#8a7d65;--accent:#2563a8;--accent-g:#06d6a0;--accent2:#7c3aed;
+  --accent3:#16a34a;--gold:#d4a017;--border:#ddd5c0;
+  --loop-bg:#0a0a0f;--loop-surface:#12121a;--loop-surface2:#1a1a26;
+  --loop-border:#2a2a3d;--loop-accent:#7c3aed;--loop-accent2:#06d6a0;
+  --loop-text:#e8e8f0;--loop-muted:#6b6b8a;--loop-danger:#ff4d6d;--loop-warn:#ffd60a;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--ink);overflow-x:hidden}
+.page{display:none;min-height:100vh;animation:fadeIn 0.3s ease}
+.page.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* login styles removed */
+
+/* ===== NAV ===== */
+nav{position:fixed;top:0;left:0;right:0;z-index:200;background:rgba(245,242,235,0.94);backdrop-filter:blur(14px);border-bottom:1px solid var(--border);padding:0 20px;display:flex;align-items:center;justify-content:space-between;height:56px}
+.nav-logo{display:flex;align-items:center;gap:10px;cursor:pointer;user-select:none}
+.nav-logo-img{height:28px;width:auto}
+.nav-logo-text{font-family:'Plus Jakarta Sans',sans-serif;font-size:16px;font-weight:800;color:var(--ink)}
+.nav-logo-text .flow{background:linear-gradient(90deg,#2563a8,#06d6a0);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.nav-links{display:flex;gap:4px;align-items:center}
+.nav-btn{padding:6px 14px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;border:none;transition:all 0.2s;font-family:'Plus Jakarta Sans',sans-serif;background:transparent;color:var(--ink2)}
+.nav-btn:hover{background:var(--bg2)}
+.nav-primary{background:linear-gradient(135deg,#2563a8,#7c3aed)!important;color:white!important;padding:6px 16px!important}
+.nav-primary:hover{opacity:0.9!important;transform:translateY(-1px)}
+.user-pill{display:flex;align-items:center;gap:8px;background:var(--bg2);border:1px solid var(--border);border-radius:20px;padding:4px 12px 4px 6px;cursor:pointer;transition:all 0.2s;font-size:13px;font-weight:600}
+.user-pill:hover{border-color:var(--accent)}
+.user-avatar{width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#2563a8,#06d6a0);display:flex;align-items:center;justify-content:center;font-size:14px}
+.lang-switcher{display:flex;gap:3px;margin-left:6px}
+.lang-btn{padding:3px 9px;border-radius:5px;font-size:11px;font-weight:700;cursor:pointer;border:1px solid var(--border);background:transparent;color:var(--muted);transition:all 0.2s}
+.lang-btn.active{background:var(--ink);color:white;border-color:var(--ink)}
+
+/* ===== HERO ===== */
+.hero{min-height:100vh;padding:90px 24px 60px;max-width:1100px;margin:0 auto;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;position:relative}
+.hero h1{font-family:'Instrument Serif',serif;font-size:clamp(42px,8vw,88px);line-height:0.97;letter-spacing:-2px;margin-bottom:20px;max-width:820px}
+.hero h1 em{font-style:italic;background:linear-gradient(135deg,#2563a8,#06d6a0);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero-sub{font-size:17px;color:var(--ink2);max-width:510px;line-height:1.7;margin-bottom:36px}
+.hero-actions{display:flex;gap:12px;flex-wrap:wrap}
+.btn-big{padding:13px 26px;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;border:none;transition:all 0.25s;font-family:'Plus Jakarta Sans',sans-serif}
+.btn-primary{background:linear-gradient(135deg,#2563a8,#7c3aed);color:white;box-shadow:0 4px 20px rgba(37,99,168,0.3)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 6px 28px rgba(37,99,168,0.4)}
+.btn-outline{background:transparent;color:var(--ink);border:2px solid var(--border)}
+.btn-outline:hover{border-color:var(--ink);transform:translateY(-1px)}
+.hero-stats{display:flex;gap:12px;flex-wrap:wrap;margin-top:52px}
+.hstat{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px 20px}
+.hstat-num{font-family:'Instrument Serif',serif;font-size:28px;background:linear-gradient(135deg,#2563a8,#06d6a0);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hstat-label{font-size:11px;color:var(--muted);font-weight:600;margin-top:2px}
+.float-tag{position:absolute;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:10px 16px;font-size:13px;font-weight:600;box-shadow:0 4px 20px rgba(0,0,0,0.06);animation:floatAnim 4s ease-in-out infinite}
+@keyframes floatAnim{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.ft1{top:140px;right:80px;color:var(--accent3);border-color:rgba(22,163,74,0.3)}
+.ft2{top:240px;right:30px;color:#2563a8;border-color:rgba(37,99,168,0.3);animation-delay:1.5s}
+.ft3{top:330px;right:90px;color:var(--gold);border-color:rgba(212,160,23,0.3);animation-delay:0.8s}
+@media(max-width:700px){.float-tag{display:none}}
+
+/* ===== FEATURE STRIP ===== */
+.feat-strip{background:var(--ink);padding:56px 24px}
+.feat-inner{max-width:1100px;margin:0 auto}
+.feat-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:1px;background:rgba(255,255,255,0.07);margin-top:28px}
+.feat-cell{background:var(--ink);padding:26px 22px;cursor:pointer;transition:background 0.2s}
+.feat-cell:hover{background:#1a1610}
+.fc-icon{font-size:26px;margin-bottom:12px}
+.fc-title{font-size:15px;font-weight:700;color:white;margin-bottom:5px}
+.fc-desc{font-size:12px;color:var(--muted);line-height:1.6}
+
+/* ===== QUIZ ===== */
+.quiz-wrap{max-width:660px;margin:0 auto;padding:90px 24px 60px}
+.progress-bar{height:4px;background:var(--border);border-radius:4px;margin:16px 0}
+.progress-fill{height:100%;background:linear-gradient(90deg,#2563a8,#06d6a0);border-radius:4px;transition:width 0.4s ease}
+.quiz-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:34px;box-shadow:0 4px 24px rgba(0,0,0,0.05)}
+.q-num{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.q-text{font-size:19px;font-weight:700;line-height:1.4;margin-bottom:26px}
+.q-options{display:flex;flex-direction:column;gap:9px}
+.q-option{padding:13px 18px;border-radius:11px;border:2px solid var(--border);background:var(--bg);font-size:14px;font-weight:600;cursor:pointer;transition:all 0.18s;text-align:left;font-family:'Plus Jakarta Sans',sans-serif;color:var(--ink)}
+.q-option:hover{border-color:#2563a8;background:rgba(37,99,168,0.04);transform:translateX(4px)}
+.q-option.selected{border-color:#2563a8;background:rgba(37,99,168,0.08);color:#2563a8}
+.result-card{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:38px;box-shadow:0 4px 24px rgba(0,0,0,0.05);display:none}
+.result-card.show{display:block;animation:fadeIn 0.5s ease}
+.result-path{display:inline-block;background:linear-gradient(135deg,#2563a8,#06d6a0);color:white;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:5px 14px;border-radius:40px;margin-bottom:18px}
+.result-card h3{font-family:'Instrument Serif',serif;font-size:30px;margin-bottom:10px}
+.result-card p{color:var(--ink2);font-size:15px;line-height:1.7;margin-bottom:18px}
+.result-bullets{list-style:none;margin-bottom:26px}
+.result-bullets li{padding:9px 0;border-bottom:1px solid var(--border);font-size:14px;color:var(--ink2);display:flex;align-items:flex-start;gap:8px}
+.result-bullets li::before{content:'→';color:#2563a8;font-weight:700;flex-shrink:0}
+.salary-chip{display:inline-flex;align-items:center;gap:8px;background:rgba(22,163,74,0.08);border:1px solid rgba(22,163,74,0.25);color:var(--accent3);border-radius:8px;padding:8px 14px;font-size:14px;font-weight:700}
+
+/* ===== EXAM ===== */
+.exam-wrap{max-width:900px;margin:0 auto;padding:76px 24px 60px}
+.exam-header{display:flex;align-items:center;justify-content:space-between;background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:16px 22px;margin-bottom:18px;flex-wrap:wrap;gap:12px}
+.exam-title{font-size:15px;font-weight:700}
+.exam-timer-num{font-family:'Instrument Serif',serif;font-size:26px;background:linear-gradient(135deg,#2563a8,#06d6a0);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.exam-layout{display:grid;grid-template-columns:1fr 190px;gap:18px}
+.exam-main{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px}
+.q-subject{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#2563a8;font-weight:700;margin-bottom:7px}
+.q-body{font-size:17px;font-weight:600;line-height:1.5;margin-bottom:22px}
+.options-grid{display:flex;flex-direction:column;gap:8px}
+.opt{padding:12px 17px;border-radius:10px;border:2px solid var(--border);background:var(--bg);font-size:14px;cursor:pointer;transition:all 0.15s;text-align:left;font-family:'Plus Jakarta Sans',sans-serif;color:var(--ink);font-weight:500}
+.opt:hover{border-color:#2563a8;background:rgba(37,99,168,0.05)}
+.opt.correct{border-color:var(--accent3);background:rgba(22,163,74,0.08);color:var(--accent3);pointer-events:none}
+.opt.wrong{border-color:#dc2626;background:rgba(220,38,38,0.08);color:#dc2626;pointer-events:none}
+.opt.reveal-correct{border-color:var(--accent3);background:rgba(22,163,74,0.06);color:var(--accent3);pointer-events:none}
+.opt.disabled{pointer-events:none;opacity:0.6}
+.exam-nav{display:flex;justify-content:space-between;align-items:center;margin-top:20px;padding-top:16px;border-top:1px solid var(--border)}
+.btn-sm{padding:9px 18px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;border:none;transition:all 0.2s;font-family:'Plus Jakarta Sans',sans-serif}
+.btn-sm-outline{background:transparent;border:2px solid var(--border);color:var(--ink)}
+.btn-sm-primary{background:linear-gradient(135deg,#2563a8,#7c3aed);color:white}
+.btn-sm-primary:hover{transform:translateY(-1px)}
+.q-palette-wrap{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px}
+.palette-title{font-size:11px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px}
+.palette-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:5px}
+.p-btn{aspect-ratio:1;border-radius:6px;border:1px solid var(--border);background:var(--bg);font-size:11px;font-weight:700;cursor:pointer;color:var(--ink2);transition:all 0.15s}
+.p-btn.answered{background:#2563a8;border-color:#2563a8;color:white}
+.p-btn.active-p{border-color:var(--accent3);background:rgba(22,163,74,0.1);color:var(--accent3)}
+.exam-type-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.exam-tab{padding:7px 16px;border-radius:8px;border:1px solid var(--border);background:var(--surface);font-size:12px;font-weight:700;cursor:pointer;transition:all 0.2s;color:var(--ink2)}
+.exam-tab:hover{border-color:#2563a8}
+.exam-tab.active{background:linear-gradient(135deg,#2563a8,#7c3aed);color:white;border-color:transparent}
+@media(max-width:700px){.exam-layout{grid-template-columns:1fr}.q-palette-wrap{display:none}}
+
+.form-input{background:var(--bg);border:2px solid var(--border);border-radius:10px;padding:10px 13px;color:var(--ink);font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;outline:none;transition:border-color 0.2s}
+.form-input:focus{border-color:var(--accent)}
+.form-input option{background:white}
+
+/* ===== ROADMAP — roadmap.sh style ===== */
+.roadmap-page{padding:76px 0 60px}
+.roadmap-header{max-width:900px;margin:0 auto;padding:36px 24px 24px}
+.roadmap-selector{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.rm-tab{padding:7px 16px;border-radius:8px;border:1px solid var(--border);background:var(--surface);font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;color:var(--ink2)}
+.rm-tab:hover{border-color:#2563a8}
+.rm-tab.active{background:linear-gradient(135deg,#2563a8,#7c3aed);color:white;border-color:transparent}
+.roadmap-canvas{display:none;max-width:900px;margin:0 auto;padding:0 24px 60px}
+.roadmap-canvas.active{display:block}
+.rm-pb{height:7px;background:var(--border);border-radius:4px;margin-bottom:6px;overflow:hidden}
+.rm-pf{height:100%;background:linear-gradient(90deg,#2563a8,#06d6a0);border-radius:4px;transition:width 0.5s ease}
+.rm-pl{font-size:12px;color:var(--muted);margin-bottom:28px}
+/* Vertical flow */
+.rm-flow{display:flex;flex-direction:column;align-items:center;gap:0}
+.rm-phase{width:100%;margin-bottom:32px}
+.rm-phase-label{text-align:center;font-size:11px;letter-spacing:3px;text-transform:uppercase;font-weight:700;color:var(--muted);margin-bottom:16px;padding:6px 18px;background:var(--bg2);border-radius:100px;display:inline-block}
+.rm-phase-wrap{text-align:center}
+.rm-row{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-bottom:0}
+/* Node boxes */
+.rm-node{
+  display:inline-flex;align-items:center;justify-content:center;
+  padding:10px 18px;border-radius:10px;
+  font-size:13px;font-weight:600;
+  cursor:pointer;transition:all 0.2s;
+  user-select:none;text-align:center;
+  min-width:160px;max-width:220px;
+  position:relative;
+}
+.rm-node.required{border:2px solid #2563a8;background:rgba(37,99,168,0.06);color:#1d4ed8}
+.rm-node.optional{border:2px dashed var(--border);background:var(--surface);color:var(--muted)}
+.rm-node.current{border:2px solid #2563a8;background:linear-gradient(135deg,rgba(37,99,168,0.12),rgba(6,214,160,0.12));color:#1d4ed8;box-shadow:0 0 0 4px rgba(37,99,168,0.12)}
+.rm-node.done{border:2px solid #16a34a!important;background:rgba(22,163,74,0.08)!important;color:#15803d!important}
+.rm-node.done::after{content:'✓';position:absolute;top:-7px;right:-7px;width:18px;height:18px;background:#16a34a;color:white;border-radius:50%;font-size:10px;display:flex;align-items:center;justify-content:center;font-weight:800;box-shadow:0 2px 6px rgba(22,163,74,0.4)}
+.rm-node:hover:not(.done){transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,0.1)}
+/* Connector arrow between rows */
+.rm-arrow{display:flex;align-items:center;justify-content:center;height:32px;color:var(--muted);font-size:18px;line-height:1}
+.rm-arrow::before{content:'';display:block;width:2px;height:32px;background:linear-gradient(to bottom,var(--border),#2563a8);border-radius:2px}
+/* Section divider */
+.rm-section{width:100%;background:var(--ink);color:white;text-align:center;padding:10px 20px;border-radius:10px;font-size:14px;font-weight:700;letter-spacing:1px;margin:8px 0 16px;font-family:'Syne',sans-serif}
+.rm-legend{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:24px}
+.rm-leg{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted)}
+.rm-leg-dot{width:13px;height:13px;border-radius:3px;border:1.5px solid}
+
+/* ===== DASHBOARD ===== */
+.dash-wrap{max-width:1000px;margin:0 auto;padding:76px 24px 60px}
+.dash-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px;margin-bottom:20px}
+.dash-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px}
+.dc-icon{font-size:22px;margin-bottom:9px}
+.dc-val{font-family:'Instrument Serif',serif;font-size:32px;color:var(--ink)}
+.dc-label{font-size:12px;color:var(--muted);font-weight:600;margin-top:2px}
+.dc-change{font-size:12px;color:var(--accent3);margin-top:3px}
+.dash-main{display:grid;grid-template-columns:2fr 1fr;gap:14px}
+@media(max-width:700px){.dash-main{grid-template-columns:1fr}}
+.big-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:22px}
+.big-card h3{font-size:15px;font-weight:700;margin-bottom:16px}
+.chart-bars{display:flex;align-items:flex-end;gap:7px;height:88px;margin-bottom:7px}
+.bar{flex:1;border-radius:6px 6px 0 0;background:var(--border);cursor:pointer;position:relative;transition:background 0.2s}
+.bar:hover::after{content:attr(data-score);position:absolute;top:-22px;left:50%;transform:translateX(-50%);font-size:10px;font-weight:700;white-space:nowrap;color:var(--ink)}
+.bar.filled{background:#2563a8}
+.bar.best{background:linear-gradient(135deg,#2563a8,#06d6a0)}
+.bar-labels{display:flex;gap:7px}
+.bar-label{flex:1;font-size:10px;color:var(--muted);text-align:center}
+.week-tasks{display:flex;flex-direction:column;gap:8px}
+.task{display:flex;align-items:center;gap:10px;padding:10px;border-radius:10px;background:var(--bg);border:1px solid var(--border);cursor:pointer;transition:all 0.2s}
+.task:hover{border-color:#2563a8;transform:translateX(3px)}
+.task-check{width:18px;height:18px;border-radius:5px;border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;transition:all 0.2s}
+.task.done .task-check{background:var(--accent3);border-color:var(--accent3);color:white}
+.task-text{font-size:13px;font-weight:600;flex:1}
+.task.done .task-text{text-decoration:line-through;color:var(--muted)}
+.task-pts{font-size:11px;color:#2563a8;font-weight:700}
+
+/* ===== LOOP INTERVIEW ===== */
+#page-interview{background:var(--loop-bg);color:var(--loop-text)}
+.loop-wrap{min-height:100vh;position:relative}
+.loop-wrap::before{content:'';position:fixed;inset:0;background-image:linear-gradient(rgba(37,99,168,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(37,99,168,0.04) 1px,transparent 1px);background-size:40px 40px;pointer-events:none;z-index:0}
+.loop-screen{display:none;position:relative;z-index:1;min-height:calc(100vh - 56px)}
+.loop-screen.active{display:flex}
+.gorb{position:fixed;border-radius:50%;filter:blur(80px);pointer-events:none;z-index:0}
+.gorb1{width:400px;height:400px;background:rgba(37,99,168,0.12);top:0;right:-100px}
+.gorb2{width:300px;height:300px;background:rgba(6,214,160,0.08);bottom:100px;left:-80px}
+
+#lscreen-landing{flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;text-align:center}
+.l-logo-mark{width:64px;height:64px;background:linear-gradient(135deg,#2563a8,#06d6a0);border-radius:18px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:white;margin:0 auto 24px;box-shadow:0 0 40px rgba(37,99,168,0.4);animation:floatAnim 3s ease-in-out infinite}
+.l-eyebrow{font-family:'DM Mono',monospace;font-size:12px;letter-spacing:3px;text-transform:uppercase;color:var(--loop-accent2);margin-bottom:16px}
+.l-title{font-family:'Syne',sans-serif;font-size:clamp(40px,7vw,68px);font-weight:800;line-height:1.05;margin-bottom:20px;background:linear-gradient(135deg,#fff 30%,#2563a8 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.l-sub{font-size:17px;color:var(--loop-muted);max-width:480px;line-height:1.7;margin-bottom:36px}
+.l-feat-row{display:flex;gap:10px;margin-bottom:36px;flex-wrap:wrap;justify-content:center}
+.l-chip{background:var(--loop-surface2);border:1px solid var(--loop-border);border-radius:100px;padding:6px 14px;font-size:12px;font-family:'DM Mono',monospace;color:var(--loop-muted);display:flex;align-items:center;gap:6px}
+.l-chip span{color:var(--loop-accent2)}
+.btn-loop{background:linear-gradient(135deg,#2563a8,#06d6a0);color:white;border:none;padding:14px 34px;border-radius:12px;font-size:15px;font-family:'Syne',sans-serif;font-weight:700;cursor:pointer;transition:all 0.2s;box-shadow:0 0 28px rgba(37,99,168,0.35)}
+.btn-loop:hover{transform:translateY(-2px);box-shadow:0 0 44px rgba(37,99,168,0.5)}
+
+#lscreen-profile{flex-direction:column;align-items:center;justify-content:flex-start;padding:50px 20px}
+.lcard{background:var(--loop-surface);border:1px solid var(--loop-border);border-radius:20px;padding:34px;width:100%;max-width:550px}
+.lcard-step{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--loop-accent2);margin-bottom:8px}
+.lcard-title{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;margin-bottom:22px;color:var(--loop-text)}
+.lform-group{margin-bottom:14px}
+.llabel{display:block;font-size:11px;font-family:'DM Mono',monospace;letter-spacing:1px;text-transform:uppercase;color:var(--loop-muted);margin-bottom:6px}
+.linput{width:100%;background:var(--loop-surface2);border:1px solid var(--loop-border);border-radius:9px;padding:10px 13px;color:var(--loop-text);font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;outline:none;transition:border-color 0.2s;appearance:none}
+.linput:focus{border-color:#2563a8;box-shadow:0 0 0 3px rgba(37,99,168,0.15)}
+.linput option{background:var(--loop-surface2)}
+.lform-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.lskill-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px}
+.lskill-tag{background:rgba(37,99,168,0.2);border:1px solid rgba(37,99,168,0.4);border-radius:6px;padding:3px 10px;font-size:12px;font-family:'DM Mono',monospace;color:#93c5fd;cursor:pointer}
+.lskill-tag:hover{background:rgba(247,37,133,0.2);border-color:#f72585;color:#f72585}
+.ldiff-row{display:flex;gap:7px}
+.ldiff-btn{flex:1;padding:9px;border-radius:9px;border:1px solid var(--loop-border);background:var(--loop-surface2);color:var(--loop-muted);font-family:'Syne',sans-serif;font-weight:700;font-size:13px;cursor:pointer;transition:all 0.2s;text-align:center}
+.ldiff-btn.sel.easy{border-color:var(--loop-accent2);color:var(--loop-accent2);background:rgba(6,214,160,0.1)}
+.ldiff-btn.sel.medium{border-color:var(--loop-warn);color:var(--loop-warn);background:rgba(255,214,10,0.1)}
+.ldiff-btn.sel.hard{border-color:var(--loop-danger);color:var(--loop-danger);background:rgba(255,77,109,0.1)}
+
+#lscreen-interview{flex-direction:column}
+.l-iv-layout{display:grid;grid-template-columns:1fr 310px;height:calc(100vh - 56px)}
+.l-iv-main{display:flex;flex-direction:column;padding:18px;gap:13px;overflow:hidden}
+.l-iv-sidebar{background:var(--loop-surface);border-left:1px solid var(--loop-border);display:flex;flex-direction:column;padding:16px;gap:13px;overflow-y:auto}
+.l-iv-hdr{display:flex;align-items:center;justify-content:space-between;padding-bottom:13px;border-bottom:1px solid var(--loop-border);flex-shrink:0}
+.l-iv-info{display:flex;align-items:center;gap:10px}
+.l-iv-ava{width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#2563a8,#06d6a0);display:flex;align-items:center;justify-content:center;font-size:13px;font-family:'Syne',sans-serif;font-weight:800;color:white}
+.l-iv-name{font-family:'Syne',sans-serif;font-weight:700;font-size:14px;color:var(--loop-text)}
+.l-iv-role{font-size:11px;color:var(--loop-muted);font-family:'DM Mono',monospace}
+.l-hdr-right{display:flex;align-items:center;gap:8px}
+.l-status{background:rgba(6,214,160,0.15);border:1px solid rgba(6,214,160,0.3);color:var(--loop-accent2);font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;padding:3px 9px;border-radius:100px;display:flex;align-items:center;gap:4px}
+.l-qtimer{background:var(--loop-surface2);border:1px solid var(--loop-border);border-radius:8px;padding:6px 12px;font-family:'DM Mono',monospace;font-size:16px;font-weight:700;color:var(--loop-accent2);min-width:52px;text-align:center;transition:color 0.3s}
+.l-qtimer.warn{color:var(--loop-warn)}.l-qtimer.danger{color:var(--loop-danger);animation:pulse 0.5s ease infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+.l-chat{flex:1;display:flex;flex-direction:column;gap:11px;overflow-y:auto;padding-right:4px}
+.l-chat::-webkit-scrollbar{width:4px}
+.l-chat::-webkit-scrollbar-thumb{background:var(--loop-border);border-radius:2px}
+.l-msg{display:flex;gap:10px;animation:fadeIn 0.3s ease}
+.l-mava{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;font-family:'Syne',sans-serif;font-weight:800;flex-shrink:0}
+.l-mava.ai{background:linear-gradient(135deg,#2563a8,#06d6a0);color:white}
+.l-mava.user{background:var(--loop-surface2);border:1px solid var(--loop-border);color:var(--loop-text)}
+.l-mcont{flex:1}
+.l-mmeta{font-family:'DM Mono',monospace;font-size:10px;color:var(--loop-muted);margin-bottom:4px}
+.l-mbub{background:var(--loop-surface2);border:1px solid var(--loop-border);border-radius:10px;padding:11px 14px;font-size:14px;line-height:1.6;color:var(--loop-text)}
+.l-mbub.ai-b{background:rgba(37,99,168,0.1);border-color:rgba(37,99,168,0.3)}
+.l-mbub.warn-b{background:rgba(255,77,109,0.1);border-color:rgba(255,77,109,0.4);color:#ff8fab;font-style:italic}
+.l-input-area{background:var(--loop-surface2);border:1px solid var(--loop-border);border-radius:12px;padding:11px 13px;display:flex;flex-direction:column;gap:8px;flex-shrink:0}
+.l-tabs{display:flex;gap:6px}
+.l-tab{padding:5px 11px;border-radius:7px;border:1px solid var(--loop-border);background:transparent;color:var(--loop-muted);font-family:'DM Mono',monospace;font-size:11px;cursor:pointer;transition:all 0.2s}
+.l-tab.active{background:#2563a8;border-color:#2563a8;color:white}
+.l-tc{display:none}.l-tc.active{display:block}
+.l-vviz{display:flex;align-items:center;gap:3px;height:22px;justify-content:center;margin-bottom:6px}
+.lvb{width:4px;background:#2563a8;border-radius:2px;transition:height 0.1s;opacity:0.4;height:4px}
+.lvb.active{opacity:1}
+.l-irow{display:flex;gap:8px;align-items:flex-end}
+.l-bmic{width:38px;height:38px;border-radius:50%;border:none;cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;flex-shrink:0}
+.l-bmic.idle{background:var(--loop-surface);border:1px solid var(--loop-border)}
+.l-bmic.recording{background:var(--loop-danger);box-shadow:0 0 18px rgba(255,77,109,0.5);animation:recpulse 1s ease infinite}
+@keyframes recpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
+#la-text{flex:1;resize:none;height:46px;font-size:13px;background:var(--loop-surface);border:1px solid var(--loop-border);border-radius:8px;padding:9px 11px;color:var(--loop-text);font-family:'Plus Jakarta Sans',sans-serif;outline:none}
+#la-text:focus{border-color:#2563a8}
+#la-text2{resize:none;height:72px;font-size:13px;background:var(--loop-surface);border:1px solid var(--loop-border);border-radius:8px;padding:9px 11px;color:var(--loop-text);font-family:'Plus Jakarta Sans',sans-serif;outline:none;width:100%}
+#la-text2:focus{border-color:#2563a8}
+.l-bsend{background:#2563a8;color:white;border:none;padding:8px 16px;border-radius:8px;font-family:'Syne',sans-serif;font-size:13px;font-weight:700;cursor:pointer;height:38px;white-space:nowrap;transition:all 0.2s}
+.l-bsend:hover{background:#1d4f8a}
+.l-mstatus{font-family:'DM Mono',monospace;font-size:11px;color:var(--loop-muted);text-align:center}
+.l-fwarn{background:rgba(255,214,10,0.1);border:1px solid rgba(255,214,10,0.3);border-radius:7px;padding:5px 10px;font-size:11px;color:var(--loop-warn);font-family:'DM Mono',monospace;display:none}
+#l-code-cont{height:185px;border-radius:8px;overflow:hidden;border:1px solid var(--loop-border)}
+.l-ctrls{display:flex;gap:7px;align-items:center;margin-top:7px}
+.l-langsel{background:var(--loop-surface);border:1px solid var(--loop-border);border-radius:7px;padding:5px 10px;color:var(--loop-text);font-family:'DM Mono',monospace;font-size:11px;outline:none}
+.l-brun{background:var(--loop-accent2);color:#000;border:none;padding:5px 13px;border-radius:7px;font-family:'Syne',sans-serif;font-size:12px;font-weight:700;cursor:pointer}
+.l-sec{background:var(--loop-surface2);border:1px solid var(--loop-border);border-radius:10px;padding:12px}
+.l-slbl{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--loop-muted);margin-bottom:9px}
+.l-vcont{position:relative;border-radius:10px;overflow:hidden;background:#000;aspect-ratio:4/3;border:1px solid var(--loop-border)}
+#l-webcam{width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}
+.l-cc{position:absolute;width:13px;height:13px;border-color:var(--loop-accent2);border-style:solid;opacity:0.7}
+.l-cc.tl{top:5px;left:5px;border-width:2px 0 0 2px}
+.l-cc.tr{top:5px;right:5px;border-width:2px 2px 0 0}
+.l-cc.bl{bottom:5px;left:5px;border-width:0 0 2px 2px}
+.l-cc.br{bottom:5px;right:5px;border-width:0 2px 2px 0}
+.l-rec{position:absolute;top:5px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);border-radius:100px;padding:3px 9px;font-family:'DM Mono',monospace;font-size:10px;color:var(--loop-danger);display:flex;align-items:center;gap:4px}
+.l-rd{width:5px;height:5px;background:var(--loop-danger);border-radius:50%;animation:blink2 1s ease-in-out infinite}
+@keyframes blink2{0%,100%{opacity:1}50%{opacity:0.2}}
+.l-ebar{display:flex;align-items:center;gap:7px;margin-bottom:7px}
+.l-elbl{font-size:11px;color:var(--loop-muted);width:60px;flex-shrink:0}
+.l-ebg{flex:1;height:5px;background:var(--loop-border);border-radius:3px;overflow:hidden}
+.l-ef{height:100%;border-radius:3px;transition:width 0.6s ease}
+.l-eval{font-family:'DM Mono',monospace;font-size:10px;color:var(--loop-muted);width:25px;text-align:right}
+.l-pt{height:5px;background:var(--loop-border);border-radius:3px;overflow:hidden;margin-bottom:7px}
+.l-pf{height:100%;background:linear-gradient(90deg,#2563a8,#06d6a0);border-radius:3px;transition:width 0.5s ease}
+.l-pi{display:flex;justify-content:space-between;font-family:'DM Mono',monospace;font-size:11px;color:var(--loop-muted)}
+.l-lscore{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;background:linear-gradient(135deg,#06d6a0,#2563a8);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.l-sgrid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.l-sc{background:var(--loop-surface);border:1px solid var(--loop-border);border-radius:7px;padding:7px 8px}
+.l-sv{font-family:'Syne',sans-serif;font-size:14px;font-weight:700;color:var(--loop-text)}
+.l-sl{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:1px;color:var(--loop-muted);text-transform:uppercase}
+.l-bend{width:100%;background:rgba(255,77,109,0.15);border:1px solid rgba(255,77,109,0.3);color:var(--loop-danger);padding:10px;border-radius:9px;font-family:'Syne',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.2s;margin-top:auto}
+.l-bend:hover{background:rgba(255,77,109,0.25)}
+.l-typing{display:flex;gap:4px;align-items:center;padding:4px 0}
+.l-td{width:6px;height:6px;background:var(--loop-muted);border-radius:50%;animation:tb 1.2s ease-in-out infinite}
+.l-td:nth-child(2){animation-delay:0.2s}.l-td:nth-child(3){animation-delay:0.4s}
+@keyframes tb{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-6px)}}
+
+#lscreen-results{flex-direction:column;align-items:center;padding:46px 20px}
+.lres-card{background:var(--loop-surface);border:1px solid var(--loop-border);border-radius:22px;padding:42px;width:100%;max-width:620px}
+.lscore-ring{width:145px;height:145px;margin:0 auto 22px;position:relative}
+.lscore-ring svg{transform:rotate(-90deg)}
+.lscore-ring circle{fill:none;stroke-width:10;stroke-linecap:round}
+.lring-bg{stroke:var(--loop-border)}
+.lring-fill{stroke:url(#lg1);stroke-dasharray:440;stroke-dashoffset:440;transition:stroke-dashoffset 1.5s ease}
+.lscore-ctr{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.lscore-num{font-family:'Syne',sans-serif;font-size:42px;font-weight:800;background:linear-gradient(135deg,#06d6a0,#2563a8);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.lscore-lbl{font-family:'DM Mono',monospace;font-size:11px;color:var(--loop-muted)}
+.lverdict{text-align:center;margin-bottom:22px}
+.lvbadge{display:inline-block;padding:7px 20px;border-radius:100px;font-family:'Syne',sans-serif;font-weight:700;font-size:14px;margin-bottom:9px}
+.lvbadge.good{background:rgba(6,214,160,0.15);color:var(--loop-accent2);border:1px solid rgba(6,214,160,0.3)}
+.lvbadge.avg{background:rgba(255,214,10,0.15);color:var(--loop-warn);border:1px solid rgba(255,214,10,0.3)}
+.lvbadge.bad{background:rgba(255,77,109,0.15);color:var(--loop-danger);border:1px solid rgba(255,77,109,0.3)}
+.lverdict-txt{font-size:14px;color:var(--loop-muted);line-height:1.6}
+.lmg{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:18px}
+.lmc{background:var(--loop-surface2);border:1px solid var(--loop-border);border-radius:10px;padding:12px}
+.lmt{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--loop-muted);margin-bottom:4px}
+.lmv{font-family:'Syne',sans-serif;font-size:20px;font-weight:700}
+.lmv.green{color:var(--loop-accent2)}.lmv.yellow{color:var(--loop-warn)}.lmv.red{color:var(--loop-danger)}.lmv.purple{color:#a78bfa}
+.lft{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--loop-muted);margin-bottom:9px}
+.lfi{display:flex;gap:8px;margin-bottom:8px;font-size:13px;line-height:1.5;color:var(--loop-text)}
+.lhs{background:var(--loop-surface2);border:1px solid var(--loop-border);border-radius:10px;padding:12px;margin-bottom:16px}
+.lhst{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;color:var(--loop-muted);margin-bottom:8px}
+.lhsi{font-size:12px;color:var(--loop-warn);font-family:'DM Mono',monospace;margin-bottom:4px}
+@media(max-width:768px){.l-iv-layout{grid-template-columns:1fr;height:auto}.l-iv-sidebar{border-left:none;border-top:1px solid var(--loop-border)}.lform-row{grid-template-columns:1fr}.lmg{grid-template-columns:1fr}}
+
+/* ===== TOAST ===== */
+.toast{position:fixed;bottom:20px;right:20px;background:var(--ink);color:white;padding:12px 18px;border-radius:10px;font-size:13px;font-weight:600;transform:translateY(80px);opacity:0;transition:all 0.3s;z-index:9999;max-width:280px}
+.toast.show{transform:translateY(0);opacity:1}
+
+/* ===== TESTI ===== */
+.testi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+.tcard{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:22px}
+</style>
+</head>
+<body>
+
+<!-- login page removed -->
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- ========== NAV ========== -->
+<nav id="main-nav">
+  <div class="nav-logo" onclick="showPage('home')">
+    <svg width="32" height="18" viewBox="0 0 32 18" fill="none">
+      <defs><linearGradient id="ng" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#2563a8"/><stop offset="100%" stop-color="#06d6a0"/></linearGradient></defs>
+      <path d="M2 12 Q8 2 14 7 Q20 12 26 4 Q28 2 30 3" stroke="url(#ng)" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <path d="M30 3 Q31.5 4 31 6 Q30 8 28 7" stroke="#06d6a0" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+    </svg>
+    <span class="nav-logo-text">learnwith<span class="flow">flow</span></span>
+  </div>
+  <div class="nav-links">
+    <button class="nav-btn" onclick="showPage('home')">Home</button>
+    <button class="nav-btn" onclick="showPage('quiz')" data-en="Career Quiz" data-hi="करियर क्विज़" data-te="కెరీర్ క్విజ్">Career Quiz</button>
+    <button class="nav-btn" onclick="showPage('exam')" data-en="Mock Exam" data-hi="मॉक परीक्षा" data-te="మాక్ పరీక్ష">Mock Exam</button>
+    <button class="nav-btn" onclick="showPage('roadmap')" data-en="Roadmaps" data-hi="रोडमैप" data-te="రోడ్‌మ్యాప్">Roadmaps</button>
+    <button class="nav-btn" onclick="showPage('interview')">AI Interview</button>
+    <button class="nav-btn" onclick="showPage('dashboard')">Dashboard</button>
+    <div class="lang-switcher">
+      <button class="lang-btn active" onclick="setLang('en')">EN</button>
+      <button class="lang-btn" onclick="setLang('hi')">हि</button>
+      <button class="lang-btn" onclick="setLang('te')">తె</button>
+    </div>
+  </div>
+  <button class="hamburger" id="hamburger" onclick="toggleMobileMenu()" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- Mobile Drawer -->
+<div class="mobile-drawer" id="mobile-drawer">
+  <button class="mob-btn" onclick="mobileNav('home')">🏠 Home</button>
+  <button class="mob-btn" onclick="mobileNav('quiz')">🧭 Career Quiz</button>
+  <button class="mob-btn" onclick="mobileNav('exam')">📝 Mock Exam</button>
+  <button class="mob-btn" onclick="mobileNav('roadmap')">🗺️ Roadmaps</button>
+  <button class="mob-btn" onclick="mobileNav('interview')">🎤 AI Interview</button>
+  <button class="mob-btn" onclick="mobileNav('dashboard')">📊 Dashboard</button>
+  <div class="mob-lang">
+    <button class="lang-btn active" onclick="setLang('en');closeMobileMenu()">EN</button>
+    <button class="lang-btn" onclick="setLang('hi');closeMobileMenu()">हि</button>
+    <button class="lang-btn" onclick="setLang('te');closeMobileMenu()">తె</button>
+  </div>
+</div>
+
+<!-- ========== HOME ========== -->
+<div class="page active" id="page-home">
+  <div class="hero">
+    <div class="float-tag ft1">✅ EAMCET Ready</div>
+    <div class="float-tag ft2">🎯 IT Jobs</div>
+    <div class="float-tag ft3">🏆 Top 10%</div>
+    <h1 id="hero-title">Your path from <em>Inter</em> to <em>Career</em> starts here.</h1>
+    <p class="hero-sub" id="hero-sub">Confused after 10th or Intermediate? LearnWithFlow gives you AI career guidance, mock exams, voice interview practice — all in one place.</p>
+    <div class="hero-actions">
+      <button class="btn-big btn-primary" onclick="showPage('quiz')" id="hero-cta1">Take Career Quiz — Free →</button>
+      <button class="btn-big btn-outline" onclick="showPage('exam')" id="hero-cta2">Try Mock Exam</button>
+    </div>
+  </div>
+
+  <div class="feat-strip">
+    <div class="feat-inner">
+      <div style="font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--muted)" id="feat-label">Everything you need to succeed</div>
+      <div class="feat-row">
+        <div class="feat-cell" onclick="showPage('quiz')"><div class="fc-icon">🧭</div><div class="fc-title">AI Career Compass</div><div class="fc-desc">5-min quiz → personalized path for your situation.</div></div>
+        <div class="feat-cell" onclick="showPage('exam')"><div class="fc-icon">📝</div><div class="fc-title">5 Exam Types</div><div class="fc-desc">EAMCET, IT/Coding, Diploma, NEET, APPSC — unique question banks.</div></div>
+        <div class="feat-cell" onclick="showPage('roadmap')"><div class="fc-icon">🗺️</div><div class="fc-title">Career Roadmaps</div><div class="fc-desc">Interactive step-by-step roadmaps. Click to track progress.</div></div>
+        <div class="feat-cell" onclick="showPage('interview')"><div class="fc-icon">🎤</div><div class="fc-title">AI Interview Coach</div><div class="fc-desc">Real AI interviewer. Voice + code + confidence analysis.</div></div>
+        <div class="feat-cell" onclick="showPage('dashboard')"><div class="fc-icon">📊</div><div class="fc-title">Progress Dashboard</div><div class="fc-desc">Streaks, graphs, weak areas, badges, weekly summaries.</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ========== QUIZ ========== -->
+<div class="page" id="page-quiz">
+  <div class="quiz-wrap">
+    <div style="margin-bottom:30px">
+      <div style="font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#2563a8;font-weight:700;margin-bottom:10px">🧭 AI Career Compass</div>
+      <h2 style="font-family:'Instrument Serif',serif;font-size:38px;line-height:1.1;margin-bottom:8px" id="quiz-heading">Let's find your <em style="font-style:italic;background:linear-gradient(135deg,#2563a8,#06d6a0);-webkit-background-clip:text;-webkit-text-fill-color:transparent">perfect path.</em></h2>
+      <p style="color:var(--muted);font-size:15px" id="quiz-subhead">Answer 5 questions. Our AI suggests the best career path for you.</p>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="progress" style="width:20%"></div></div>
+    <div style="font-size:12px;color:var(--muted);margin-bottom:18px" id="q-counter">Question 1 of 5</div>
+    <div class="quiz-card" id="quiz-card">
+      <div class="q-num" id="q-num">Question 01</div>
+      <div class="q-text" id="q-text">Loading...</div>
+      <div class="q-options" id="q-options"></div>
+    </div>
+    <div class="result-card" id="result-card">
+      <div class="result-path" id="r-path">Best Path</div>
+      <h3 id="r-title">Your Path</h3>
+      <p id="r-desc"></p>
+      <ul class="result-bullets" id="r-bullets"></ul>
+      <div class="salary-chip" id="r-salary">💰</div>
+      <div style="display:flex;gap:10px;margin-top:22px;flex-wrap:wrap">
+        <button class="btn-big btn-primary" onclick="showPage('roadmap')">View Roadmap →</button>
+        <button class="btn-big btn-outline" onclick="restartQuiz()">Retake Quiz</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== EXAM ========== -->
+<div class="page" id="page-exam">
+  <div class="exam-wrap">
+    <!-- Daily Plan Mode (default) -->
+    <div id="daily-plan-view">
+      <div style="margin-bottom:20px">
+        <div style="font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#2563a8;font-weight:700;margin-bottom:6px">📅 Today's Study Plan</div>
+        <h2 style="font-family:'Instrument Serif',serif;font-size:32px;margin-bottom:6px">3 Exams per Day</h2>
+        <p style="color:var(--muted);font-size:14px">Follow this order for best results</p>
+      </div>
+      <!-- Exam type selector -->
+      <div class="exam-type-tabs" style="margin-bottom:20px">
+        <div class="exam-tab active" onclick="setDailyType('eamcet',this)">🎓 EAMCET</div>
+        <div class="exam-tab" onclick="setDailyType('it',this)">💻 IT</div>
+        <div class="exam-tab" onclick="setDailyType('diploma',this)">🔧 Diploma</div>
+        <div class="exam-tab" onclick="setDailyType('neet',this)">🏥 NEET</div>
+        <div class="exam-tab" onclick="setDailyType('appsc',this)">🏛️ APPSC</div>
+      </div>
+      <!-- 3 Cards -->
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <!-- Card 1: Chapter Quiz -->
+        <div style="background:var(--surface);border:2px solid #2563a8;border-radius:16px;padding:22px">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+            <div>
+              <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;font-weight:700;color:#2563a8;margin-bottom:5px">🌅 Exam 1 — Chapter Quiz</div>
+              <div style="font-size:16px;font-weight:700;margin-bottom:4px">Today's Chapter Test</div>
+              <div style="font-size:13px;color:var(--muted)">10 questions from the chapter you studied today · 12 min</div>
+            </div>
+            <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+              <select id="chapter-select" class="form-input" style="width:auto;font-size:13px;padding:8px 12px;border-radius:8px;border:1.5px solid var(--border)">
+                <option value="">Select chapter you studied...</option>
+              </select>
+              <button class="btn-sm btn-sm-primary" onclick="startChapterExam()">Start →</button>
+            </div>
+          </div>
+        </div>
+        <!-- Card 2: Weak Area -->
+        <div style="background:var(--surface);border:2px solid #d97706;border-radius:16px;padding:22px">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+            <div>
+              <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;font-weight:700;color:#d97706;margin-bottom:5px">☀️ Exam 2 — Weak Area Quiz</div>
+              <div style="font-size:16px;font-weight:700;margin-bottom:4px">Focus on Your Weak Topics</div>
+              <div style="font-size:13px;color:var(--muted)" id="weak-area-hint">10 questions auto-selected from topics where you score below 70%</div>
+            </div>
+            <button class="btn-sm btn-sm-primary" style="background:linear-gradient(135deg,#d97706,#f59e0b);border:none" onclick="startWeakExam()">Start →</button>
+          </div>
+        </div>
+        <!-- Card 3: Full Exam -->
+        <div style="background:var(--surface);border:2px solid #16a34a;border-radius:16px;padding:22px">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px">
+            <div>
+              <div style="font-size:11px;letter-spacing:2px;text-transform:uppercase;font-weight:700;color:#16a34a;margin-bottom:5px">🌙 Exam 3 — Full Real Exam</div>
+              <div style="font-size:16px;font-weight:700;margin-bottom:4px">Full Timed Mock — Real Exam Style</div>
+              <div style="font-size:13px;color:var(--muted)">30 questions · 45 minutes · All topics · No repeats from today</div>
+            </div>
+            <button class="btn-sm btn-sm-primary" style="background:linear-gradient(135deg,#16a34a,#06d6a0);border:none" onclick="startFullExam()">Start →</button>
+          </div>
+        </div>
+      </div>
+      <!-- Today's stats -->
+      <div style="margin-top:20px;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px">
+        <div style="font-size:13px;font-weight:700;margin-bottom:12px">📊 Today's Progress</div>
+        <div style="display:flex;gap:20px;flex-wrap:wrap">
+          <div><div style="font-size:22px;font-weight:800;color:#2563a8" id="today-e1">—</div><div style="font-size:11px;color:var(--muted)">Chapter Quiz</div></div>
+          <div><div style="font-size:22px;font-weight:800;color:#d97706" id="today-e2">—</div><div style="font-size:11px;color:var(--muted)">Weak Area</div></div>
+          <div><div style="font-size:22px;font-weight:800;color:#16a34a" id="today-e3">—</div><div style="font-size:11px;color:var(--muted)">Full Exam</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actual exam view (hidden until started) -->
+    <div id="exam-run-view" style="display:none">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+        <button class="btn-sm btn-sm-outline" onclick="exitExam()" style="font-size:12px">← Back</button>
+        <div style="font-size:11px;letter-spacing:3px;text-transform:uppercase;color:#2563a8;font-weight:700" id="exam-mode-label">📝 Mock Exam</div>
+      </div>
+      <div class="exam-header">
+        <div>
+          <div class="exam-title" id="exam-title">EAMCET Mock</div>
+          <div style="font-size:12px;color:var(--muted);margin-top:3px" id="exam-sub">Loading...</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:18px">
+          <div><div style="font-size:11px;color:var(--muted);text-align:right">Time Left</div><div class="exam-timer-num" id="e-timer">15:00</div></div>
+          <div><div style="font-size:12px;color:var(--muted);text-align:right" id="e-score-live">Answered: 0</div><div style="font-size:11px;color:var(--muted);text-align:right;margin-top:2px" id="e-q-status">Q 1</div></div>
+        </div>
+      </div>
+      <div class="exam-layout">
+        <div class="exam-main">
+          <div class="q-subject" id="eq-subject">Physics</div>
+          <div class="q-body" id="eq-body">Loading...</div>
+          <div class="options-grid" id="eq-options"></div>
+          <div class="exam-nav">
+            <button class="btn-sm btn-sm-outline" onclick="examPrev()">← Prev</button>
+            <div style="font-size:13px;font-weight:700" id="eq-feedback"></div>
+            <button class="btn-sm btn-sm-primary" onclick="examNext()">Next →</button>
+          </div>
+        </div>
+        <div>
+          <div class="q-palette-wrap">
+            <div class="palette-title">Questions</div>
+            <div class="palette-grid" id="e-palette"></div>
+            <button class="btn-sm btn-sm-primary" style="width:100%;margin-top:12px" onclick="submitExam()">Submit & See Results</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== ROADMAP ========== -->
+<div class="page" id="page-roadmap">
+<style>
+/* ===== ROADMAP LISTING (roadmap.sh style) ===== */
+.rm-listing-page{padding:76px 0 80px;background:var(--bg);min-height:100vh}
+.rm-listing-inner{max-width:1100px;margin:0 auto;padding:40px 24px}
+.rm-listing-hero{text-align:center;margin-bottom:48px}
+.rm-listing-hero h1{font-family:'Instrument Serif',serif;font-size:48px;letter-spacing:-1.5px;margin-bottom:12px}
+.rm-listing-hero p{font-size:16px;color:var(--muted);max-width:600px;margin:0 auto}
+.rm-section-divider{text-align:center;margin:40px 0 20px;position:relative}
+.rm-section-divider::before{content:'';position:absolute;top:50%;left:0;right:0;height:1px;background:var(--border)}
+.rm-section-divider span{position:relative;background:var(--bg);padding:0 16px;font-size:13px;font-weight:700;color:var(--muted);letter-spacing:1.5px;text-transform:uppercase}
+.rm-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:8px}
+@media(max-width:900px){.rm-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:500px){.rm-grid{grid-template-columns:1fr}}
+.rm-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;cursor:pointer;transition:all 0.18s;display:flex;align-items:center;justify-content:space-between;font-size:14px;font-weight:600;color:var(--ink);position:relative}
+.rm-card:hover{border-color:#2563a8;background:rgba(37,99,168,0.04);transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,0.08)}
+.rm-card.done-card{border-color:#16a34a;background:rgba(22,163,74,0.04)}
+.rm-card-bk{color:var(--muted);font-size:16px;opacity:0.4}
+.rm-new-badge{font-size:9px;font-weight:800;background:#7c3aed;color:white;padding:2px 6px;border-radius:100px;letter-spacing:0.5px;margin-left:6px;vertical-align:middle}
+
+/* ===== ROADMAP DETAIL (roadmap.sh flowchart style) ===== */
+.rm-detail-page{display:none;padding:76px 0 80px;background:var(--bg);min-height:100vh}
+.rm-detail-page.active{display:block}
+.rm-detail-inner{max-width:860px;margin:0 auto;padding:24px 24px 80px}
+.rm-back-btn{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;margin-bottom:28px;padding:6px 12px;border-radius:8px;border:1px solid var(--border);background:var(--surface);transition:all 0.15s}
+.rm-back-btn:hover{border-color:#2563a8;color:#2563a8}
+.rm-detail-title{font-family:'Instrument Serif',serif;font-size:42px;letter-spacing:-1px;margin-bottom:8px}
+.rm-detail-sub{font-size:15px;color:var(--muted);margin-bottom:24px}
+.rm-detail-meta{display:flex;gap:20px;flex-wrap:wrap;margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid var(--border)}
+.rm-detail-meta-item{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
+.rm-detail-pb-row{display:flex;align-items:center;gap:12px;margin-bottom:28px}
+.rm-detail-pb{flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden}
+.rm-detail-pb-fill{height:100%;background:linear-gradient(90deg,#2563a8,#06d6a0);border-radius:3px;transition:width 0.4s}
+.rm-detail-pb-label{font-size:12px;font-weight:700;color:var(--muted);font-family:'DM Mono',monospace;white-space:nowrap}
+
+/* Flowchart */
+.rmf{display:flex;flex-direction:column;align-items:center;width:100%}
+.rmf-section{width:100%;max-width:640px;background:var(--ink);color:white;text-align:center;padding:9px 20px;border-radius:8px;font-size:11px;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin:20px 0 6px;font-family:'Syne',sans-serif}
+.rmf-phase{font-size:10px;letter-spacing:2.5px;text-transform:uppercase;font-weight:700;color:var(--muted);background:var(--bg2);padding:5px 16px;border-radius:100px;margin:16px 0 12px;display:inline-block}
+.rmf-row{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;max-width:100%}
+.rmf-arrow{height:28px;display:flex;align-items:center;justify-content:center;position:relative}
+.rmf-arrow::after{content:'';position:absolute;top:0;bottom:0;left:50%;width:2px;background:linear-gradient(to bottom,var(--border),#93c5fd);transform:translateX(-50%)}
+.rmf-node{padding:10px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.18s;border:1.5px solid;position:relative;text-align:center;min-width:130px;max-width:220px}
+.rmf-node:hover{transform:translateY(-2px);box-shadow:0 4px 16px rgba(0,0,0,0.1)}
+.rmf-node.req{border-color:#2563a8;background:rgba(37,99,168,0.06);color:#1d4ed8}
+.rmf-node.opt{border:1.5px dashed var(--border);background:var(--surface);color:var(--muted)}
+.rmf-node.done{border-color:#16a34a!important;background:rgba(22,163,74,0.08)!important;color:#15803d!important}
+.rmf-node.done::after{content:'';position:absolute;top:-5px;right:-5px;width:16px;height:16px;background:#16a34a;border-radius:50%;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='white'%3E%3Cpath d='M20 6L9 17l-5-5'/%3E%3C/svg%3E");background-size:10px;background-repeat:no-repeat;background-position:center;box-shadow:0 1px 4px rgba(22,163,74,0.4)}
+
+/* Detail panel */
+.rm-tp{width:300px;flex-shrink:0;background:var(--surface);border-left:1px solid var(--border);padding:24px;overflow-y:auto;position:fixed;right:0;top:56px;height:calc(100vh - 56px);display:none;z-index:50;box-shadow:-4px 0 20px rgba(0,0,0,0.08)}
+.rm-tp.open{display:block}
+.rm-tp-close{float:right;background:transparent;border:none;cursor:pointer;color:var(--muted);font-size:18px;padding:2px 6px}
+.rm-tp-title{font-family:'Instrument Serif',serif;font-size:24px;margin-bottom:10px;clear:both}
+.rm-tp-desc{font-size:13px;color:var(--ink2);line-height:1.7;margin-bottom:16px}
+.rm-tp-res-label{font-size:10px;letter-spacing:2px;text-transform:uppercase;font-weight:700;padding:3px 9px;border-radius:4px;display:inline-block;margin-bottom:8px}
+.rm-tp-res-label.free{background:rgba(22,163,74,0.1);color:#15803d}
+.rm-tp-res-item{display:flex;align-items:flex-start;gap:7px;padding:5px 0;border-bottom:1px solid var(--border);font-size:12px}
+.rm-tp-res-item:last-child{border:none}
+.rm-tp-tag{font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;white-space:nowrap;flex-shrink:0;margin-top:1px}
+.rm-tp-tag.article{background:#dbeafe;color:#1e40af}
+.rm-tp-tag.video{background:#fee2e2;color:#dc2626}
+.rm-tp-tag.course{background:#fef9c3;color:#854d0e}
+.rm-tp-tag.practice{background:#dcfce7;color:#166534}
+.rm-tp-done-btn{width:100%;margin-top:14px;padding:9px;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;border:1.5px solid var(--border);background:transparent;color:var(--ink2);transition:all 0.15s;font-family:'Plus Jakarta Sans',sans-serif}
+.rm-tp-done-btn.active-d{background:rgba(22,163,74,0.1);border-color:#16a34a;color:#15803d}
+</style>
+
+<!-- LISTING VIEW -->
+<div id="rm-view-listing">
+  <div class="rm-listing-page">
+    <div class="rm-listing-inner">
+      <div class="rm-listing-hero">
+        <h1>Developer Roadmaps</h1>
+        <p>Community created roadmaps, guides and articles to help you choose your path and grow in your career.</p>
+      </div>
+
+      <div class="rm-section-divider"><span>Role-based Roadmaps</span></div>
+      <div class="rm-grid" id="rm-role-grid">
+        <div class="rm-card" onclick="openRoadmapDetail('frontend')">Frontend <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('backend')">Backend <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('fullstack')">Full Stack <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('devops')">DevOps <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('devsecops')">DevSecOps <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('dataanalyst')">Data Analyst <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('aiengineer')">AI Engineer <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('aidatascientist')">AI and Data Scientist <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('dataengineer')">Data Engineer <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('android')">Android <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('machinelearning')">Machine Learning <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('postgresql')">PostgreSQL <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('ios')">iOS <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('blockchain')">Blockchain <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('qa')">QA <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('softwarearchitect')">Software Architect <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('cybersecurity')">Cyber Security <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('uxdesign')">UX Design <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('technicalwriter')">Technical Writer <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('gamedeveloper')">Game Developer <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('mlops')">MLOps <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('productmanager')">Product Manager <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('engineeringmanager')">Engineering Manager <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('devrel')">Developer Relations <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('bianalyst')">BI Analyst <span class="rm-card-bk">&#9645;</span></div>
+      </div>
+
+      <div class="rm-section-divider"><span>Skill-based Roadmaps</span></div>
+      <div class="rm-grid">
+        <div class="rm-card" onclick="openRoadmapDetail('sql')">SQL <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('computerscience')">Computer Science <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('react')">React <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('vue')">Vue <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('angular')">Angular <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('javascript')">JavaScript <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('typescript')">TypeScript <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('nodejs')">Node.js <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('python')">Python <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('systemdesign')">System Design <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('java')">Java <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('aspnet')">ASP.NET Core <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('apidesign')">API Design <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('springboot')">Spring Boot <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('flutter')">Flutter <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('cpp')">C++ <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('rust')">Rust <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('golang')">Go Roadmap <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('softwaredesign')">Design and Architecture <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('graphql')">GraphQL <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('reactnative')">React Native <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('designsystem')">Design System <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('promptengineering')">Prompt Engineering <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('mongodb')">MongoDB <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('linux')">Linux <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('kubernetes')">Kubernetes <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('docker')">Docker <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('aws')">AWS <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('terraform')">Terraform <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('dsa')">Data Structures &amp; Algorithms <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('redis')">Redis <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('git')">Git and GitHub <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('php')">PHP <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('cloudflare')">Cloudflare <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('airedteaming')">AI Red Teaming <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('aiagents')">AI Agents <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('nextjs')">Next.js <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('codereview')">Code Review <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('kotlin')">Kotlin <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('html')">HTML <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('css')">CSS <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('swift')">Swift &amp; Swift UI <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('shellbash')">Shell / Bash <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('laravel')">Laravel <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('elasticsearch')">Elasticsearch <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('wordpress')">WordPress <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('django')">Django <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('ruby')">Ruby <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('rubyonrails')">Ruby on Rails <span class="rm-new-badge">New</span><span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('claudecode')">Claude Code <span class="rm-new-badge">New</span><span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('vibecoding')">Vibe Coding <span class="rm-new-badge">New</span><span class="rm-card-bk">&#9645;</span></div>
+      </div>
+
+      <div class="rm-section-divider"><span>Indian Career Paths</span></div>
+      <div class="rm-grid">
+        <div class="rm-card" onclick="openRoadmapDetail('eamcet')">EAMCET — Engineering <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('it')">IT Skills — Software Job <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('diploma')">Diploma — Industry Job <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('neet')">NEET — Medical <span class="rm-card-bk">&#9645;</span></div>
+        <div class="rm-card" onclick="openRoadmapDetail('appsc')">APPSC — Govt Job <span class="rm-card-bk">&#9645;</span></div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- DETAIL VIEW -->
+<div id="rm-view-detail" style="display:none">
+  <div class="rm-detail-page active" id="rm-detail-page">
+    <div class="rm-detail-inner" id="rm-detail-inner">
+      <div class="rm-back-btn" onclick="closeRoadmapDetail()">&#8592; All Roadmaps</div>
+      <div id="rm-detail-content"></div>
+    </div>
+  </div>
+  <!-- Topic panel -->
+  <div class="rm-tp" id="rm-topic-panel">
+    <button class="rm-tp-close" onclick="closeTopicPanel()">&#10005;</button>
+    <div id="rm-tp-title" class="rm-tp-title"></div>
+    <div id="rm-tp-desc" class="rm-tp-desc"></div>
+    <div id="rm-tp-resources"></div>
+    <button class="rm-tp-done-btn" id="rm-tp-done-btn" onclick="rmTpToggleDone()">Mark as Done</button>
+  </div>
+</div>
+
+</div>
+
+<!-- ========== AI INTERVIEW ========== -->
+<div class="page" id="page-interview">
+  <div class="loop-wrap">
+    <div class="gorb gorb1"></div><div class="gorb gorb2"></div>
+    <!-- Landing -->
+    <div class="loop-screen active" id="lscreen-landing">
+      <div class="l-logo-mark">AI</div>
+      <p class="l-eyebrow">● Live Interview Simulator</p>
+      <h1 class="l-title">AI Interview<br>Coach</h1>
+      <p class="l-sub">Real AI interviewer. Tough questions. Voice + code. Honest feedback. Get interview-ready.</p>
+      <div class="l-feat-row">
+        <div class="l-chip"><span>🤖</span>AI Questions</div>
+        <div class="l-chip"><span>🎤</span>Voice Mode</div>
+        <div class="l-chip"><span>💻</span>Code Editor</div>
+        <div class="l-chip"><span>🔥</span>Pressure Mode</div>
+        <div class="l-chip"><span>📊</span>Analysis</div>
+      </div>
+      <button class="btn-loop" onclick="lgo('profile')">Start Interview →</button>
+    </div>
+    <!-- Profile -->
+    <div class="loop-screen" id="lscreen-profile">
+      <div class="lcard">
+        <p class="lcard-step">Step 01 — Setup</p>
+        <h2 class="lcard-title">Tell us about yourself</h2>
+        <form onsubmit="lstartIV(event)">
+          <div class="lform-group"><label class="llabel">Full Name</label><input class="linput" type="text" id="lf-name" placeholder="Enter your name" required></div>
+          <div class="lform-row">
+            <div class="lform-group"><label class="llabel">Degree</label><select class="linput" id="lf-degree" required><option value="">Select</option><option>B.Tech</option><option>Diploma</option><option>Intermediate</option><option>BCA</option><option>MCA</option><option>B.Sc</option></select></div>
+            <div class="lform-group"><label class="llabel">Branch</label><select class="linput" id="lf-branch" required><option value="">Select</option><option>CSE</option><option>ECE</option><option>Mechanical</option><option>Civil</option><option>MPC</option><option>BiPC</option><option>Commerce</option></select></div>
+          </div>
+          <div class="lform-row">
+            <div class="lform-group"><label class="llabel">Target Role</label><input class="linput" type="text" id="lf-role" placeholder="e.g. Software Engineer" required></div>
+            <div class="lform-group"><label class="llabel">Experience</label><select class="linput" id="lf-exp" required><option value="">Select</option><option>Fresher</option><option>0-1 years</option><option>1-2 years</option><option>2-5 years</option></select></div>
+          </div>
+          <div class="lform-group"><label class="llabel">Company Style</label><select class="linput" id="lf-company"><option value="general">General / Any</option><option value="google">Google / FAANG</option><option value="tcs">TCS / Infosys / Wipro</option><option value="startup">Startup</option></select></div>
+          <div class="lform-group"><label class="llabel">Skills (Enter to add)</label><input class="linput" type="text" id="lf-ski" placeholder="e.g. Python, React..." onkeydown="laddSkill(event)"><div class="lskill-tags" id="l-stags"></div><input type="hidden" id="lf-skills"></div>
+          <div class="lform-group"><label class="llabel">Difficulty</label><div class="ldiff-row"><div class="ldiff-btn easy sel" onclick="lsetDiff('easy',this)">Easy</div><div class="ldiff-btn medium" onclick="lsetDiff('medium',this)">Medium</div><div class="ldiff-btn hard" onclick="lsetDiff('hard',this)">Hard</div></div><input type="hidden" id="lf-diff" value="easy"></div>
+          <button type="submit" class="btn-loop" style="width:100%;margin-top:8px">Launch Interview →</button>
+        </form>
+      </div>
+    </div>
+    <!-- Interview -->
+    <div class="loop-screen" id="lscreen-interview">
+      <div class="l-iv-layout">
+        <div class="l-iv-main">
+          <div class="l-iv-hdr">
+            <div class="l-iv-info"><div class="l-iv-ava" id="l-ai-mood">AI</div><div><div class="l-iv-name">LearnWithFlow AI</div><div class="l-iv-role">Interviewer · <span id="l-co-label">TechCorp</span></div></div></div>
+            <div class="l-hdr-right">
+              <div id="l-speaking" style="display:none;align-items:center;gap:5px;font-family:'DM Mono',monospace;font-size:11px;color:var(--loop-accent2)"><span style="width:5px;height:5px;background:var(--loop-accent2);border-radius:50%;display:inline-block;animation:blink2 0.6s infinite"></span>AI Speaking...</div>
+              <button id="l-vtoggle" onclick="ltoggleVoice()" style="background:rgba(6,214,160,0.2);border:1px solid rgba(6,214,160,0.5);color:var(--loop-accent2);font-family:'DM Mono',monospace;font-size:11px;padding:5px 10px;border-radius:7px;cursor:pointer">🔊 ON</button>
+              <div class="l-qtimer" id="l-qtimer">60</div>
+              <div class="l-status"><span style="width:5px;height:5px;background:var(--loop-accent2);border-radius:50%;display:inline-block;animation:blink2 1s infinite"></span>LIVE</div>
+            </div>
+          </div>
+          <div class="l-chat" id="l-chat"></div>
+          <div class="l-fwarn" id="l-fwarn">⚠️ Filler words: <span id="l-fc">0</span></div>
+          <div class="l-input-area">
+            <div class="l-tabs">
+              <button class="l-tab active" onclick="ltab('voice',this)">🎤 Voice</button>
+              <button class="l-tab" onclick="ltab('text',this)">⌨️ Text</button>
+              <button class="l-tab" onclick="ltab('code',this)">💻 Code</button>
+            </div>
+            <div class="l-tc active" id="ltc-voice">
+              <div class="l-vviz" id="l-vviz"><div class="lvb"></div><div class="lvb"></div><div class="lvb"></div><div class="lvb"></div><div class="lvb"></div><div class="lvb"></div><div class="lvb"></div><div class="lvb"></div></div>
+              <div class="l-irow"><button class="l-bmic idle" id="l-mic" onclick="ltoggleMic()">🎤</button><textarea id="la-text" placeholder="Voice appears here or type..."></textarea><button class="l-bsend" onclick="lsend()">Send →</button></div>
+              <div class="l-mstatus" id="l-mstatus">Click mic to speak</div>
+            </div>
+            <div class="l-tc" id="ltc-text"><div class="l-irow"><textarea id="la-text2" placeholder="Type your answer..."></textarea><button class="l-bsend" onclick="lsendText()">Send →</button></div></div>
+            <div class="l-tc" id="ltc-code">
+              <div id="l-code-cont"></div>
+              <div class="l-ctrls"><select class="l-langsel" id="l-lang" onchange="lchangeLang()"><option value="java">Java</option><option value="python">Python</option><option value="javascript">JavaScript</option><option value="cpp">C++</option></select><button class="l-brun" onclick="lsubCode()">Submit Code →</button><span style="font-size:11px;color:var(--loop-muted);font-family:'DM Mono',monospace">AI reviews</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="l-iv-sidebar">
+          <div class="l-sec"><p class="l-slbl">📷 Camera</p><div class="l-vcont"><video id="l-webcam" autoplay muted playsinline></video><div style="position:absolute;inset:0;pointer-events:none"><div class="l-cc tl"></div><div class="l-cc tr"></div><div class="l-cc bl"></div><div class="l-cc br"></div><div class="l-rec"><div class="l-rd"></div>REC</div></div></div></div>
+          <div class="l-sec"><p class="l-slbl">🧠 Analysis</p>
+            <div class="l-ebar"><span class="l-elbl">Confidence</span><div class="l-ebg"><div class="l-ef" id="lb-conf" style="width:0%;background:#2563a8"></div></div><span class="l-eval" id="lv-conf">0%</span></div>
+            <div class="l-ebar"><span class="l-elbl">Calm</span><div class="l-ebg"><div class="l-ef" id="lb-calm" style="width:0%;background:#06d6a0"></div></div><span class="l-eval" id="lv-calm">0%</span></div>
+            <div class="l-ebar"><span class="l-elbl">Nervous</span><div class="l-ebg"><div class="l-ef" id="lb-nerv" style="width:0%;background:#f72585"></div></div><span class="l-eval" id="lv-nerv">0%</span></div>
+            <div class="l-ebar"><span class="l-elbl">Focus</span><div class="l-ebg"><div class="l-ef" id="lb-focus" style="width:0%;background:#ffd60a"></div></div><span class="l-eval" id="lv-focus">0%</span></div>
+          </div>
+          <div class="l-sec"><p class="l-slbl">Progress</p><div class="l-pt"><div class="l-pf" id="l-pf" style="width:0%"></div></div><div class="l-pi"><span id="l-qc">Q 0/5</span><span id="l-te">0:00</span></div></div>
+          <div class="l-sec"><p class="l-slbl">Live Score</p><div class="l-lscore" id="l-ls">--</div></div>
+          <div class="l-sec"><p class="l-slbl">Stats</p><div class="l-sgrid"><div class="l-sc"><div class="l-sv" id="ls-f">0</div><div class="l-sl">Fillers</div></div><div class="l-sc"><div class="l-sv" id="ls-p">0</div><div class="l-sl">Pauses</div></div><div class="l-sc"><div class="l-sv" id="ls-a">0</div><div class="l-sl">Answered</div></div><div class="l-sc"><div class="l-sv" id="ls-avg">--</div><div class="l-sl">Avg</div></div></div></div>
+          <button class="l-bend" onclick="lendIV()">End & Get Report</button>
+        </div>
+      </div>
+    </div>
+    <!-- Results -->
+    <div class="loop-screen" id="lscreen-results">
+      <div class="lres-card">
+        <p class="lcard-step" style="margin-bottom:6px">Interview Complete</p>
+        <h2 style="font-family:'Syne',sans-serif;font-size:24px;font-weight:800;margin-bottom:22px;color:var(--loop-text)">Your Report Card</h2>
+        <div class="lscore-ring"><svg width="145" height="145" viewBox="0 0 160 160"><defs><linearGradient id="lg1" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#06d6a0"/><stop offset="100%" stop-color="#2563a8"/></linearGradient></defs><circle class="lring-bg" cx="80" cy="80" r="70"/><circle class="lring-fill" id="l-sring" cx="80" cy="80" r="70"/></svg><div class="lscore-ctr"><div class="lscore-num" id="l-fscore">0</div><div class="lscore-lbl">/ 100</div></div></div>
+        <div class="lverdict" id="l-verdict"></div>
+        <div class="lmg"><div class="lmc"><div class="lmt">Answer Quality</div><div class="lmv purple" id="lm-q">--</div></div><div class="lmc"><div class="lmt">Confidence</div><div class="lmv green" id="lm-c">--</div></div><div class="lmc"><div class="lmt">Communication</div><div class="lmv yellow" id="lm-cm">--</div></div><div class="lmc"><div class="lmt">Filler Words</div><div class="lmv red" id="lm-f">--</div></div></div>
+        <div class="lhs" id="l-hes"></div>
+        <div style="margin-bottom:18px"><p class="lft">AI Feedback</p><div id="l-flist"></div></div>
+        <button class="btn-loop" onclick="lrestart()" style="width:100%;margin-bottom:10px">Practice Again →</button>
+        <button onclick="showPage('roadmap')" style="width:100%;background:var(--loop-surface2);border:1px solid var(--loop-border);color:var(--loop-text);padding:12px;border-radius:10px;font-family:'Syne',sans-serif;font-size:14px;font-weight:700;cursor:pointer">View Roadmap →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ========== DASHBOARD ========== -->
+<div class="page" id="page-dashboard">
+  <div class="dash-wrap">
+    <div style="margin-bottom:26px">
+      <h2 style="font-family:'Instrument Serif',serif;font-size:32px;margin-bottom:4px" id="dash-greeting">Good morning! 👋</h2>
+      <p style="color:var(--muted);font-size:15px">Keep going — you're making great progress!</p>
+    </div>
+    <div class="dash-grid">
+      <div class="dash-card"><div class="dc-icon">🔥</div><div class="dc-val" id="streak-val">1</div><div class="dc-label">Day Streak</div><div class="dc-change" id="streak-best">Best: 1 day</div></div>
+      <div class="dash-card"><div class="dc-icon">📝</div><div class="dc-val" id="qs-val">0</div><div class="dc-label">Questions Solved</div><div class="dc-change">Keep going!</div></div>
+      <div class="dash-card"><div class="dc-icon">🎯</div><div class="dc-val" id="score-val">--</div><div class="dc-label">Last Exam Score</div><div class="dc-change" id="score-sub">Take a mock exam!</div></div>
+      <div class="dash-card"><div class="dc-icon">🗺️</div><div class="dc-val" id="rm-val">0%</div><div class="dc-label">Roadmap Progress</div><div class="dc-change" onclick="showPage('roadmap')" style="cursor:pointer;color:#2563a8">View →</div></div>
+    </div>
+    <div class="dash-main">
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div class="big-card">
+          <h3>📈 Your Score History</h3>
+          <canvas id="scoreChart" height="120"></canvas>
+          <p id="chart-empty" style="color:var(--muted);font-size:13px;text-align:center;padding:20px 0;display:none">No exams taken yet. Take a mock exam to see your progress!</p>
+        </div>
+        <div class="big-card">
+          <h3>⚠️ Your Weak Areas</h3>
+          <div id="weak-areas-list">
+            <p style="color:var(--muted);font-size:13px;text-align:center;padding:16px 0">Take mock exams to track your weak areas!</p>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div class="big-card">
+          <h3>✅ Today's Tasks</h3>
+          <div class="week-tasks">
+            <div class="task" onclick="toggleTask(this)"><div class="task-check"></div><div class="task-text">Morning 10-Q quiz</div><div class="task-pts">+10</div></div>
+            <div class="task" onclick="toggleTask(this)"><div class="task-check"></div><div class="task-text">Take full mock exam</div><div class="task-pts">+50</div></div>
+            <div class="task" onclick="toggleTask(this)"><div class="task-check"></div><div class="task-text">AI Interview practice</div><div class="task-pts">+20</div></div>
+            <div class="task" onclick="toggleTask(this)"><div class="task-check"></div><div class="task-text">Update roadmap</div><div class="task-pts">+10</div></div>
+          </div>
+        </div>
+        <div class="big-card">
+          <h3>🗺️ Current Path</h3>
+          <div id="dash-rm-steps" style="display:flex;flex-direction:column;gap:0"></div>
+          <button class="btn-big btn-outline" style="width:100%;margin-top:12px;font-size:13px" onclick="showPage('roadmap')">Full Roadmap →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ==================== MOBILE NAV ====================
+function toggleMobileMenu(){
+  const h=document.getElementById('hamburger');
+  const d=document.getElementById('mobile-drawer');
+  h.classList.toggle('open');
+  d.classList.toggle('open');
+}
+function closeMobileMenu(){
+  document.getElementById('hamburger').classList.remove('open');
+  document.getElementById('mobile-drawer').classList.remove('open');
+}
+function mobileNav(page){closeMobileMenu();showPage(page);}
+
+// ==================== PAGE SYSTEM ====================
+// Minimal user state (no login - just local tracking)
+let USER = {goal:'eamcet', streak:1, qsSolved:0, lastScore:'--'};
+try{USER.qsSolved=parseInt(localStorage.getItem('lwf_qs')||0);}catch(e){}
+try{USER.lastScore=localStorage.getItem('lwf_score')||'--';}catch(e){}
+function showPage(name){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  window.scrollTo(0,0);
+  if(name==='exam') initDailyPlan();
+  if(name==='quiz') initQuiz();
+  if(name==='dashboard') updateDashboard();
+}
+
+// ==================== TOAST ====================
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+// ==================== LANGUAGE ====================
+const LANGS={
+  en:{'hero-title':'Your path from <em>Inter</em> to <em>Career</em> starts here.','hero-sub':'Confused after 10th or Intermediate? LearnWithFlow gives you AI career guidance, mock exams, voice interview practice — all in one place.','hero-cta1':'Take Career Quiz — Free →','hero-cta2':'Try Mock Exam','feat-label':'Everything you need to succeed'},
+  hi:{'hero-title':'Inter से Career तक का रास्ता यहाँ से शुरू होता है।','hero-sub':'10वीं के बाद भ्रमित हैं? LearnWithFlow आपको AI करियर गाइडेंस, मॉक परीक्षा, वॉइस इंटरव्यू — सब एक जगह देता है।','hero-cta1':'करियर क्विज़ लें →','hero-cta2':'मॉक परीक्षा','feat-label':'सफलता के लिए सब कुछ'},
+  te:{'hero-title':'Inter నుండి Career వరకు మీ journey ఇక్కడ మొదలవుతుంది.','hero-sub':'10వ తరగతి తర్వాత confused గా ఉన్నారా? LearnWithFlow మీకు AI career guidance, mock exams, voice interview — అన్నీ ఒకే చోట.','hero-cta1':'Career Quiz తీసుకోండి →','hero-cta2':'Mock Exam Try చేయండి','feat-label':'విజయానికి అవసరమైనవన్నీ'}
+};
+let curLang='en';
+function setLang(l){
+  curLang=l;
+  document.querySelectorAll('.lang-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelector(`.lang-btn[onclick="setLang('${l}')"]`).classList.add('active');
+  const t=LANGS[l];
+  for(const[id,val] of Object.entries(t)){const el=document.getElementById(id);if(el)el.innerHTML=val;}
+  document.querySelectorAll('[data-en]').forEach(el=>{const v=el.getAttribute('data-'+l);if(v)el.textContent=v;});
+  showToast(l==='hi'?'हिंदी चुनी गई ✓':l==='te'?'తెలుగు ఎంచుకోబడింది ✓':'English selected ✓');
+}
+
+// ==================== QUIZ ====================
+const QUIZ_Q = {
+  en:[
+    {t:"What were your marks in Intermediate/10th?",o:["90%+ (Very good)","75–90% (Good)","60–75% (Average)","Below 60%"]},
+    {t:"What do you want to do in future?",o:["Become an Engineer (EAMCET/JEE)","Become a Doctor (NEET)","Get quick job — Diploma/ITI","Learn IT skills, no degree needed"]},
+    {t:"Which stream are you in?",o:["MPC (Maths, Physics, Chemistry)","BiPC (Biology, Physics, Chemistry)","CEC / Commerce","Other / Not sure"]},
+    {t:"What is your family financial situation?",o:["Need a job fast — family support urgent","Can study 3-4 yrs — family can wait","Want only a Govt/stable job","Want to freelance or start own business"]},
+    {t:"How is your English speaking confidence?",o:["Good — I speak confidently","Basic — I can improve","Poor — Telugu/Hindi comfortable","Still learning"]}
+  ],
+  hi:[
+    {t:"इंटरमीडिएट/10वीं में आपके अंक?",o:["90%+ (बहुत अच्छे)","75–90% (अच्छे)","60–75% (औसत)","60% से कम"]},
+    {t:"भविष्य में क्या बनना चाहते हैं?",o:["Engineer (JEE/EAMCET)","Doctor (NEET)","Diploma से जल्दी नौकरी","बिना डिग्री IT सीखना"]},
+    {t:"आप किस stream में हैं?",o:["MPC","BiPC","Commerce","अन्य"]},
+    {t:"पारिवारिक स्थिति?",o:["जल्दी नौकरी चाहिए","3-4 साल पढ़ सकता हूं","Govt नौकरी चाहिए","खुद का काम करना है"]},
+    {t:"English confidence?",o:["अच्छी","Basic","Hindi comfortable","सीख रहा हूं"]}
+  ],
+  te:[
+    {t:"Inter/10th లో మీ marks ఎలా ఉన్నాయి?",o:["90%+ (చాలా బాగుంది)","75–90% (బాగుంది)","60–75% (average)","60% కంటే తక్కువ"]},
+    {t:"Future లో ఏం చేయాలని ఉంది?",o:["Engineer అవ్వాలి (EAMCET)","Doctor అవ్వాలి (NEET)","Diploma/ITI — quick job","IT skills — degree అవసరం లేదు"]},
+    {t:"మీరు ఏ stream లో ఉన్నారు?",o:["MPC","BiPC","CEC/Commerce","Other"]},
+    {t:"Family financial situation?",o:["Fast గా job చేయాలి","3-4 years study చేయగలను","Govt job కావాలి","Own business చేసుకోవాలి"]},
+    {t:"English speaking confidence?",o:["చాలా బాగుంది","Basic","Telugu comfortable","నేర్చుకుంటున్నాను"]}
+  ]
+};
+const RESULTS={
+  eamcet:{p:"🎓 EAMCET → Engineering",t:"Engineering is your path!",d:"Your marks + interest → EAMCET best choice. JNTU, AU, RGUKT lo great opportunities!",b:["EAMCET 2025 prep — 6 months enough","Maths + Physics strong chesuko","70+ engineering colleges available","B.Tech tarvata TCS/Infosys/Wipro"],s:"₹3.5L – ₹8L/yr starting"},
+  diploma:{p:"🔧 Diploma → Quick Job",t:"Diploma is the smart move!",d:"Fast job kavali ante Diploma best. 3 years lo industry-ready. L&T, Aurobindo local jobs.",b:["Polytechnic entrance prepare","Mechanical/Electrical/Civil — choose","3 years + direct job","Lateral entry B.Tech possible later"],s:"₹1.8L – ₹4L/yr starting"},
+  it:{p:"💻 IT Skills → Job Without Degree",t:"Learn skills, skip the degree!",d:"Python, Web Dev nerchukoni 6 months lo job. Hyderabad IT companies freshers teesukuntunnai.",b:["Python or Web Dev (free YouTube)","Build 2-3 projects","Internship apply","Remote jobs possible"],s:"₹1.5L – ₹5L/yr starting"},
+  neet:{p:"🏥 NEET → Medical",t:"Medicine is calling you!",d:"BiPC student — NEET try cheyyadam best. AP lo Guntur Medical, KMC seats unnai.",b:["NEET: Biology, Chem, Physics","Coaching helpful","BAMS/BDS alternatives","Internship + registration"],s:"₹4L – ₹15L/yr after internship"},
+  appsc:{p:"🏛️ APPSC → Govt Job",t:"Stable Govt Job is your path!",d:"Stable income kavali ante APPSC/TSPSC best option. Group 4 lo good opportunities.",b:["Regional language + English grammar strong","State GK — history & geography","Daily current affairs","Mock tests daily 50 Qs"],s:"₹25K – ₹60K/month"}
+};
+
+let qIdx=0,qAnswers=[];
+function initQuiz(){qIdx=0;qAnswers=[];document.getElementById('quiz-card').style.display='block';document.getElementById('result-card').classList.remove('show');renderQ();}
+function renderQ(){
+  const qs=(QUIZ_Q[curLang]||QUIZ_Q.en);const q=qs[qIdx];
+  document.getElementById('q-num').textContent=`Question 0${qIdx+1}`;
+  document.getElementById('q-text').textContent=q.t;
+  document.getElementById('q-counter').textContent=`Question ${qIdx+1} of 5`;
+  document.getElementById('progress').style.width=`${((qIdx+1)/5)*100}%`;
+  const opts=document.getElementById('q-options');opts.innerHTML='';
+  q.o.forEach((o,i)=>{const b=document.createElement('button');b.className='q-option';b.textContent=o;b.onclick=()=>selectAns(i);opts.appendChild(b);});
+}
+function selectAns(i){
+  qAnswers[qIdx]=i;
+  document.querySelectorAll('.q-option').forEach((b,idx)=>b.classList.toggle('selected',idx===i));
+  setTimeout(()=>{if(qIdx<4){qIdx++;renderQ();}else showResult();},360);
+}
+function showResult(){
+  document.getElementById('quiz-card').style.display='none';
+  document.getElementById('progress').style.width='100%';
+  let key='eamcet';
+  if(qAnswers[1]===2||qAnswers[3]===0)key='diploma';
+  else if(qAnswers[1]===3)key='it';
+  else if(qAnswers[2]===1)key='neet';
+  else if(qAnswers[3]===2)key='appsc';
+  else if(qAnswers[0]>=2)key='diploma';
+  const r=RESULTS[key];
+  document.getElementById('r-path').textContent=r.p;
+  document.getElementById('r-title').textContent=r.t;
+  document.getElementById('r-desc').textContent=r.d;
+  document.getElementById('r-salary').textContent='💰 '+r.s;
+  const ul=document.getElementById('r-bullets');ul.innerHTML='';
+  r.b.forEach(b=>{const li=document.createElement('li');li.textContent=b;ul.appendChild(li);});
+  document.getElementById('result-card').classList.add('show');
+}
+function restartQuiz(){initQuiz();}
+
+// ==================== EXAM - LARGE UNIQUE QUESTION BANKS ====================
+const QBANKS = {
+  eamcet: shuffleArr([
+    {s:"Physics",b:"A body is thrown vertically upward with velocity u. Maximum height reached is:",o:["u/g","u²/2g","u²/g","2u²/g"],a:1},
+    {s:"Physics",b:"A car travels 60 km in 1 hour and 40 km in 1 hour. Average speed is:",o:["50 km/h","100 km/h","40 km/h","60 km/h"],a:0},
+    {s:"Physics",b:"Newton's 3rd Law states:",o:["F=ma","Every action has equal & opposite reaction","Objects at rest stay at rest","Energy is conserved"],a:1},
+    {s:"Physics",b:"Unit of electric field intensity is:",o:["N/C","C/N","J/C","V·m"],a:0},
+    {s:"Physics",b:"Work done by a force is zero when angle between force and displacement is:",o:["0°","45°","90°","180°"],a:2},
+    {s:"Physics",b:"The SI unit of frequency is:",o:["Hz","m/s","rad/s","m"],a:0},
+    {s:"Physics",b:"Which law relates pressure and volume of gas at constant temperature?",o:["Charles' Law","Gay-Lussac's Law","Boyle's Law","Avogadro's Law"],a:2},
+    {s:"Chemistry",b:"Which of the following is an example of a noble gas?",o:["Nitrogen","Oxygen","Argon","Chlorine"],a:2},
+    {s:"Chemistry",b:"pH of a neutral solution at 25°C is:",o:["0","7","14","1"],a:1},
+    {s:"Chemistry",b:"Chemical formula of washing soda is:",o:["NaHCO₃","Na₂CO₃·10H₂O","Na₂SO₄","NaCl"],a:1},
+    {s:"Chemistry",b:"Which bond is present in NaCl?",o:["Covalent","Ionic","Metallic","Hydrogen"],a:1},
+    {s:"Chemistry",b:"Oxidation state of Mn in KMnO₄ is:",o:["+2","+4","+7","+6"],a:2},
+    {s:"Chemistry",b:"Ethylene is an example of:",o:["Alkane","Alkene","Alkyne","Aromatic"],a:1},
+    {s:"Mathematics",b:"If sin θ = 3/5, then cos θ =",o:["4/5","5/4","3/4","5/3"],a:0},
+    {s:"Mathematics",b:"Derivative of sin(x) is:",o:["-cos(x)","cos(x)","-sin(x)","tan(x)"],a:1},
+    {s:"Mathematics",b:"Sum of first n natural numbers is:",o:["n(n+1)","n(n-1)/2","n(n+1)/2","n²"],a:2},
+    {s:"Mathematics",b:"Value of log₁₀(1000) is:",o:["1","2","3","4"],a:2},
+    {s:"Mathematics",b:"The distance formula between points (x₁,y₁) and (x₂,y₂) is:",o:["√((x₂-x₁)+(y₂-y₁))","(x₂-x₁)²+(y₂-y₁)²","√((x₂-x₁)²+(y₂-y₁)²)","|(x₂-x₁)|+|(y₂-y₁)|"],a:2},
+    {s:"Mathematics",b:"∫x dx =",o:["x²","x²/2 + C","2x + C","x + C"],a:1},
+    {s:"Physics",b:"Dimensional formula of velocity is:",o:["[M⁰LT⁻¹]","[MLT⁻²]","[M⁰L⁰T⁻¹]","[ML²T⁻¹]"],a:0},
+    {s:"Chemistry",b:"The hybridization of carbon in CH₄ is:",o:["sp","sp²","sp³","dsp²"],a:2},
+    {s:"Mathematics",b:"If 2x + 3 = 11, then x =",o:["3","4","5","6"],a:1},
+    {s:"Physics",b:"Which mirror is used in a dentist's mirror?",o:["Convex","Plane","Concave","Both convex and concave"],a:2},
+    {s:"Chemistry",b:"Rusting of iron is an example of:",o:["Physical change","Reduction","Oxidation","Decomposition"],a:2},
+    {s:"Mathematics",b:"Area of a circle with radius r is:",o:["2πr","πr²","2πr²","πr"],a:1},
+    {s:"Physics",b:"The speed of light in vacuum is approximately:",o:["3×10⁸ m/s","3×10⁶ m/s","3×10¹⁰ m/s","3×10⁴ m/s"],a:0},
+    {s:"Chemistry",b:"Atomic number of Carbon is:",o:["4","6","8","12"],a:1},
+    {s:"Mathematics",b:"tan 45° =",o:["0","1","√2","1/√2"],a:1},
+    {s:"Physics",b:"Ohm's law: V = IR. If V=12V, R=4Ω, then I =",o:["3A","48A","0.33A","8A"],a:0},
+    {s:"Chemistry",b:"Acid turns blue litmus paper to:",o:["Red","Green","Yellow","No change"],a:0},
+  ]),
+  it: shuffleArr([
+    {s:"Programming",b:"What does CPU stand for?",o:["Central Processing Unit","Computer Personal Unit","Central Program Utility","Control Processing Unit"],a:0},
+    {s:"Programming",b:"Which data structure uses LIFO (Last In First Out)?",o:["Queue","Stack","Array","Linked List"],a:1},
+    {s:"Programming",b:"Output of: print(2**3) in Python:",o:["6","8","9","5"],a:1},
+    {s:"Programming",b:"What is the time complexity of binary search?",o:["O(n)","O(n²)","O(log n)","O(1)"],a:2},
+    {s:"Networking",b:"What does HTTP stand for?",o:["Hyper Text Transfer Protocol","High Tech Transfer Protocol","Hyper Tech Text Protocol","Hyper Transfer Text Protocol"],a:0},
+    {s:"Programming",b:"Which of these is NOT a programming language?",o:["Python","Java","HTML","C++"],a:2},
+    {s:"Database",b:"SQL stands for:",o:["Structured Query Language","Simple Query Language","System Query Language","Standard Query Logic"],a:0},
+    {s:"Programming",b:"What is the output of: 10 % 3 in most languages?",o:["3","1","0","2"],a:1},
+    {s:"Networking",b:"IP in TCP/IP stands for:",o:["Internet Protocol","Internal Port","Instruction Pointer","Interface Program"],a:0},
+    {s:"Programming",b:"Which keyword is used to define a function in Python?",o:["function","define","def","func"],a:2},
+    {s:"Programming",b:"An array with 5 elements has indices from:",o:["1 to 5","0 to 5","0 to 4","1 to 4"],a:2},
+    {s:"Programming",b:"What does OOP stand for?",o:["Object Oriented Programming","Open Online Platform","Object Operating Program","Ordered Operations Protocol"],a:0},
+    {s:"Database",b:"Which SQL command retrieves data?",o:["INSERT","UPDATE","SELECT","DELETE"],a:2},
+    {s:"Programming",b:"'int' in C/Java stores:",o:["Decimal numbers","Whole numbers","Characters","Boolean"],a:1},
+    {s:"Networking",b:"What is a firewall used for?",o:["Speeding up internet","Blocking unauthorized access","Storing data","Connecting to WiFi"],a:1},
+    {s:"Programming",b:"Which loop runs at least once even if condition is false?",o:["for loop","while loop","do-while loop","foreach loop"],a:2},
+    {s:"Programming",b:"Git is used for:",o:["Database management","Version control","Web hosting","Email services"],a:1},
+    {s:"Programming",b:"What does API stand for?",o:["Application Programming Interface","Automated Process Integration","Advanced Protocol Interface","Application Process Integration"],a:0},
+    {s:"Programming",b:"In Python, a list is:",o:["Immutable","Ordered and mutable","Unordered","Fixed size"],a:1},
+    {s:"Networking",b:"DNS converts:",o:["IP to MAC","Domain names to IP addresses","Data to binary","HTTP to HTTPS"],a:1},
+    {s:"Programming",b:"Which is a valid variable name in Python?",o:["2name","my-var","my_var","class"],a:2},
+    {s:"Programming",b:"What does RAM stand for?",o:["Random Access Memory","Read All Memory","Rapid Access Mode","Random Application Memory"],a:0},
+    {s:"Database",b:"Primary key in a database must be:",o:["Null","Unique and not null","Duplicate","Random"],a:1},
+    {s:"Programming",b:"The '==' operator in programming checks:",o:["Assignment","Equality","Greater than","Not equal"],a:1},
+    {s:"Programming",b:"Which sorting algorithm has best average case O(n log n)?",o:["Bubble Sort","Selection Sort","Merge Sort","Insertion Sort"],a:2},
+  ]),
+  diploma: shuffleArr([
+    {s:"Engineering",b:"Which material has the highest thermal conductivity?",o:["Steel","Aluminum","Copper","Iron"],a:2},
+    {s:"Engineering",b:"DC motor converts:",o:["Mechanical to electrical","Electrical to mechanical","Chemical to electrical","Thermal to mechanical"],a:1},
+    {s:"Engineering",b:"Pascal is the unit of:",o:["Force","Pressure","Energy","Torque"],a:1},
+    {s:"Engineering",b:"In a series circuit, current through all components is:",o:["Different","Same","Zero","Variable"],a:1},
+    {s:"Engineering",b:"Blueprint in engineering shows:",o:["Cost estimation","Detailed drawings","Material list","Project timeline"],a:1},
+    {s:"Engineering",b:"Ohm's law: V=IR. If R doubles, current:",o:["Doubles","Stays same","Halves","Triples"],a:2},
+    {s:"Engineering",b:"Which tool is used to measure diameter of a rod?",o:["Vernier caliper","Thermometer","Voltmeter","Ammeter"],a:0},
+    {s:"Engineering",b:"Concrete is a mixture of:",o:["Sand + Water","Cement + Sand + Aggregate + Water","Steel + Cement","Gravel + Water"],a:1},
+    {s:"Engineering",b:"Which metal does NOT rust?",o:["Iron","Steel","Aluminum","Carbon steel"],a:2},
+    {s:"Engineering",b:"Transformer works on which principle?",o:["Magnetic resonance","Electromagnetic induction","Electrostatic induction","Piezoelectric effect"],a:1},
+    {s:"Engineering",b:"Lathe machine is used for:",o:["Cutting flat surfaces","Turning cylindrical shapes","Drilling holes","Welding"],a:1},
+    {s:"Engineering",b:"Safety color RED on industrial equipment means:",o:["Caution","Safe","Danger/Stop","Information"],a:2},
+    {s:"Engineering",b:"Hydraulic systems use which principle?",o:["Archimedes principle","Pascal's principle","Bernoulli's theorem","Newton's 2nd law"],a:1},
+    {s:"Engineering",b:"A fuse in electrical circuit is used for:",o:["Increasing current","Protection from excess current","Storing energy","Measuring voltage"],a:1},
+    {s:"Engineering",b:"The unit of electrical power is:",o:["Volt","Ampere","Watt","Ohm"],a:2},
+    {s:"Engineering",b:"IC chips are made from:",o:["Copper","Iron","Silicon","Aluminum"],a:2},
+    {s:"Engineering",b:"A digital multimeter can measure:",o:["Only voltage","Only current","Voltage, current and resistance","Only resistance"],a:2},
+    {s:"Engineering",b:"Full form of CAD:",o:["Computer Aided Design","Computer Automated Drawing","Central Auto Design","Computer Applied Drafting"],a:0},
+    {s:"Engineering",b:"Which gas is used in welding (MIG welding)?",o:["Oxygen","Nitrogen","Argon or CO₂","Hydrogen"],a:2},
+    {s:"Engineering",b:"The property of a metal to be drawn into wires is called:",o:["Malleability","Ductility","Hardness","Brittleness"],a:1},
+  ]),
+  neet: shuffleArr([
+    {s:"Biology",b:"The powerhouse of the cell is:",o:["Nucleus","Mitochondria","Ribosome","Chloroplast"],a:1},
+    {s:"Biology",b:"DNA double helix was discovered by:",o:["Darwin and Mendel","Watson and Crick","Hooke and Leeuwenhoek","Pasteur and Koch"],a:1},
+    {s:"Biology",b:"Photosynthesis occurs in:",o:["Mitochondria","Nucleus","Chloroplast","Ribosome"],a:2},
+    {s:"Biology",b:"Normal human body temperature is approximately:",o:["32°C","37°C","42°C","28°C"],a:1},
+    {s:"Chemistry",b:"pH of human blood is approximately:",o:["6.4","7.4","8.4","5.4"],a:1},
+    {s:"Biology",b:"The basic unit of heredity is:",o:["Cell","Chromosome","Gene","Nucleus"],a:2},
+    {s:"Biology",b:"RBC (Red Blood Cells) lack:",o:["Hemoglobin","Nucleus","Cell membrane","Oxygen"],a:1},
+    {s:"Biology",b:"Insulin is secreted by:",o:["Liver","Kidney","Pancreas","Thyroid"],a:2},
+    {s:"Biology",b:"Which blood group is universal donor?",o:["A","B","AB","O"],a:3},
+    {s:"Physics",b:"Persistence of vision is approximately:",o:["1/10 second","1/16 second","1/2 second","1/100 second"],a:1},
+    {s:"Chemistry",b:"Which vitamin is produced by sunlight on skin?",o:["Vitamin A","Vitamin B","Vitamin C","Vitamin D"],a:3},
+    {s:"Biology",b:"Largest organ in human body:",o:["Heart","Liver","Lungs","Skin"],a:3},
+    {s:"Biology",b:"Number of chromosomes in a normal human cell:",o:["23","44","46","48"],a:2},
+    {s:"Chemistry",b:"Water molecule formula:",o:["H₂O₂","HO","H₂O","H₃O"],a:2},
+    {s:"Biology",b:"Bone to bone connection is called:",o:["Tendon","Ligament","Cartilage","Muscle"],a:1},
+    {s:"Biology",b:"Process of breaking food with microbes is:",o:["Photosynthesis","Respiration","Fermentation","Digestion"],a:2},
+    {s:"Chemistry",b:"pH below 7 means solution is:",o:["Neutral","Acidic","Basic","Alkaline"],a:1},
+    {s:"Biology",b:"The study of fungi is called:",o:["Botany","Mycology","Zoology","Phycology"],a:1},
+    {s:"Biology",b:"Malaria is caused by:",o:["Bacteria","Virus","Protozoa (Plasmodium)","Fungi"],a:2},
+    {s:"Biology",b:"Tiny air sacs in lungs are called:",o:["Bronchi","Trachea","Alveoli","Pleura"],a:2},
+  ]),
+  appsc: shuffleArr([
+    {s:"General Knowledge",b:"Capital of Andhra Pradesh:",o:["Hyderabad","Visakhapatnam","Amaravati","Tirupati"],a:2},
+    {s:"Current Affairs",b:"APPSC stands for:",o:["AP Public Service Commission","AP Police Service Commission","AP Planning Service Commission","AP Provincial Services Committee"],a:0},
+    {s:"General Knowledge",b:"How many districts are there in Andhra Pradesh (2024)?",o:["13","26","25","13"],a:1},
+    {s:"History",b:"When was Andhra Pradesh bifurcated to form Telangana?",o:["2012","2013","2014","2015"],a:2},
+    {s:"Geography",b:"Which river is called the lifeline of Andhra Pradesh?",o:["Krishna","Tungabhadra","Godavari","Pennar"],a:2},
+    {s:"General Knowledge",b:"Sriharikota is famous for:",o:["Cricket stadium","ISRO launch site","Nuclear plant","Software park"],a:1},
+    {s:"Economy",b:"Which industry is Kakinada famous for?",o:["IT","Petrochemicals","Agriculture","Tourism"],a:1},
+    {s:"History",b:"Potti Sriramulu fasted for which cause?",o:["Independence from Britain","Separate Andhra state","Land reform","Women's rights"],a:1},
+    {s:"General Knowledge",b:"First Chief Minister of Andhra Pradesh:",o:["T. Prakasam","N.T. Rama Rao","Tanguturi Prakasam","Neelam Sanjiva Reddy"],a:3},
+    {s:"Science",b:"Nagarjuna Sagar Dam is built on which river?",o:["Godavari","Krishna","Tungabhadra","Penna"],a:1},
+    {s:"Maths",b:"If 15% of a number is 75, the number is:",o:["500","450","600","550"],a:0},
+    {s:"Reasoning",b:"If 2 days after tomorrow is Saturday, what day is today?",o:["Monday","Tuesday","Wednesday","Thursday"],a:2},
+    {s:"Maths",b:"A train travels 360 km in 4 hours. Speed is:",o:["90 km/h","80 km/h","100 km/h","85 km/h"],a:0},
+    {s:"Reasoning",b:"Find odd one out: Apple, Mango, Carrot, Banana",o:["Apple","Mango","Carrot","Banana"],a:2},
+    {s:"General Knowledge",b:"National bird of India:",o:["Sparrow","Peacock","Parrot","Eagle"],a:1},
+    {s:"General Knowledge",b:"Who wrote the Indian National Anthem?",o:["Bankim Chandra","Subramanya Bharathi","Rabindranath Tagore","Sarojini Naidu"],a:2},
+    {s:"Maths",b:"LCM of 12 and 18 is:",o:["36","24","72","6"],a:0},
+    {s:"History",b:"Year India got independence:",o:["1945","1946","1947","1948"],a:2},
+    {s:"General Knowledge",b:"Currency of Japan:",o:["Yuan","Won","Yen","Rupee"],a:2},
+    {s:"Reasoning",b:"Series: 2, 4, 8, 16, ___",o:["18","32","24","20"],a:1},
+  ])
+};
+
+function shuffleArr(arr){
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+  return a;
+}
+
+let curExamType='eamcet', curExamQs=[], ec=0, ea=[], etimer, etLeft=900;
+
+// ==================== DAILY PLAN & EXAM ENGINE ====================
+// Chapter lists per exam type
+const CHAPTERS = {
+  eamcet: ["Physics — Mechanics","Physics — Waves & Sound","Physics — Thermodynamics","Physics — Optics","Physics — Electricity & Magnetism","Physics — Modern Physics","Chemistry — Atomic Structure","Chemistry — Chemical Bonding","Chemistry — Organic Chemistry","Chemistry — Electrochemistry","Chemistry — Thermodynamics","Maths — Algebra","Maths — Trigonometry","Maths — Coordinate Geometry","Maths — Calculus","Maths — Integration","Maths — Probability & Statistics"],
+  it: ["Python Basics","Data Types & Variables","Control Flow (if/loops)","Functions & Modules","Data Structures (List/Dict)","OOP Concepts","File Handling","Algorithms & Complexity","Arrays & Strings","SQL Basics","Networking Fundamentals","Git & Version Control","HTML & CSS","JavaScript Basics","React Introduction","Database Design"],
+  diploma: ["Electrical Fundamentals","DC Circuits","AC Circuits","Transformers","Motors & Generators","Mechanical Drawing","Thermodynamics","Engineering Materials","Machine Shop Operations","Hydraulics & Pneumatics","AutoCAD Basics","Workshop Safety","Welding Techniques","Concrete & Construction","Civil Drawing"],
+  neet: ["Cell Biology","Genetics & Heredity","Photosynthesis","Respiration & Excretion","Human Digestive System","Human Circulatory System","Nervous System","Organic Chemistry","Inorganic Chemistry","Physics — Optics","Physics — Nuclear","Plant Physiology","Ecology & Environment","Evolution","Biotechnology"],
+  appsc: ["Indian History","State History & Culture","Indian Geography","Indian Polity & Constitution","Economics Basics","General Science","Current Affairs","Maths — Arithmetic","Maths — Reasoning","English Grammar","Telugu Language","Computer Basics","Environmental Studies"]
+};
+
+// Track which questions used today (no repeat)
+let dailyUsedQIds = new Set();
+let activeExamMode = ''; // 'chapter','weak','full'
+
+function initDailyPlan(){
+  exitExam();
+  updateDailyProgress();
+  populateChapterSelect();
+}
+
+function setDailyType(type, el){
+  curExamType = type;
+  document.querySelectorAll('.exam-type-tabs .exam-tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  populateChapterSelect();
+  updateDailyProgress();
+}
+
+function populateChapterSelect(){
+  const sel = document.getElementById('chapter-select');
+  if(!sel) return;
+  const chapters = CHAPTERS[curExamType] || [];
+  sel.innerHTML = '<option value="">Select chapter you studied today...</option>' +
+    chapters.map((c,i) => `<option value="${i}">${c}</option>`).join('');
+}
+
+function updateDailyProgress(){
+  const today = new Date().toDateString();
+  try{
+    const dp = JSON.parse(localStorage.getItem('lwf_daily_'+curExamType+'_'+today)||'{}');
+    document.getElementById('today-e1').textContent = dp.chapter ? dp.chapter+'%' : '—';
+    document.getElementById('today-e2').textContent = dp.weak ? dp.weak+'%' : '—';
+    document.getElementById('today-e3').textContent = dp.full ? dp.full+'%' : '—';
+    // Load today's used Q indices to avoid repeats
+    dailyUsedQIds = new Set(dp.usedIds||[]);
+    // Hint for weak areas
+    const topicData = JSON.parse(localStorage.getItem('lwf_topic_scores')||'{}');
+    const weak = Object.entries(topicData).filter(([,d])=>d.pct<70).map(([t])=>t);
+    const hint = document.getElementById('weak-area-hint');
+    if(hint) hint.textContent = weak.length ? 'Focusing on: '+weak.slice(0,3).join(', ')+' (below 70%)' : '10 questions auto-selected from topics where you score below 70%';
+  }catch(e){}
+}
+
+function getUniqueQuestions(type, count, filterSubject){
+  const pool = [...(QBANKS[type]||QBANKS.eamcet)];
+  // Filter by subject if specified
+  let filtered = filterSubject ? pool.filter(q=>q.s===filterSubject) : pool;
+  // Prefer not-used questions
+  let unused = filtered.filter((_,i) => !dailyUsedQIds.has(type+'_'+i));
+  // If not enough unused, reset (allow reuse with shuffle mix)
+  if(unused.length < count) unused = shuffleArr(filtered);
+  else unused = shuffleArr(unused);
+  return unused.slice(0, count);
+}
+
+function markQuestionsUsed(type, qs){
+  const pool = QBANKS[type]||QBANKS.eamcet;
+  qs.forEach(q=>{
+    const idx = pool.indexOf(q);
+    if(idx>=0) dailyUsedQIds.add(type+'_'+idx);
+  });
+  // Save to today's storage
+  const today = new Date().toDateString();
+  try{
+    const dp = JSON.parse(localStorage.getItem('lwf_daily_'+curExamType+'_'+today)||'{}');
+    dp.usedIds = [...dailyUsedQIds];
+    localStorage.setItem('lwf_daily_'+curExamType+'_'+today, JSON.stringify(dp));
+  }catch(e){}
+}
+
+function startChapterExam(){
+  const sel = document.getElementById('chapter-select');
+  if(!sel.value){showToast('⚠️ Please select the chapter you studied!');return;}
+  const chapterName = CHAPTERS[curExamType][parseInt(sel.value)];
+  // Get subject-filtered questions
+  let qs = getUniqueQuestions(curExamType, 10, chapterName.split(' — ')[0]);
+  if(qs.length < 5) qs = getUniqueQuestions(curExamType, 10); // fallback to mixed
+  activeExamMode = 'chapter';
+  launchExam(qs, `📚 Chapter Quiz — ${chapterName}`, `10 Questions · Chapter Focus · 12 min`, 720, 10);
+}
+
+function startWeakExam(){
+  // Pick questions from weak topics
+  let qs = [];
+  try{
+    const topicData = JSON.parse(localStorage.getItem('lwf_topic_scores')||'{}');
+    const weakTopics = Object.entries(topicData).filter(([,d])=>d.pct<70).map(([t])=>t);
+    if(weakTopics.length){
+      const pool = shuffleArr([...(QBANKS[curExamType]||QBANKS.eamcet)]);
+      const weakQs = pool.filter(q=>weakTopics.some(t=>q.s.toLowerCase().includes(t.toLowerCase())));
+      qs = shuffleArr(weakQs).slice(0,10);
+    }
+  }catch(e){}
+  if(qs.length < 5) qs = getUniqueQuestions(curExamType, 10);
+  activeExamMode = 'weak';
+  launchExam(qs, '☀️ Weak Area Quiz', '10 Questions · Focus on Your Weak Topics · 15 min', 900, 10);
+}
+
+function startFullExam(){
+  // 30 questions, no repeats from today's exams
+  const qs = getUniqueQuestions(curExamType, 30);
+  activeExamMode = 'full';
+  const labels={eamcet:'EAMCET Full Mock — MPC',it:'IT/Coding Full Mock',diploma:'Diploma Full Mock',neet:'NEET Full Mock',appsc:'APPSC Full Mock'};
+  launchExam(qs, `🌙 ${labels[curExamType]||'Full Mock'}`, '30 Questions · All Topics · 45 min · Real Exam Style', 2700, 30);
+}
+
+function launchExam(qs, title, sub, timeSeconds, qCount){
+  markQuestionsUsed(curExamType, qs);
+  curExamQs = qs;
+  ec = 0;
+  ea = Array(qs.length).fill(null);
+  etLeft = timeSeconds;
+  document.getElementById('daily-plan-view').style.display='none';
+  document.getElementById('exam-run-view').style.display='block';
+  document.getElementById('exam-title').textContent = title;
+  document.getElementById('exam-sub').textContent = sub;
+  document.getElementById('exam-mode-label').textContent = title;
+  clearInterval(etimer);
+  etimer = setInterval(tickE, 1000);
+  buildPalette(qs.length);
+  renderEQ();
+}
+
+function exitExam(){
+  clearInterval(etimer);
+  const dp = document.getElementById('daily-plan-view');
+  const rv = document.getElementById('exam-run-view');
+  if(dp) dp.style.display='block';
+  if(rv) rv.style.display='none';
+}
+
+function tickE(){
+  etLeft--;
+  const m=Math.floor(etLeft/60).toString().padStart(2,'0');
+  const s=(etLeft%60).toString().padStart(2,'0');
+  document.getElementById('e-timer').textContent=`${m}:${s}`;
+  if(etLeft<=0){clearInterval(etimer);submitExam();}
+}
+
+function buildPalette(total){
+  const p=document.getElementById('e-palette');
+  if(!p)return;
+  p.innerHTML='';
+  for(let i=0;i<total;i++){
+    const b=document.createElement('button');
+    b.className='p-btn'+(i===0?' active-p':'');
+    b.textContent=i+1;
+    b.onclick=()=>{ec=i;renderEQ();};
+    p.appendChild(b);
+  }
+}
+
+function updatePalette(){
+  document.querySelectorAll('.p-btn').forEach((b,i)=>{
+    b.className='p-btn';
+    if(ea[i]!==null)b.classList.add('answered');
+    if(i===ec)b.classList.add('active-p');
+  });
+}
+
+function renderEQ(){
+  const q=curExamQs[ec];
+  if(!q) return;
+  document.getElementById('eq-subject').textContent=q.s;
+  document.getElementById('eq-body').textContent=q.b;
+  document.getElementById('eq-feedback').textContent='';
+  document.getElementById('e-q-status').textContent=`Q ${ec+1} of ${curExamQs.length}`;
+  document.getElementById('e-score-live').textContent=`Answered: ${ea.filter(a=>a!==null).length}/${curExamQs.length}`;
+  const opts=document.getElementById('eq-options');
+  opts.innerHTML='';
+  q.o.forEach((o,i)=>{
+    const b=document.createElement('button');
+    b.className='opt';
+    b.textContent=['A','B','C','D'][i]+') '+o;
+    if(ea[ec]!==null){
+      b.classList.add('disabled');
+      if(i===q.a)b.classList.add('correct');
+      else if(i===ea[ec])b.classList.add('wrong');
+    } else {
+      b.onclick=()=>selectEAns(i);
+    }
+    opts.appendChild(b);
+  });
+  updatePalette();
+}
+
+function selectEAns(i){
+  if(ea[ec]!==null)return;
+  ea[ec]=i;
+  const q=curExamQs[ec];
+  const opts=document.querySelectorAll('.opt');
+  opts.forEach(b=>{b.onclick=null;b.classList.add('disabled');});
+  opts[i].classList.add(i===q.a?'correct':'wrong');
+  if(i!==q.a)opts[q.a].classList.add('reveal-correct');
+  const fb=document.getElementById('eq-feedback');
+  fb.textContent=i===q.a?'✅ Correct!':'❌ Wrong — '+['A','B','C','D'][q.a]+') '+q.o[q.a];
+  fb.style.color=i===q.a?'var(--accent3)':'#dc2626';
+  updatePalette();
+  USER.qsSolved++;
+  try{localStorage.setItem('lwf_qs',USER.qsSolved);}catch(e){}
+}
+
+function examNext(){
+  if(ec<curExamQs.length-1){ec++;renderEQ();}
+  else submitExam();
+}
+
+function examPrev(){if(ec>0){ec--;renderEQ();}}
+
+function submitExam(){
+  clearInterval(etimer);
+  let c=0;
+  const topicResults={};
+  ea.forEach((a,i)=>{
+    const q=curExamQs[i];if(!q)return;
+    const topic=q.s||'General';
+    if(!topicResults[topic])topicResults[topic]={correct:0,total:0};
+    topicResults[topic].total++;
+    if(a!==null&&a===q.a){c++;topicResults[topic].correct++;}
+  });
+  const total=curExamQs.length;
+  const pct=Math.round(c/total*100);
+  USER.lastScore=`${c}/${total} (${pct}%)`;
+  try{localStorage.setItem('lwf_score',USER.lastScore);}catch(e){}
+  // Save score history
+  try{
+    const history=JSON.parse(localStorage.getItem('lwf_score_history')||'[]');
+    history.push({type:curExamType,mode:activeExamMode,score:c,total,pct,time:Date.now()});
+    if(history.length>30)history.splice(0,history.length-30);
+    localStorage.setItem('lwf_score_history',JSON.stringify(history));
+  }catch(e){}
+  // Save topic scores
+  try{
+    const saved=JSON.parse(localStorage.getItem('lwf_topic_scores')||'{}');
+    Object.entries(topicResults).forEach(([topic,d])=>{
+      if(!saved[topic])saved[topic]={correct:0,total:0};
+      saved[topic].correct+=d.correct;
+      saved[topic].total+=d.total;
+      saved[topic].pct=Math.round((saved[topic].correct/saved[topic].total)*100);
+    });
+    localStorage.setItem('lwf_topic_scores',JSON.stringify(saved));
+  }catch(e){}
+  // Save daily progress
+  try{
+    const today=new Date().toDateString();
+    const dp=JSON.parse(localStorage.getItem('lwf_daily_'+curExamType+'_'+today)||'{}');
+    dp[activeExamMode]=pct;
+    dp.usedIds=[...dailyUsedQIds];
+    localStorage.setItem('lwf_daily_'+curExamType+'_'+today,JSON.stringify(dp));
+  }catch(e){}
+  // Show result inline before going to dashboard
+  exitExam();
+  updateDailyProgress();
+  const modeLabel={chapter:'📚 Chapter Quiz',weak:'☀️ Weak Area',full:'🌙 Full Exam'};
+  showToast(`${modeLabel[activeExamMode]||'Exam'}: ${c}/${total} (${pct}%) — Saved! 🎯`);
+  setTimeout(()=>showPage('dashboard'),1800);
+}
+
+// ==================== ROADMAP v3 - full roadmap.sh listing ====================
+const ROADMAP_DATA = {};
+const SIMPLE_ROADMAPS = ['fullstack','devsecops','dataanalyst','aidatascientist','dataengineer','android','machinelearning','postgresql','ios','blockchain','qa','softwarearchitect','cybersecurity','uxdesign','technicalwriter','gamedeveloper','mlops','productmanager','engineeringmanager','devrel','bianalyst','typescript','nodejs','java','aspnet','apidesign','springboot','flutter','cpp','rust','golang','softwaredesign','graphql','reactnative','designsystem','promptengineering','mongodb','linux','kubernetes','aws','terraform','dsa2','redis','php','cloudflare','airedteaming','aiagents','nextjs2','codereview','kotlin','html2','css2','swift','shellbash','laravel','elasticsearch','wordpress','django2','ruby','rubyonrails','claudecode','vibecoding'];
+const SIMPLE_NAMES = {fullstack:'Full Stack',devsecops:'DevSecOps',dataanalyst:'Data Analyst',aidatascientist:'AI and Data Scientist',dataengineer:'Data Engineer',android:'Android',machinelearning:'Machine Learning',postgresql:'PostgreSQL',ios:'iOS',blockchain:'Blockchain',qa:'QA',softwarearchitect:'Software Architect',cybersecurity:'Cyber Security',uxdesign:'UX Design',technicalwriter:'Technical Writer',gamedeveloper:'Game Developer',mlops:'MLOps',productmanager:'Product Manager',engineeringmanager:'Engineering Manager',devrel:'Developer Relations',bianalyst:'BI Analyst',typescript:'TypeScript',nodejs:'Node.js',java:'Java',aspnet:'ASP.NET Core',apidesign:'API Design',springboot:'Spring Boot',flutter:'Flutter',cpp:'C++',rust:'Rust',golang:'Go Roadmap',softwaredesign:'Design and Architecture',graphql:'GraphQL',reactnative:'React Native',designsystem:'Design System',promptengineering:'Prompt Engineering',mongodb:'MongoDB',linux:'Linux',kubernetes:'Kubernetes',aws:'AWS',terraform:'Terraform',dsa2:'Data Structures & Algorithms',redis:'Redis',php:'PHP',cloudflare:'Cloudflare',airedteaming:'AI Red Teaming',aiagents:'AI Agents',nextjs2:'Next.js',codereview:'Code Review',kotlin:'Kotlin',html2:'HTML',css2:'CSS',swift:'Swift & Swift UI',shellbash:'Shell / Bash',laravel:'Laravel',elasticsearch:'Elasticsearch',wordpress:'WordPress',django2:'Django',ruby:'Ruby',rubyonrails:'Ruby on Rails',claudecode:'Claude Code',vibecoding:'Vibe Coding'};
+
+// Build roadmaps
+(function(){
+  const defs = {
+    frontend:{ title:'Frontend Developer', sub:'Step by step guide to becoming a modern frontend developer in 2026', nodes:[
+      {section:'Internet Basics'},{row:[{id:'f-internet',label:'How the Internet Works',type:'req'},{id:'f-http',label:'HTTP / HTTPS',type:'req'},{id:'f-dns',label:'DNS & Browsers',type:'req'}]},{arrow:true},
+      {section:'HTML'},{row:[{id:'f-html-sem',label:'Semantic HTML',type:'req'},{id:'f-forms',label:'Forms & Validation',type:'req'},{id:'f-a11y',label:'Accessibility',type:'opt'}]},
+      {section:'CSS'},{row:[{id:'f-css',label:'CSS Basics',type:'req'},{id:'f-flex',label:'Flexbox',type:'req'},{id:'f-grid',label:'CSS Grid',type:'req'}]},{arrow:true},
+      {row:[{id:'f-resp',label:'Responsive Design',type:'req'},{id:'f-anim',label:'Animations',type:'opt'}]},
+      {section:'JavaScript'},{row:[{id:'f-js',label:'JS Basics',type:'req'},{id:'f-dom',label:'DOM Manipulation',type:'req'},{id:'f-async',label:'Async / Await',type:'req'}]},{arrow:true},
+      {row:[{id:'f-es6',label:'ES6+ Features',type:'req'},{id:'f-modules',label:'JS Modules',type:'req'}]},
+      {section:'Version Control'},{row:[{id:'f-git',label:'Git',type:'req'},{id:'f-github',label:'GitHub',type:'req'}]},
+      {section:'Framework'},{row:[{id:'f-react',label:'React',type:'req'},{id:'f-vue',label:'Vue.js',type:'opt'},{id:'f-angular',label:'Angular',type:'opt'},{id:'f-svelte',label:'Svelte',type:'opt'}]},
+      {section:'Advanced'},{row:[{id:'f-ts',label:'TypeScript',type:'req'},{id:'f-nextjs',label:'Next.js (SSR)',type:'opt'},{id:'f-testing',label:'Jest / Vitest',type:'opt'}]}
+    ]},
+    backend:{ title:'Backend Developer', sub:'Step by step guide to becoming a modern backend developer in 2026', nodes:[
+      {section:'Fundamentals'},{row:[{id:'b-internet',label:'How the Internet Works',type:'req'},{id:'b-http',label:'HTTP Methods & Status Codes',type:'req'},{id:'b-terminal',label:'Terminal / CLI',type:'req'}]},
+      {section:'Learn a Language'},{row:[{id:'b-python',label:'Python',type:'req'},{id:'b-nodejs',label:'Node.js',type:'opt'},{id:'b-java',label:'Java',type:'opt'},{id:'b-go',label:'Go',type:'opt'}]},
+      {section:'Databases'},{row:[{id:'b-sql',label:'SQL — PostgreSQL / MySQL',type:'req'},{id:'b-nosql',label:'NoSQL — MongoDB',type:'opt'},{id:'b-redis',label:'Redis',type:'opt'}]},
+      {section:'APIs'},{row:[{id:'b-rest',label:'REST API Design',type:'req'},{id:'b-jwt',label:'JWT Authentication',type:'req'},{id:'b-graphql',label:'GraphQL',type:'opt'}]},
+      {section:'Infrastructure'},{row:[{id:'b-docker',label:'Docker',type:'req'},{id:'b-linux',label:'Linux Basics',type:'req'},{id:'b-git',label:'Git & GitHub',type:'req'}]},
+      {section:'Scaling'},{row:[{id:'b-micro',label:'Microservices',type:'opt'},{id:'b-mq',label:'Message Queues',type:'opt'},{id:'b-cicd',label:'CI/CD Pipelines',type:'req'}]}
+    ]},
+    devops:{ title:'DevOps Engineer', sub:'Step by step guide to becoming a modern DevOps engineer in 2026', nodes:[
+      {section:'Foundation'},{row:[{id:'d-linux',label:'Linux / Unix',type:'req'},{id:'d-bash',label:'Shell Scripting',type:'req'},{id:'d-network',label:'Networking Basics',type:'req'}]},
+      {section:'Version Control & CI/CD'},{row:[{id:'d-git',label:'Git',type:'req'},{id:'d-cicd',label:'GitHub Actions / Jenkins',type:'req'}]},
+      {section:'Containers'},{row:[{id:'d-docker',label:'Docker',type:'req'},{id:'d-k8s',label:'Kubernetes',type:'req'},{id:'d-helm',label:'Helm',type:'opt'}]},
+      {section:'Infrastructure as Code'},{row:[{id:'d-terraform',label:'Terraform',type:'req'},{id:'d-ansible',label:'Ansible',type:'opt'}]},
+      {section:'Cloud'},{row:[{id:'d-aws',label:'AWS',type:'req'},{id:'d-gcp',label:'GCP',type:'opt'},{id:'d-azure',label:'Azure',type:'opt'}]},
+      {section:'Monitoring'},{row:[{id:'d-prometheus',label:'Prometheus',type:'req'},{id:'d-grafana',label:'Grafana',type:'req'},{id:'d-elk',label:'ELK Stack',type:'opt'}]}
+    ]},
+    aiengineer:{ title:'AI Engineer', sub:'Step by step guide to becoming an AI Engineer in 2026', nodes:[
+      {section:'Mathematics'},{row:[{id:'ai-linear',label:'Linear Algebra',type:'req'},{id:'ai-calc',label:'Calculus',type:'req'},{id:'ai-stats',label:'Statistics',type:'req'}]},
+      {section:'Programming'},{row:[{id:'ai-python',label:'Python',type:'req'},{id:'ai-numpy',label:'NumPy / Pandas',type:'req'}]},
+      {section:'Machine Learning'},{row:[{id:'ai-sklearn',label:'Scikit-Learn',type:'req'},{id:'ai-supervised',label:'Supervised Learning',type:'req'},{id:'ai-unsupervised',label:'Unsupervised Learning',type:'req'}]},
+      {section:'Deep Learning'},{row:[{id:'ai-tf',label:'TensorFlow / PyTorch',type:'req'},{id:'ai-cnn',label:'CNNs',type:'req'},{id:'ai-transformers',label:'Transformers',type:'req'}]},
+      {section:'LLMs & GenAI'},{row:[{id:'ai-llm',label:'LLMs & Prompt Engineering',type:'req'},{id:'ai-rag',label:'RAG Systems',type:'req'},{id:'ai-agents',label:'AI Agents',type:'opt'}]},
+      {section:'Deployment'},{row:[{id:'ai-fastapi',label:'FastAPI for ML',type:'req'},{id:'ai-docker',label:'Docker',type:'req'},{id:'ai-mlflow',label:'MLflow',type:'opt'}]}
+    ]},
+    react:{ title:'React', sub:'Step by step guide to learning React in 2026', nodes:[
+      {section:'JS Prerequisites'},{row:[{id:'r-js',label:'JavaScript Fundamentals',type:'req'},{id:'r-es6',label:'ES6+ Features',type:'req'}]},
+      {section:'React Basics'},{row:[{id:'r-components',label:'Components & JSX',type:'req'},{id:'r-props',label:'Props & State',type:'req'},{id:'r-events',label:'Event Handling',type:'req'}]},
+      {section:'Hooks'},{row:[{id:'r-useState',label:'useState',type:'req'},{id:'r-useEffect',label:'useEffect',type:'req'},{id:'r-custom',label:'Custom Hooks',type:'opt'}]},
+      {section:'Advanced'},{row:[{id:'r-context',label:'Context API',type:'req'},{id:'r-router',label:'React Router',type:'req'},{id:'r-redux',label:'Redux / Zustand',type:'opt'}]},
+      {section:'Ecosystem'},{row:[{id:'r-nextjs',label:'Next.js',type:'opt'},{id:'r-query',label:'React Query',type:'opt'},{id:'r-testing',label:'Testing Library',type:'opt'}]}
+    ]},
+    javascript:{ title:'JavaScript', sub:'Step by step guide to learning JavaScript in 2026', nodes:[
+      {section:'Fundamentals'},{row:[{id:'js-vars',label:'Variables & Data Types',type:'req'},{id:'js-ops',label:'Operators & Conditions',type:'req'},{id:'js-loops',label:'Loops',type:'req'}]},
+      {section:'Functions & Scope'},{row:[{id:'js-functions',label:'Functions',type:'req'},{id:'js-scope',label:'Scope & Closures',type:'req'},{id:'js-arrow',label:'Arrow Functions',type:'req'}]},
+      {section:'OOP'},{row:[{id:'js-classes',label:'Classes',type:'req'},{id:'js-proto',label:'Prototypes',type:'req'},{id:'js-inh',label:'Inheritance',type:'req'}]},
+      {section:'Async'},{row:[{id:'js-promises',label:'Promises',type:'req'},{id:'js-asyncawait',label:'Async / Await',type:'req'},{id:'js-fetch',label:'Fetch API',type:'req'}]},
+      {section:'Browser & Modules'},{row:[{id:'js-dom',label:'DOM API',type:'req'},{id:'js-modules',label:'ES Modules',type:'req'},{id:'js-storage',label:'Local Storage',type:'opt'}]}
+    ]},
+    python:{ title:'Python', sub:'Step by step guide to learning Python in 2026', nodes:[
+      {section:'Basics'},{row:[{id:'py-syntax',label:'Syntax & Variables',type:'req'},{id:'py-types',label:'Data Types',type:'req'},{id:'py-control',label:'Control Flow',type:'req'}]},
+      {section:'Functions & OOP'},{row:[{id:'py-functions',label:'Functions',type:'req'},{id:'py-modules',label:'Modules & Packages',type:'req'},{id:'py-oop',label:'OOP',type:'req'}]},
+      {section:'Data & Files'},{row:[{id:'py-lists',label:'Lists, Dicts, Sets, Tuples',type:'req'},{id:'py-files',label:'File I/O',type:'req'},{id:'py-json',label:'JSON Handling',type:'req'}]},
+      {section:'Libraries'},{row:[{id:'py-numpy',label:'NumPy',type:'opt'},{id:'py-pandas',label:'Pandas',type:'opt'},{id:'py-requests',label:'Requests',type:'req'}]},
+      {section:'Web'},{row:[{id:'py-flask',label:'Flask / Django',type:'opt'},{id:'py-fastapi',label:'FastAPI',type:'opt'},{id:'py-testing',label:'Pytest',type:'opt'}]}
+    ]},
+    docker:{ title:'Docker', sub:'Step by step guide to learning Docker in 2026', nodes:[
+      {section:'Basics'},{row:[{id:'dk-containers',label:'What are Containers?',type:'req'},{id:'dk-images',label:'Images vs Containers',type:'req'}]},
+      {section:'Commands'},{row:[{id:'dk-run',label:'docker run / stop / rm',type:'req'},{id:'dk-build',label:'docker build',type:'req'},{id:'dk-push',label:'docker push / pull',type:'req'}]},
+      {section:'Dockerfile'},{row:[{id:'dk-dockerfile',label:'Writing Dockerfiles',type:'req'},{id:'dk-layers',label:'Image Layers',type:'req'},{id:'dk-multistage',label:'Multi-stage Builds',type:'opt'}]},
+      {section:'Compose'},{row:[{id:'dk-compose',label:'Docker Compose',type:'req'},{id:'dk-volumes',label:'Volumes & Networks',type:'req'}]},
+      {section:'Production'},{row:[{id:'dk-registry',label:'Container Registry',type:'req'},{id:'dk-k8s',label:'Intro to Kubernetes',type:'opt'}]}
+    ]},
+    git:{ title:'Git and GitHub', sub:'Step by step guide to mastering Git & GitHub in 2026', nodes:[
+      {section:'Basics'},{row:[{id:'g-init',label:'git init / clone',type:'req'},{id:'g-add',label:'git add / commit',type:'req'},{id:'g-status',label:'git status / log',type:'req'}]},
+      {section:'Branching'},{row:[{id:'g-branch',label:'Branches',type:'req'},{id:'g-merge',label:'Merging',type:'req'},{id:'g-rebase',label:'Rebasing',type:'opt'}]},
+      {section:'Remote'},{row:[{id:'g-push',label:'git push / pull',type:'req'},{id:'g-remote',label:'Remotes',type:'req'}]},
+      {section:'GitHub'},{row:[{id:'g-pr',label:'Pull Requests',type:'req'},{id:'g-issues',label:'Issues & Projects',type:'req'},{id:'g-actions',label:'GitHub Actions',type:'opt'}]}
+    ]},
+    sql:{ title:'SQL', sub:'Step by step guide to learning SQL in 2026', nodes:[
+      {section:'Basics'},{row:[{id:'sql-select',label:'SELECT, WHERE, FROM',type:'req'},{id:'sql-insert',label:'INSERT, UPDATE, DELETE',type:'req'},{id:'sql-order',label:'ORDER BY & LIMIT',type:'req'}]},
+      {section:'Joins'},{row:[{id:'sql-inner',label:'INNER JOIN',type:'req'},{id:'sql-left',label:'LEFT / RIGHT JOIN',type:'req'},{id:'sql-full',label:'FULL OUTER JOIN',type:'opt'}]},
+      {section:'Aggregations'},{row:[{id:'sql-group',label:'GROUP BY',type:'req'},{id:'sql-agg',label:'COUNT, SUM, AVG',type:'req'},{id:'sql-having',label:'HAVING',type:'req'}]},
+      {section:'Advanced'},{row:[{id:'sql-sub',label:'Subqueries',type:'req'},{id:'sql-index',label:'Indexes',type:'req'},{id:'sql-view',label:'Views',type:'opt'}]},
+      {section:'Database Design'},{row:[{id:'sql-norm',label:'Normalization',type:'req'},{id:'sql-pk',label:'Primary & Foreign Keys',type:'req'},{id:'sql-acid',label:'ACID Properties',type:'opt'}]}
+    ]},
+    eamcet:{ title:'EAMCET — Engineering', sub:'Complete roadmap from Intermediate to Engineering career in AP/Telangana', nodes:[
+      {section:'Mathematics'},{row:[{id:'e-algebra',label:'Algebra & Trigonometry',type:'req'},{id:'e-coord',label:'Coordinate Geometry',type:'req'},{id:'e-calc',label:'Calculus',type:'req'}]},{arrow:true},
+      {row:[{id:'e-integration',label:'Integration',type:'req'},{id:'e-vectors',label:'Vectors & 3D',type:'req'},{id:'e-matrices',label:'Matrices',type:'opt'}]},
+      {section:'Physics'},{row:[{id:'e-mechanics',label:'Mechanics & Kinematics',type:'req'},{id:'e-waves',label:'Waves & Thermodynamics',type:'req'},{id:'e-electricity',label:'Electricity & Magnetism',type:'req'}]},{arrow:true},
+      {row:[{id:'e-optics',label:'Optics & Modern Physics',type:'req'},{id:'e-semi',label:'Semiconductors',type:'opt'}]},
+      {section:'Chemistry'},{row:[{id:'e-atomic',label:'Atomic Structure & Bonding',type:'req'},{id:'e-organic',label:'Organic Chemistry',type:'req'},{id:'e-electroch',label:'Electrochemistry',type:'req'}]},
+      {section:'Exam Prep'},{row:[{id:'e-pyq',label:'Past 5 Years Papers',type:'req'},{id:'e-mock',label:'Daily Mock Practice',type:'req'},{id:'e-weakrev',label:'Weak Area Revision',type:'req'}]},
+      {section:'Career'},{row:[{id:'e-counselling',label:'Rank & Counselling',type:'req'},{id:'e-branch',label:'Choose Branch CSE/ECE',type:'req'}]},{arrow:true},
+      {row:[{id:'e-intern',label:'Internship Sem 5/6',type:'req'},{id:'e-placement',label:'Campus Placement',type:'req'},{id:'e-gate',label:'GATE / Higher Studies',type:'opt'}]}
+    ]},
+    it:{ title:'IT Skills — Software Job', sub:'A practical path from zero to first software job', nodes:[
+      {section:'Web Fundamentals'},{row:[{id:'it-internet',label:'How the Internet Works',type:'req'},{id:'it-html',label:'HTML & CSS',type:'req'},{id:'it-js',label:'JavaScript',type:'req'}]},
+      {section:'Version Control'},{row:[{id:'it-git',label:'Git & GitHub',type:'req'},{id:'it-terminal',label:'Terminal / CLI',type:'req'}]},
+      {section:'Framework'},{row:[{id:'it-react',label:'React.js',type:'req'},{id:'it-python',label:'Python Basics',type:'req'}]},
+      {section:'Backend & Database'},{row:[{id:'it-sql',label:'SQL — PostgreSQL',type:'req'},{id:'it-api',label:'REST API',type:'req'},{id:'it-nodejs',label:'Node.js',type:'opt'}]},
+      {section:'DSA & Interview'},{row:[{id:'it-dsa',label:'Data Structures & Algorithms',type:'req'},{id:'it-leet',label:'LeetCode — 50 Easy',type:'req'},{id:'it-resume',label:'ATS Resume',type:'req'}]},
+      {section:'Job Hunt'},{row:[{id:'it-projects',label:'Portfolio — 2-3 Projects',type:'req'},{id:'it-apply',label:'Apply TCS / Infosys / Wipro',type:'req'},{id:'it-freelance',label:'Freelance',type:'opt'}]}
+    ]},
+    neet:{ title:'NEET — Medical Career', sub:'Complete roadmap from BiPC to becoming a doctor in India', nodes:[
+      {section:'BiPC Foundation'},{row:[{id:'n-cell',label:'Cell Biology & Genetics',type:'req'},{id:'n-plant',label:'Plant & Animal Kingdom',type:'req'},{id:'n-human',label:'Human Physiology',type:'req'}]},
+      {section:'Chemistry & Physics'},{row:[{id:'n-organic',label:'Organic Chemistry',type:'req'},{id:'n-inorganic',label:'Inorganic Chemistry',type:'req'},{id:'n-physics',label:'Physics Optics & Modern',type:'req'}]},
+      {section:'NEET Prep'},{row:[{id:'n-ncert',label:'NCERT Biology Full',type:'req'},{id:'n-pyq',label:'Past Papers 2015-2024',type:'req'},{id:'n-mcq',label:'Daily 50 MCQ',type:'req'}]},{arrow:true},
+      {row:[{id:'n-coaching',label:'Coaching Narayana/Chaitanya',type:'opt'},{id:'n-aiims',label:'AIIMS / JIPMER Prep',type:'opt'}]},
+      {section:'Medical Career'},{row:[{id:'n-mbbs',label:'MBBS Counselling AP/TS',type:'req'},{id:'n-bds',label:'BDS / BAMS Alt',type:'opt'}]},{arrow:true},
+      {row:[{id:'n-internship',label:'Medical Internship',type:'req'},{id:'n-pg',label:'NEET-PG Specialization',type:'opt'}]}
+    ]},
+    appsc:{ title:'APPSC — Government Job', sub:'Complete guide to APPSC Group 1, 2, 3, 4 exams', nodes:[
+      {section:'Language & Aptitude'},{row:[{id:'a-telugu',label:'Telugu Grammar',type:'req'},{id:'a-english',label:'English Grammar',type:'req'},{id:'a-maths',label:'Arithmetic & Reasoning',type:'req'}]},
+      {section:'General Knowledge'},{row:[{id:'a-aphistory',label:'AP/TS History & Culture',type:'req'},{id:'a-indiahistory',label:'Indian History',type:'req'},{id:'a-geography',label:'Geography',type:'req'}]},{arrow:true},
+      {row:[{id:'a-polity',label:'Indian Polity & Constitution',type:'req'},{id:'a-economy',label:'Indian Economy',type:'req'},{id:'a-current',label:'Current Affairs Daily',type:'req'}]},
+      {section:'Exam Prep'},{row:[{id:'a-syllabus',label:'APPSC Group 4 Syllabus',type:'req'},{id:'a-pyq',label:'Previous Year Papers',type:'req'},{id:'a-mock',label:'Daily 50Q Mock Tests',type:'req'}]},
+      {section:'Apply'},{row:[{id:'a-apply',label:'Apply APPSC Notification',type:'req'},{id:'a-docs',label:'Documents Ready',type:'req'}]},{arrow:true},
+      {row:[{id:'a-govtjob',label:'Govt Job Rs 25K-60K/month',type:'req'}]}
+    ]},
+    diploma:{ title:'Diploma — Industry Job', sub:'From Polytechnic to first industry job in AP/TS', nodes:[
+      {section:'Admission'},{row:[{id:'di-entrance',label:'Polytechnic Entrance POLYCET',type:'req'},{id:'di-branch',label:'Choose Branch Mech/Civil/ECE',type:'req'}]},{arrow:true},
+      {row:[{id:'di-admission',label:'Govt Polytechnic Admission',type:'req'},{id:'di-iti',label:'ITI 1 Year Alt',type:'opt'}]},
+      {section:'Diploma Study'},{row:[{id:'di-workshop',label:'Workshop & Lab Practice',type:'req'},{id:'di-drawing',label:'Engineering Drawing',type:'req'},{id:'di-maths',label:'Applied Mathematics',type:'req'}]},{arrow:true},
+      {row:[{id:'di-autocad',label:'AutoCAD Certificate',type:'opt'},{id:'di-plc',label:'PLC / CNC Training',type:'opt'},{id:'di-project',label:'Final Year Project',type:'req'}]},
+      {section:'Career'},{row:[{id:'di-internship',label:'6-Month Internship',type:'req'},{id:'di-apply',label:'Apply L&T / Aurobindo',type:'req'}]},{arrow:true},
+      {row:[{id:'di-govt',label:'APPSC Technical Exams',type:'opt'},{id:'di-lateral',label:'Lateral Entry B.Tech',type:'opt'},{id:'di-job',label:'First Job Rs 1.8-3.5L/yr',type:'req'}]}
+    ]}
+  };
+  Object.assign(ROADMAP_DATA, defs);
+  SIMPLE_ROADMAPS.forEach(id => {
+    const name = SIMPLE_NAMES[id] || id;
+    ROADMAP_DATA[id] = { title: name, sub: 'Detailed '+name+' roadmap — for the complete interactive version visit roadmap.sh', nodes:[
+      {section:'Getting Started'},{row:[{id:id+'-start',label:'Fundamentals & Prerequisites',type:'req'},{id:id+'-core',label:'Core Concepts',type:'req'}]},
+      {section:'Intermediate'},{row:[{id:id+'-inter',label:'Intermediate Skills',type:'req'},{id:id+'-tools',label:'Tools & Ecosystem',type:'opt'}]},
+      {section:'Advanced'},{row:[{id:id+'-adv',label:'Advanced Topics',type:'opt'},{id:id+'-proj',label:'Build Projects',type:'req'},{id:id+'-job',label:'Job Ready',type:'req'}]}
+    ]};
+  });
+})();
+
+const RM_PROGRESS_KEY = 'lwf_rm_v3';
+let rmProgress = {};
+let currentRmId = null;
+let currentNodeEl = null;
+
+function loadRmProgress2(){
+  try{ const s=JSON.parse(localStorage.getItem(RM_PROGRESS_KEY)||'{}'); Object.keys(s).forEach(k=>{ rmProgress[k]=new Set(s[k]); }); }catch(e){}
+}
+function saveRmProgress2(){
+  try{ const t={}; Object.keys(rmProgress).forEach(k=>{ t[k]=[...rmProgress[k]]; }); localStorage.setItem(RM_PROGRESS_KEY,JSON.stringify(t)); }catch(e){}
+}
+function openRoadmapDetail(rmId){
+  currentRmId=rmId; const data=ROADMAP_DATA[rmId]; if(!data)return;
+  document.getElementById('rm-view-listing').style.display='none';
+  document.getElementById('rm-view-detail').style.display='block';
+  if(!rmProgress[rmId]) rmProgress[rmId]=new Set();
+  const total=countTotalNodes(data.nodes); const done=rmProgress[rmId].size; const pct=total>0?Math.round(done/total*100):0;
+  let html=`<div class="rm-detail-title">${data.title}</div><div class="rm-detail-sub">${data.sub}</div><div class="rm-detail-meta"><div class="rm-detail-meta-item"><span style="width:10px;height:10px;border-radius:2px;border:1.5px solid #2563a8;background:rgba(37,99,168,0.06);display:inline-block"></span> Required</div><div class="rm-detail-meta-item"><span style="width:10px;height:10px;border-radius:2px;border:1.5px dashed var(--border);display:inline-block"></span> Optional</div><div class="rm-detail-meta-item"><span style="width:10px;height:10px;border-radius:2px;border:1.5px solid #16a34a;background:rgba(22,163,74,0.1);display:inline-block"></span> Done</div></div><div class="rm-detail-pb-row"><div class="rm-detail-pb"><div class="rm-detail-pb-fill" id="rm-pb-fill" style="width:${pct}%"></div></div><div class="rm-detail-pb-label" id="rm-pb-label">${done} / ${total}</div></div><div class="rmf" id="rmf-nodes">`;
+  data.nodes.forEach(n=>{
+    if(n.section) html+=`<div class="rmf-section">${n.section}</div>`;
+    else if(n.arrow) html+=`<div class="rmf-arrow"></div>`;
+    else if(n.row){ html+=`<div class="rmf-row">`; n.row.forEach(nd=>{ const isDone=rmProgress[rmId].has(nd.id); html+=`<div class="rmf-node ${nd.type}${isDone?' done':''}" data-nodeid="${nd.id}" onclick="rmNodeClick(this,'${nd.id}','${rmId}')">${nd.label}</div>`; }); html+=`</div>`; }
+  });
+  html+=`</div>`;
+  document.getElementById('rm-detail-content').innerHTML=html;
+  closeTopicPanel();
+  window.scrollTo(0,0);
+}
+function countTotalNodes(nodes){ let c=0; nodes.forEach(n=>{ if(n.row) c+=n.row.length; }); return c; }
+function updateRmDetailPb(rmId){
+  const data=ROADMAP_DATA[rmId]; if(!data) return;
+  const total=countTotalNodes(data.nodes); const done=rmProgress[rmId]?rmProgress[rmId].size:0; const pct=total>0?Math.round(done/total*100):0;
+  const fill=document.getElementById('rm-pb-fill'); const label=document.getElementById('rm-pb-label');
+  if(fill) fill.style.width=pct+'%'; if(label) label.textContent=done+' / '+total;
+}
+function rmNodeClick(el,nodeId,rmId){
+  currentNodeEl=el;
+  if(!rmProgress[rmId]) rmProgress[rmId]=new Set();
+  if(rmProgress[rmId].has(nodeId)){ rmProgress[rmId].delete(nodeId); el.classList.remove('done'); }
+  else{ rmProgress[rmId].add(nodeId); el.classList.add('done'); }
+  saveRmProgress2(); updateRmDetailPb(rmId);
+  const isDone=el.classList.contains('done');
+  openTopicPanel(nodeId,isDone);
+}
+function openTopicPanel(nodeId,isDone){
+  const panel=document.getElementById('rm-topic-panel');
+  const td=typeof TOPIC_DATA!=='undefined'?TOPIC_DATA[nodeId]:null;
+  const label=currentNodeEl?currentNodeEl.textContent.trim():nodeId;
+  document.getElementById('rm-tp-title').textContent=td?td.title:label;
+  document.getElementById('rm-tp-desc').textContent=td?td.desc:'Click to mark this topic as done and track your progress.';
+  let resHtml='';
+  if(td&&td.resources&&td.resources.length>0){ resHtml+='<div class="rm-tp-res-label free">Free Resources</div>'; td.resources.forEach(r=>{ resHtml+=`<div class="rm-tp-res-item"><span class="rm-tp-tag ${r.type}">${r.type}</span><span>${r.text}</span></div>`; }); }
+  document.getElementById('rm-tp-resources').innerHTML=resHtml;
+  const btn=document.getElementById('rm-tp-done-btn');
+  if(isDone){ btn.textContent='Mark as Pending'; btn.classList.add('active-d'); } else{ btn.textContent='Mark as Done'; btn.classList.remove('active-d'); }
+  panel.classList.add('open');
+}
+function closeTopicPanel(){ document.getElementById('rm-topic-panel').classList.remove('open'); }
+function rmTpToggleDone(){
+  if(!currentNodeEl||!currentRmId) return;
+  const nodeId=currentNodeEl.dataset.nodeid;
+  if(!rmProgress[currentRmId]) rmProgress[currentRmId]=new Set();
+  if(rmProgress[currentRmId].has(nodeId)){ rmProgress[currentRmId].delete(nodeId); currentNodeEl.classList.remove('done'); }
+  else{ rmProgress[currentRmId].add(nodeId); currentNodeEl.classList.add('done'); }
+  saveRmProgress2(); updateRmDetailPb(currentRmId);
+  const isDone=currentNodeEl.classList.contains('done');
+  const btn=document.getElementById('rm-tp-done-btn');
+  if(isDone){ btn.textContent='Mark as Pending'; btn.classList.add('active-d'); } else{ btn.textContent='Mark as Done'; btn.classList.remove('active-d'); }
+}
+function closeRoadmapDetail(){
+  document.getElementById('rm-view-listing').style.display='block';
+  document.getElementById('rm-view-detail').style.display='none';
+  closeTopicPanel(); currentRmId=null;
+}
+// Legacy compat
+function showRoadmap(id,el){ openRoadmapDetail(id); }
+function rn(el,rm){}
+function saveRmProgress(){ saveRmProgress2(); }
+function updateRmProg(rm){}
+
+// ==================== DASHBOARD ====================
+let scoreChartInstance = null;
+
+function updateDashboard(){
+  // --- Questions solved ---
+  try{USER.qsSolved=parseInt(localStorage.getItem('lwf_qs')||0);}catch(e){}
+  document.getElementById('qs-val').textContent=USER.qsSolved||0;
+
+  // --- Last score ---
+  try{USER.lastScore=localStorage.getItem('lwf_score')||'--';}catch(e){}
+  document.getElementById('score-val').textContent=USER.lastScore;
+  document.getElementById('score-sub').textContent=USER.lastScore==='--'?'Take a mock exam!':'Keep improving!';
+
+  // --- Real streak ---
+  updateStreak();
+
+  // --- Roadmap progress ---
+  try{
+    const saved = JSON.parse(localStorage.getItem('lwf_rm_v3') || '{}');
+    let totalDone = 0, totalSteps = 0;
+    Object.keys(saved).forEach(rmId => {
+      totalDone += (saved[rmId] || []).length;
+      const data = typeof ROADMAP_DATA !== 'undefined' ? ROADMAP_DATA[rmId] : null;
+      if(data) { data.nodes.forEach(n => { if(n.row) totalSteps += n.row.length; }); }
+      else totalSteps += 10;
+    });
+    const overall = totalSteps > 0 ? Math.round((totalDone/totalSteps)*100) : 0;
+    document.getElementById('rm-val').textContent = overall + '%';
+  }catch(e){}
+
+  // --- Real score chart ---
+  buildScoreChart();
+
+  // --- Real weak areas ---
+  buildWeakAreas();
+
+  // --- Roadmap steps preview ---
+  const goal = USER.goal==='unsure'?'eamcet':USER.goal;
+  const steps={eamcet:[{t:'Career Path Chosen',s:'EAMCET → Engineering',done:true},{t:'Weak Area Intensive',s:'Focus on low scoring topics',done:false},{t:'Target 80%+ Mocks',s:'Estimated 3 weeks',done:false},{t:'EAMCET Exam Day',s:'You got this! 🎯',done:false}],it:[{t:'Learn Python/JS',s:'Month 1-2',done:true},{t:'Build Projects',s:'Month 3-4',done:false},{t:'Interview Prep',s:'Month 5-6',done:false},{t:'Apply for Jobs',s:'Month 6+',done:false}],diploma:[{t:'Entrance Exam Prep',s:'Polytechnic entrance',done:false},{t:'Admission',s:'Choose branch',done:false},{t:'Workshop Training',s:'Year 1-2',done:false},{t:'Final Job',s:'L&T/HEG/Aurobindo',done:false}],neet:[{t:'BiPC Foundation',s:'Class 11-12',done:false},{t:'NEET Prep',s:'Past papers practice',done:false},{t:'MBBS Counselling',s:'State quota',done:false},{t:'Internship',s:'Medical registration',done:false}],appsc:[{t:'Foundation',s:'Maths + GK + Language',done:false},{t:'APPSC Prep',s:'Group 4 syllabus',done:false},{t:'Mock Tests',s:'Daily 50 questions',done:false},{t:'Apply + Job',s:'₹25K-60K/month',done:false}]};
+  const rmSteps=steps[goal]||steps.eamcet;
+  const container=document.getElementById('dash-rm-steps');
+  container.innerHTML=rmSteps.map((s,i)=>`<div style="display:flex;gap:11px;padding:9px 0;border-bottom:1px solid var(--border);align-items:flex-start"><div style="width:24px;height:24px;border-radius:50%;${s.done?'background:var(--accent3);color:white':i===rmSteps.findIndex(x=>!x.done)?'background:linear-gradient(135deg,#2563a8,#06d6a0);color:white':'background:var(--border);color:var(--muted)'};display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0">${s.done?'✓':i===rmSteps.findIndex(x=>!x.done)?'→':(i+1)}</div><div><div style="font-size:13px;font-weight:700">${s.t}</div><div style="font-size:11px;color:var(--muted)">${s.s}</div></div></div>`).join('');
+}
+
+function updateStreak(){
+  try{
+    const today = new Date().toDateString();
+    const lastVisit = localStorage.getItem('lwf_last_visit');
+    let streak = parseInt(localStorage.getItem('lwf_streak')||'0');
+    let bestStreak = parseInt(localStorage.getItem('lwf_best_streak')||'0');
+    if(lastVisit === today){
+      // Same day — keep streak
+    } else {
+      const yesterday = new Date(Date.now()-86400000).toDateString();
+      if(lastVisit === yesterday){
+        streak++;
+      } else if(!lastVisit){
+        streak = 1;
+      } else {
+        streak = 1; // streak broken
+      }
+      localStorage.setItem('lwf_last_visit', today);
+      localStorage.setItem('lwf_streak', streak);
+      if(streak > bestStreak){
+        bestStreak = streak;
+        localStorage.setItem('lwf_best_streak', bestStreak);
+      }
+    }
+    USER.streak = streak || 1;
+    document.getElementById('streak-val').textContent = USER.streak;
+    document.getElementById('streak-best').textContent = `Best: ${bestStreak || 1} day${bestStreak>1?'s':''}`;
+  }catch(e){document.getElementById('streak-val').textContent='1';}
+}
+
+function buildScoreChart(){
+  try{
+    const history = JSON.parse(localStorage.getItem('lwf_score_history')||'[]');
+    const canvas = document.getElementById('scoreChart');
+    const empty = document.getElementById('chart-empty');
+    if(!history.length){
+      if(canvas)canvas.style.display='none';
+      if(empty)empty.style.display='block';
+      return;
+    }
+    if(canvas)canvas.style.display='block';
+    if(empty)empty.style.display='none';
+
+    if(typeof Chart === 'undefined'){
+      // Fallback: draw simple bars on canvas manually
+      if(!canvas) return;
+      const ctx = canvas.getContext('2d');
+      canvas.width = canvas.offsetWidth || 400;
+      canvas.height = 130;
+      const w=canvas.width, h=canvas.height, pad=30;
+      ctx.clearRect(0,0,w,h);
+      const barW = Math.min(40,(w-pad*2)/history.length-4);
+      history.forEach((item,i)=>{
+        const x = pad + i*((w-pad*2)/history.length);
+        const barH = ((item.pct/100)*(h-pad));
+        const col = item.pct>=70?'#16a34a':item.pct>=50?'#d97706':'#dc2626';
+        ctx.fillStyle=col;
+        ctx.fillRect(x, h-pad-barH, barW, barH);
+        ctx.fillStyle='#888';
+        ctx.font='9px sans-serif';
+        ctx.fillText(item.pct+'%', x, h-pad-barH-3);
+        ctx.fillText(item.type.toUpperCase().slice(0,3), x, h-10);
+      });
+      return;
+    }
+
+    const labels = history.map(h=>{
+      const modeIcon={chapter:'📚',weak:'☀️',full:'🌙'};
+      return (modeIcon[h.mode]||'📝')+' '+h.type.toUpperCase()+'\n'+new Date(h.time).toLocaleDateString('en-IN',{day:'2-digit',month:'short'});
+    });
+    const data = history.map(h=>h.pct);
+    const colors = history.map(h=>h.pct>=70?'#16a34a':h.pct>=50?'#d97706':'#dc2626');
+    if(scoreChartInstance){scoreChartInstance.destroy();}
+    scoreChartInstance = new Chart(canvas, {
+      type:'bar',
+      data:{
+        labels,
+        datasets:[{
+          label:'Score %',
+          data,
+          backgroundColor:colors.map(c=>c+'33'),
+          borderColor:colors,
+          borderWidth:2,
+          borderRadius:6,
+        }]
+      },
+      options:{
+        responsive:true,
+        plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>ctx.raw+'%'}}},
+        scales:{
+          y:{min:0,max:100,ticks:{callback:v=>v+'%',font:{size:11}},grid:{color:'rgba(0,0,0,0.05)'}},
+          x:{grid:{display:false},ticks:{font:{size:9},maxRotation:35}}
+        }
+      }
+    });
+  }catch(e){console.warn('Chart error',e);}
+}
+
+function buildWeakAreas(){
+  try{
+    const topicData = JSON.parse(localStorage.getItem('lwf_topic_scores')||'{}');
+    const container = document.getElementById('weak-areas-list');
+    const entries = Object.entries(topicData).sort((a,b)=>a[1].pct-b[1].pct).slice(0,6);
+    if(!entries.length){container.innerHTML='<p style="color:var(--muted);font-size:13px;text-align:center;padding:16px 0">Take mock exams to track your weak areas!</p>';return;}
+    container.innerHTML = `<div style="display:flex;flex-direction:column;gap:9px">${entries.map(([topic,d])=>{
+      const pct=d.pct;
+      const col=pct<50?'#dc2626':pct<70?'#d97706':'#16a34a';
+      return `<div><div style="display:flex;justify-content:space-between;margin-bottom:3px;font-size:13px"><span>${topic}</span><span style="color:${col};font-weight:700">${pct}%</span></div><div style="height:5px;background:var(--border);border-radius:3px"><div style="height:100%;width:${pct}%;background:${col};border-radius:3px;transition:width 0.6s"></div></div></div>`;
+    }).join('')}</div>`;
+  }catch(e){}
+}
+
+function toggleTask(el){
+  el.classList.toggle('done');
+  if(el.classList.contains('done')){el.querySelector('.task-check').textContent='✓';showToast('✅ Task done!');}
+  else el.querySelector('.task-check').textContent='';
+}
+
+// ==================== LOOP INTERVIEW ====================
+const FILLERS=['um','uh','like','you know','basically','literally','actually','so','right','okay'];
+const DIFF_T={easy:90,medium:60,hard:45};
+const DIFF_Q={easy:5,medium:7,hard:10};
+
+// Real Anthropic API call
+async function callAI(msgs, maxTokens=300){
+  const systemMsg = msgs.find(m=>m.role==='system');
+  const userMsgs = msgs.filter(m=>m.role!=='system');
+  const resp = await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      model:'claude-sonnet-4-20250514',
+      max_tokens: maxTokens,
+      system: systemMsg ? systemMsg.content : 'You are a helpful interview coach.',
+      messages: userMsgs.map(m=>({role:m.role==='assistant'?'assistant':'user',content:m.content}))
+    })
+  });
+  if(!resp.ok) throw new Error('API error '+resp.status);
+  const d = await resp.json();
+  return d.content[0].text.trim();
+}
+
+// Keep callGroq as alias pointing to callAI for backward compat
+async function callGroq(msgs,mt=250){return callAI(msgs,mt);}
+
+// Large pool of interview questions — shuffled every session so NO repeats
+const IV_QUESTION_POOL = [
+  "Tell me about yourself and your background.",
+  "Why do you want this role?",
+  "What are your greatest strengths?",
+  "What is your biggest weakness and how are you working on it?",
+  "Describe a challenging situation you faced and how you resolved it.",
+  "Where do you see yourself in 5 years?",
+  "Tell me about a project you are most proud of.",
+  "How do you handle working under pressure or tight deadlines?",
+  "Describe your experience with teamwork. Give an example.",
+  "What motivates you to work hard?",
+  "Tell me about a time you failed and what you learned.",
+  "How do you prioritize tasks when you have multiple deadlines?",
+  "What do you know about our company?",
+  "Why should we hire you over other candidates?",
+  "Describe a time you showed leadership.",
+  "How do you handle conflicts with teammates?",
+  "What is your approach to learning a new technology quickly?",
+  "Tell me about your final year project or a major academic project.",
+  "How comfortable are you with working in a fast-paced environment?",
+  "What are your salary expectations?",
+  "Tell me about a time you received critical feedback. How did you respond?",
+  "Describe your problem-solving process.",
+  "What extracurricular activities or side projects have you worked on?",
+  "How do you stay updated with the latest trends in technology?",
+  "What coding languages are you most comfortable with, and why?",
+];
+
+const LS={p:{},skills:[],diff:'easy',qCount:0,maxQ:5,answers:[],scores:[],emoH:[],fc:0,pc:0,hes:[],start:null,tI:null,eI:null,qtI:null,qtLeft:60,recog:false,rec:null,stream:null,monaco:null,lastSpeech:null,silT:null,voiceOn:true,history:[],usedQs:[],queuedQs:[]};
+
+function lgo(id){document.querySelectorAll('.loop-screen').forEach(s=>s.classList.remove('active'));document.getElementById('lscreen-'+id).classList.add('active');}
+function laddSkill(e){if(e.key==='Enter'){e.preventDefault();const v=e.target.value.trim();if(!v||LS.skills.includes(v))return;LS.skills.push(v);lrenderSkills();e.target.value='';}}
+function lremoveSkill(s){LS.skills=LS.skills.filter(x=>x!==s);lrenderSkills();}
+function lrenderSkills(){document.getElementById('l-stags').innerHTML=LS.skills.map(s=>`<span class="lskill-tag" onclick="lremoveSkill('${s}')">${s} ✕</span>`).join('');document.getElementById('lf-skills').value=LS.skills.join(', ');}
+function lsetDiff(d,el){document.querySelectorAll('.ldiff-btn').forEach(b=>b.classList.remove('sel'));el.classList.add('sel');document.getElementById('lf-diff').value=d;LS.diff=d;}
+
+async function lstartIV(e){
+  e.preventDefault();
+  LS.p={name:document.getElementById('lf-name').value,degree:document.getElementById('lf-degree').value,branch:document.getElementById('lf-branch').value,role:document.getElementById('lf-role').value,exp:document.getElementById('lf-exp').value,company:document.getElementById('lf-company').value,skills:LS.skills.join(', ')||'General'};
+  LS.diff=document.getElementById('lf-diff').value;
+  LS.maxQ=DIFF_Q[LS.diff];LS.qtLeft=DIFF_T[LS.diff];
+  document.getElementById('l-co-label').textContent={general:'TechCorp',google:'Google',tcs:'TCS/Infosys',startup:'Startup Inc.'}[LS.p.company]||'TechCorp';
+  // Shuffle question pool — ensures different questions every session
+  LS.queuedQs = shuffleArr([...IV_QUESTION_POOL]);
+  LS.usedQs = [];
+  lgo('interview');
+  await lstartCam();lstartTimer();lstartEmo();linitMonaco();await laskFirst();
+}
+
+async function lstartCam(){try{LS.stream=await navigator.mediaDevices.getUserMedia({video:true,audio:false});document.getElementById('l-webcam').srcObject=LS.stream;}catch(e){}}
+function lstartTimer(){LS.start=Date.now();LS.tI=setInterval(()=>{const s=Math.floor((Date.now()-LS.start)/1000);document.getElementById('l-te').textContent=`${Math.floor(s/60)}:${(s%60).toString().padStart(2,'0')}`;},1000);}
+function lstartQTimer(){clearInterval(LS.qtI);LS.qtLeft=DIFF_T[LS.diff];const el=document.getElementById('l-qtimer');LS.qtI=setInterval(()=>{LS.qtLeft--;el.textContent=LS.qtLeft;el.className='l-qtimer';if(LS.qtLeft<=15)el.classList.add('warn');if(LS.qtLeft<=5)el.classList.add('danger');if(LS.qtLeft<=0){clearInterval(LS.qtI);if(LS.diff!=='easy'){laddMsg('ai',"⏰ Time's up! Quick summary?","warn");LS.pc++;document.getElementById('ls-p').textContent=LS.pc;}}},1000);}
+function lstartEmo(){let eye=60;LS.eI=setInterval(()=>{const c=35+Math.random()*55,ca=30+Math.random()*60,ne=Math.max(0,100-c-10+Math.random()*20),fo=50+Math.random()*45;eye=Math.min(100,Math.max(20,eye+(Math.random()-0.5)*15));lsetBar('conf',c,'#2563a8');lsetBar('calm',ca,'#06d6a0');lsetBar('nerv',ne,'#f72585');lsetBar('focus',fo,'#ffd60a');LS.emoH.push({conf:c,calm:ca,nerv:ne,eye});const m=document.getElementById('l-ai-mood');if(c>70)m.style.background='linear-gradient(135deg,#06d6a0,#2563a8)';else m.style.background='linear-gradient(135deg,#2563a8,#7c3aed)';},2500);}
+function lsetBar(n,v,c){const pct=Math.min(100,Math.round(v));document.getElementById('lb-'+n).style.width=pct+'%';document.getElementById('lb-'+n).style.background=c;document.getElementById('lv-'+n).textContent=pct+'%';}
+
+// callGroq kept as alias above
+
+function lbuildSys(){
+  const diff={easy:'Be friendly and encouraging. Ask straightforward questions.',medium:'Be professional. Challenge vague answers with "Can you elaborate?"',hard:'Be tough. Push hard. Challenge weak answers aggressively.'};
+  const comp={general:'Ask general HR and technical questions.',google:'Focus on algorithms, system design.',tcs:'Ask projects, teamwork, basic technical.',startup:'Focus on ownership, fast execution.'};
+  return `You are Alex, a ${LS.diff==='hard'?'tough':'professional'} senior interviewer at ${LS.p.company} style company.\n${diff[LS.diff]}\n${comp[LS.p.company]||''}\nIMPORTANT: Ask ONE question at a time. Keep response to 2-3 sentences MAX.\nNEVER repeat a question already asked — track conversation history.\nCandidate: ${LS.p.name}, Role: ${LS.p.role}, Skills: ${LS.p.skills}, Exp: ${LS.p.exp}, Degree: ${LS.p.degree} ${LS.p.branch}`;
+}
+
+// Get next question from pre-shuffled pool — guarantees NO repeats
+function getNextPoolQ(){
+  if(LS.queuedQs.length>0){const q=LS.queuedQs.shift();LS.usedQs.push(q);return q;}
+  return null;
+}
+
+async function laskFirst(){
+  laddTyping();await lsleep(1200);
+  const nextQ=getNextPoolQ();
+  const msgs=[{role:'system',content:lbuildSys()},{role:'user',content:`Start the interview. Welcome ${LS.p.name} warmly. Then ask this first question (adapt naturally to their background): "${nextQ}"`}];
+  try{const q=await callGroq(msgs);lremoveTyping();LS.history.push({role:'assistant',content:q});await laddQ(q);}
+  catch(e){lremoveTyping();const fb=`Welcome ${LS.p.name}! Great to meet you. I'm excited to interview you for the ${LS.p.role} position. ${nextQ||"Could you start by introducing yourself?"}`;LS.history.push({role:'assistant',content:fb});await laddQ(fb);}
+}
+
+async function lgetNext(ans){
+  lscoreAns(ans);
+  let pushBack=LS.diff==='hard'&&ans.length<50||LS.diff==='medium'&&ans.length<30;
+  laddTyping();await lsleep(900+Math.random()*700);lremoveTyping();
+  if(LS.qCount>=LS.maxQ){laddMsg('ai',`Thank you ${LS.p.name}! Interview complete. Click "End & Get Report" for your analysis.`);clearInterval(LS.qtI);return;}
+  LS.history.push({role:'user',content:ans});
+  const nextQ=getNextPoolQ();
+  const qInstr=nextQ?`After responding to the answer, ask this next question (adapt it naturally): "${nextQ}"`:`After responding to the answer, ask a relevant follow-up question about their ${LS.p.role} experience.`;
+  const msgs=[{role:'system',content:lbuildSys()},...LS.history.slice(-6),{role:'user',content:pushBack?`Weak answer: "${ans}". Challenge them briefly, then ${qInstr}.`:`Candidate answered: "${ans}". Acknowledge briefly, then ${qInstr}.`}];
+  try{const q=await callGroq(msgs);LS.history.push({role:'assistant',content:q});await laddQ(q);}
+  catch(e){const fb=nextQ||'Tell me about a challenging problem you solved recently.';await laddQ(`Good effort! ${fb}`);}
+}
+
+function lspeakText(t){if(!window.speechSynthesis||!LS.voiceOn)return;window.speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t.replace(/[*_#`]/g,'').trim());const vs=window.speechSynthesis.getVoices();const pref=vs.find(v=>(v.name.includes('Google')||v.name.includes('Daniel'))&&v.lang.startsWith('en'))||vs.find(v=>v.lang.startsWith('en'))||vs[0];if(pref)u.voice=pref;u.rate=0.92;const ind=document.getElementById('l-speaking');if(ind){ind.style.display='flex';u.onend=()=>{ind.style.display='none';};u.onerror=()=>{ind.style.display='none';};}window.speechSynthesis.speak(u);}
+function ltoggleVoice(){LS.voiceOn=!LS.voiceOn;const b=document.getElementById('l-vtoggle');if(LS.voiceOn){b.textContent='🔊 ON';b.style.background='rgba(6,214,160,0.2)';}else{window.speechSynthesis.cancel();b.textContent='🔇 OFF';b.style.background='transparent';}}
+
+async function laddQ(text){LS.qCount++;document.getElementById('l-pf').style.width=(LS.qCount/LS.maxQ*100)+'%';document.getElementById('l-qc').textContent=`Q ${LS.qCount}/${LS.maxQ}`;laddMsg('ai',text);lstartQTimer();if(LS.voiceOn){await lsleep(300);lspeakText(text);}if(text.toLowerCase().includes('code')||text.toLowerCase().includes('write a')||text.toLowerCase().includes('implement')){await lsleep(400);laddMsg('ai','Use the Code Editor tab to write your solution.','warn');}}
+
+async function lscoreAns(ans){let sc=0;if(ans.length<15)sc=10+Math.random()*15;else if(ans.length<40)sc=25+Math.random()*20;else if(ans.length<100)sc=45+Math.random()*20;else sc=60+Math.random()*25;const negs=['no idea','dont know','idk','skip'];if(negs.some(n=>ans.toLowerCase().includes(n)))sc=Math.min(sc,25);const pos=['because','example','experience','project','solution','worked','team','result','i','my'];const gc=pos.filter(p=>ans.toLowerCase().includes(p)).length;sc=Math.min(100,sc+gc*4);try{const sm=[{role:'system',content:'Score interview answer 0-100. Return ONLY a single integer.'},{role:'user',content:`Role: ${LS.p.role}\nAnswer: "${ans}"\nScore:`}];const st=await callGroq(sm,5);const ai=parseInt(st.replace(/\D/g,''));if(!isNaN(ai)&&ai>=0&&ai<=100)sc=ai;}catch(e){}LS.scores.push(Math.round(sc));const avg=Math.round(LS.scores.reduce((a,b)=>a+b,0)/LS.scores.length);document.getElementById('l-ls').textContent=avg;document.getElementById('ls-avg').textContent=avg;document.getElementById('ls-a').textContent=LS.scores.length;}
+
+async function lsend(){const t=document.getElementById('la-text').value.trim();if(!t)return;lprocessAns(t);document.getElementById('la-text').value='';}
+async function lsendText(){const t=document.getElementById('la-text2').value.trim();if(!t)return;lprocessAns(t);document.getElementById('la-text2').value='';}
+async function lsubCode(){if(!LS.monaco)return;const c=LS.monaco.getValue().trim();if(!c||c.length<10){alert('Write some code first!');return;}lprocessAns(`[Code in ${document.getElementById('l-lang').value}]: ${c}`);}
+
+async function lprocessAns(text){const words=text.toLowerCase().split(/\s+/);const found=words.filter(w=>FILLERS.includes(w));if(found.length>0){LS.fc+=found.length;document.getElementById('ls-f').textContent=LS.fc;document.getElementById('l-fc').textContent=LS.fc;document.getElementById('l-fwarn').style.display='block';setTimeout(()=>document.getElementById('l-fwarn').style.display='none',4000);}const el=Math.floor((Date.now()-LS.start)/1000);LS.hes.push({time:`${Math.floor(el/60)}:${(el%60).toString().padStart(2,'0')}`,answer:text.substring(0,50)+'...'});clearInterval(LS.qtI);laddMsg('user',text);LS.answers.push(text);await lgetNext(text);}
+
+function laddMsg(role,text,type=''){const chat=document.getElementById('l-chat');const div=document.createElement('div');div.className='l-msg';div.innerHTML=`<div class="l-mava ${role}">${role==='ai'?'AI':'U'}</div><div class="l-mcont"><div class="l-mmeta">${role==='ai'?'LearnWithFlow AI':(LS.p.name||'You')} · now</div><div class="l-mbub ${role==='ai'?'ai-b':''} ${type==='warn'?'warn-b':''}">${text}</div></div>`;chat.appendChild(div);chat.scrollTop=chat.scrollHeight;}
+function laddTyping(){const c=document.getElementById('l-chat');const d=document.createElement('div');d.className='l-msg';d.id='l-typing';d.innerHTML=`<div class="l-mava ai">AI</div><div class="l-mcont"><div class="l-mmeta">Typing...</div><div class="l-mbub ai-b"><div class="l-typing"><div class="l-td"></div><div class="l-td"></div><div class="l-td"></div></div></div></div>`;c.appendChild(d);c.scrollTop=c.scrollHeight;}
+function lremoveTyping(){const e=document.getElementById('l-typing');if(e)e.remove();}
+
+function ltoggleMic(){if(!('webkitSpeechRecognition'in window||'SpeechRecognition'in window)){document.getElementById('l-mstatus').textContent='⚠️ Use Chrome!';return;}if(LS.recog){LS.rec.stop();return;}const SR=window.SpeechRecognition||window.webkitSpeechRecognition;LS.rec=new SR();LS.rec.lang='en-US';LS.rec.continuous=true;LS.rec.interimResults=true;LS.rec.onstart=()=>{LS.recog=true;document.getElementById('l-mic').className='l-bmic recording';document.getElementById('l-mic').textContent='⏹';document.getElementById('l-mstatus').textContent='🔴 Recording...';document.querySelectorAll('.lvb').forEach(b=>{b.classList.add('active');b.style.height=(4+Math.random()*20)+'px';});};LS.rec.onresult=(e)=>{let t='';for(let i=e.resultIndex;i<e.results.length;i++)t+=e.results[i][0].transcript;document.getElementById('la-text').value=t;document.querySelectorAll('.lvb').forEach(b=>{b.style.height=(4+Math.random()*24)+'px';});};LS.rec.onend=()=>{LS.recog=false;document.getElementById('l-mic').className='l-bmic idle';document.getElementById('l-mic').textContent='🎤';document.getElementById('l-mstatus').textContent='Click mic to speak';document.querySelectorAll('.lvb').forEach(b=>{b.classList.remove('active');b.style.height='4px';});};LS.rec.start();}
+function ltab(t,el){document.querySelectorAll('.l-tab').forEach(b=>b.classList.remove('active'));document.querySelectorAll('.l-tc').forEach(c=>c.classList.remove('active'));el.classList.add('active');document.getElementById('ltc-'+t).classList.add('active');if(t==='code'&&!LS.monaco)setTimeout(linitMonaco,100);}
+function linitMonaco(){if(LS.monaco||!document.getElementById('l-code-cont'))return;require.config({paths:{vs:'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.44.0/min/vs'}});require(['vs/editor/editor.main'],function(){LS.monaco=monaco.editor.create(document.getElementById('l-code-cont'),{value:'// Write your code here\n',language:'java',theme:'vs-dark',fontSize:13,minimap:{enabled:false},scrollBeyondLastLine:false});});}
+function lchangeLang(){if(!LS.monaco)return;const l=document.getElementById('l-lang').value;monaco.editor.setModelLanguage(LS.monaco.getModel(),l);const s={java:'public class Solution {\n    public static void main(String[] args) {\n        \n    }\n}',python:'def solution():\n    pass',javascript:'function solution() {\n    \n}',cpp:'#include<iostream>\nusing namespace std;\nint main(){\n    return 0;\n}'};LS.monaco.setValue(s[l]||'// Write your code');}
+function lendIV(){clearInterval(LS.tI);clearInterval(LS.eI);clearInterval(LS.qtI);if(LS.rec)LS.rec.stop();if(LS.stream)LS.stream.getTracks().forEach(t=>t.stop());if(window.speechSynthesis)window.speechSynthesis.cancel();lgenResults();lgo('results');}
+
+function lgenResults(){
+  const avg=LS.scores.length>0?Math.round(LS.scores.reduce((a,b)=>a+b,0)/LS.scores.length):55+Math.round(Math.random()*25);
+  const em=LS.emoH.length>0?{conf:Math.round(LS.emoH.reduce((a,b)=>a+b.conf,0)/LS.emoH.length),eye:Math.round(LS.emoH.reduce((a,b)=>a+b.eye,0)/LS.emoH.length)}:{conf:65,eye:72};
+  document.getElementById('l-fscore').textContent=avg;
+  const circ=2*Math.PI*70;setTimeout(()=>{document.getElementById('l-sring').style.strokeDashoffset=circ-(avg/100)*circ;},100);
+  let vc,vt,vm;if(avg>=75){vc='good';vt='✅ Interview Ready!';vm=`Excellent work ${LS.p.name}! Strong performance.`;}else if(avg>=50){vc='avg';vt='⚡ Almost There!';vm=`Good effort ${LS.p.name}! Keep practicing.`;}else{vc='bad';vt='📚 Needs Practice';vm=`Don't give up ${LS.p.name}! Daily practice works.`;}
+  document.getElementById('l-verdict').innerHTML=`<div class="lvbadge ${vc}">${vt}</div><p class="lverdict-txt">${vm}</p>`;
+  document.getElementById('lm-q').textContent=avg+'%';document.getElementById('lm-c').textContent=em.conf+'%';document.getElementById('lm-cm').textContent=Math.round((avg+em.eye)/2)+'%';document.getElementById('lm-f').textContent=LS.fc+' words';
+  const hes=document.getElementById('l-hes');if(LS.hes.length>0){hes.innerHTML=`<p class="lhst">⏱ Answer Timeline</p>`+LS.hes.slice(0,5).map((h,i)=>`<div class="lhsi">Q${i+1} at ${h.time} — "${h.answer}"</div>`).join('');}else hes.style.display='none';
+  const fb=[];if(avg>=75)fb.push({i:'✅',t:'Strong performance!'});if(avg<75)fb.push({i:'💡',t:'Use STAR: Situation → Task → Action → Result.'});if(em.conf<60)fb.push({i:'🎯',t:'Practice in front of mirror to build confidence.'});if(LS.fc>5)fb.push({i:'🗣',t:`${LS.fc} filler words detected. Pause instead of saying "um"/"uh".`});fb.push({i:'📖',t:`Review ${LS.p.role} interview questions daily.`});fb.push({i:'🔁',t:'Practice 3 mock interviews per week.'});
+  document.getElementById('l-flist').innerHTML=fb.map(f=>`<div class="lfi"><span>${f.i}</span><span>${f.t}</span></div>`).join('');
+}
+function lrestart(){Object.assign(LS,{p:{},skills:[],qCount:0,answers:[],scores:[],emoH:[],fc:0,pc:0,hes:[],start:null,history:[],usedQs:[],queuedQs:[],recog:false});document.getElementById('l-chat').innerHTML='';document.getElementById('l-stags').innerHTML='';document.getElementById('l-ls').textContent='--';lgo('landing');}
+
+function lsleep(ms){return new Promise(r=>setTimeout(r,ms));}
+
+// ==================== INIT ====================
+document.addEventListener('DOMContentLoaded',()=>{
+  if(window.speechSynthesis){window.speechSynthesis.getVoices();window.speechSynthesis.onvoiceschanged=()=>window.speechSynthesis.getVoices();}
+  document.getElementById('la-text').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();lsend();}});
+  document.getElementById('la-text2').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();lsendText();}});
+  // Load roadmap progress
+  loadRmProgress2();
+  initQuiz();
+  // Show home page directly (no login required)
+  showPage('home');
+});
+</script>
+</body>
+</html>
