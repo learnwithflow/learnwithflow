@@ -2,7 +2,7 @@ import './globals.css';
 import Script from 'next/script';
 
 export const metadata = {
-  title: 'LearnWithFlow — Your Path from Inter to Career',
+  title: 'LearnWithFlow',
   description: 'AI career guidance, mock exams, voice interview practice — all in one place.',
 };
 
