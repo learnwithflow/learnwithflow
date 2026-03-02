@@ -2272,12 +2272,88 @@ h1 em {
 @media(max-width:768px) {
   .l-iv-layout {
     grid-template-columns: 1fr;
-    height: auto
+    height: auto;
+    min-height: calc(100vh - 56px)
+  }
+
+  .l-iv-main {
+    height: calc(100vh - 56px);
+    min-height: 500px;
+    padding: 12px;
+    gap: 10px
   }
 
   .l-iv-sidebar {
     border-left: none;
-    border-top: 1px solid var(--loop-border)
+    border-top: 1px solid var(--loop-border);
+    padding: 14px;
+    max-height: none
+  }
+
+  .l-iv-hdr {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding-bottom: 10px
+  }
+
+  .l-hdr-right {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    flex-wrap: wrap
+  }
+
+  .l-chat {
+    min-height: 200px;
+    max-height: 50vh
+  }
+
+  .l-input-area {
+    padding: 8px 10px
+  }
+
+  .l-irow {
+    flex-wrap: wrap;
+    gap: 6px
+  }
+
+  #la-text,
+  #la-text2 {
+    min-width: 0;
+    width: 100%;
+    height: 42px;
+    font-size: 13px
+  }
+
+  .l-bmic {
+    width: 36px;
+    height: 36px
+  }
+
+  .l-bsend {
+    width: 100%;
+    height: 36px;
+    font-size: 12px;
+    padding: 6px 12px
+  }
+
+  .l-vcont {
+    height: 140px
+  }
+
+  .l-msg {
+    gap: 6px
+  }
+
+  .l-mbub {
+    padding: 9px 11px;
+    font-size: 13px
+  }
+
+  .l-mava {
+    width: 28px;
+    height: 28px;
+    font-size: 10px
   }
 
   .lform-row {
@@ -2286,6 +2362,37 @@ h1 em {
 
   .lmg {
     grid-template-columns: 1fr
+  }
+
+  .l-feat-row {
+    flex-wrap: wrap;
+    gap: 6px
+  }
+
+  .l-chip {
+    font-size: 12px;
+    padding: 6px 10px
+  }
+
+  .l-title {
+    font-size: clamp(28px, 7vw, 48px)
+  }
+
+  .l-sub {
+    font-size: 14px
+  }
+
+  .lcard {
+    padding: 22px 16px
+  }
+
+  .lres-card {
+    padding: 22px 16px
+  }
+
+  .lscore-ring svg {
+    width: 110px;
+    height: 110px
   }
 }
 
