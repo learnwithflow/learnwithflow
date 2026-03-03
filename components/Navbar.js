@@ -15,9 +15,18 @@ export default function Navbar({ currentPage, showPage }) {
     ];
 
     const featureLinks = [
-        { id: 'dashboard', label: 'Dashboard', desc: 'Streaks, progress & analytics', icon: '📊', color: '#8b5cf6' },
-        { id: 'portfolio', label: 'Portfolio', desc: 'Showcase your skills & projects', icon: '🎨', color: '#2563a8' },
-        { id: 'resume', label: 'Resume Builder', desc: 'ATS-ready PDF in one click', icon: '📄', color: '#06b6a0' },
+        {
+            id: 'dashboard', label: 'Dashboard', desc: 'Progress & analytics', color: '#8b5cf6',
+            svg: <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 13h4v8H3zm7-5h4v13h-4zm7-5h4v18h-4z" /></svg>
+        },
+        {
+            id: 'portfolio', label: 'Portfolio', desc: 'Skills & projects', color: '#2563a8',
+            svg: <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zm-4 7a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+        },
+        {
+            id: 'resume', label: 'Resume Builder', desc: 'ATS-ready PDF', color: '#06b6a0',
+            svg: <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+        },
     ];
 
     const handleNav = (id, isMobile = false) => {
@@ -77,36 +86,31 @@ export default function Navbar({ currentPage, showPage }) {
 
                     {/* Desktop Dropdown */}
                     {desktopMenuOpen && (
-                        <div className="hidden md:block absolute top-[60px] right-4 w-64 bg-white rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] border border-[#e8e4dc] overflow-hidden z-50" style={{ animation: 'dropdownSlide 0.2s ease-out' }}>
-                            {/* Gradient accent bar */}
-                            <div className="h-1 bg-gradient-to-r from-[#8b5cf6] via-[#2563a8] to-[#06b6a0]"></div>
-
-                            <div className="px-4 pt-4 pb-2">
-                                <div className="text-[10px] font-extrabold text-[#b0a99e] uppercase tracking-[0.15em]">Career Copilot</div>
+                        <div className="hidden md:block absolute top-[56px] right-4 w-56 rounded-xl overflow-hidden z-50" style={{ animation: 'ddSlide 0.18s cubic-bezier(.16,1,.3,1)', background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', boxShadow: '0 4px 24px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.04)', border: '1px solid rgba(0,0,0,0.06)' }}>
+                            <div className="px-3.5 pt-3 pb-1.5">
+                                <span className="text-[9px] font-bold text-[#a09890] uppercase tracking-[0.18em]">Career Copilot</span>
                             </div>
-
-                            <div className="px-2 pb-3 space-y-1">
-                                {featureLinks.map(l => (
+                            <div className="px-1.5 pb-2">
+                                {featureLinks.map((l, i) => (
                                     <button
                                         key={l.id}
                                         onClick={() => handleNav(l.id)}
-                                        className={`w-full text-left px-3 py-3 rounded-xl transition-all duration-200 flex items-center gap-3 group ${currentPage === l.id ? 'bg-[#f0edff] ring-1 ring-[#8b5cf6]/20' : 'hover:bg-[#f8f6f2]'}`}
+                                        className={`w-full text-left px-2.5 py-2 rounded-lg transition-all duration-150 flex items-center gap-2.5 group ${currentPage === l.id ? 'bg-[#f0edff]' : 'hover:bg-black/[0.03]'}`}
                                     >
                                         <div
-                                            className="w-9 h-9 rounded-lg flex items-center justify-center text-base shrink-0 transition-transform duration-200 group-hover:scale-110"
-                                            style={{ backgroundColor: l.color + '12' }}
+                                            className="w-7 h-7 rounded-md flex items-center justify-center shrink-0 transition-transform duration-150 group-hover:scale-105"
+                                            style={{ backgroundColor: l.color + '14', color: l.color }}
                                         >
-                                            {l.icon}
+                                            {l.svg}
                                         </div>
-                                        <div className="min-w-0">
-                                            <div className={`text-sm font-bold leading-tight ${currentPage === l.id ? 'text-[#8b5cf6]' : 'text-[#1c1814] group-hover:text-[#2563a8]'}`}>
+                                        <div className="min-w-0 flex-1">
+                                            <div className={`text-[13px] font-semibold leading-tight ${currentPage === l.id ? 'text-[#6d28d9]' : 'text-[#1c1814]'}`}>
                                                 {l.label}
                                             </div>
-                                            <div className="text-[11px] text-[#8b8278] leading-tight mt-0.5 font-medium">
+                                            <div className="text-[10.5px] text-[#9e978e] leading-tight mt-px">
                                                 {l.desc}
                                             </div>
                                         </div>
-                                        <svg className={`w-4 h-4 shrink-0 ml-auto transition-all duration-200 ${currentPage === l.id ? 'text-[#8b5cf6]' : 'text-[#d6d0c4] group-hover:text-[#2563a8] group-hover:translate-x-0.5'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path></svg>
                                     </button>
                                 ))}
                             </div>
@@ -115,9 +119,9 @@ export default function Navbar({ currentPage, showPage }) {
 
                     <style dangerouslySetInnerHTML={{
                         __html: `
-                        @keyframes dropdownSlide {
-                            from { opacity: 0; transform: translateY(-8px) scale(0.96); }
-                            to { opacity: 1; transform: translateY(0) scale(1); }
+                        @keyframes ddSlide {
+                            from { opacity: 0; transform: translateY(-6px); }
+                            to { opacity: 1; transform: translateY(0); }
                         }
                     `}} />
                 </div>
