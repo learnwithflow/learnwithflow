@@ -86,31 +86,33 @@ export default function Navbar({ currentPage, showPage }) {
 
                     {/* Desktop Dropdown */}
                     {desktopMenuOpen && (
-                        <div className="hidden md:block absolute top-[56px] right-4 w-56 rounded-xl overflow-hidden z-50" style={{ animation: 'ddSlide 0.18s cubic-bezier(.16,1,.3,1)', background: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', boxShadow: '0 4px 24px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.04)', border: '1px solid rgba(0,0,0,0.06)' }}>
-                            <div className="px-3.5 pt-3 pb-1.5">
-                                <span className="text-[9px] font-bold text-[#a09890] uppercase tracking-[0.18em]">Career Copilot</span>
-                            </div>
-                            <div className="px-1.5 pb-2">
+                        <div className="hidden md:block absolute top-[62px] right-3 w-[260px] z-50" style={{ animation: 'ddFade 0.25s cubic-bezier(.22,1,.36,1)' }}>
+                            <div className="rounded-2xl p-1.5" style={{ background: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(24px) saturate(1.4)', WebkitBackdropFilter: 'blur(24px) saturate(1.4)', boxShadow: '0 12px 40px -8px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.04)', border: '1px solid rgba(255,255,255,0.6)' }}>
                                 {featureLinks.map((l, i) => (
                                     <button
                                         key={l.id}
                                         onClick={() => handleNav(l.id)}
-                                        className={`w-full text-left px-2.5 py-2 rounded-lg transition-all duration-150 flex items-center gap-2.5 group ${currentPage === l.id ? 'bg-[#f0edff]' : 'hover:bg-black/[0.03]'}`}
+                                        className={`w-full text-left rounded-xl transition-all duration-200 flex items-center gap-3.5 group relative overflow-hidden ${currentPage === l.id ? 'bg-white shadow-sm' : 'hover:bg-white/80'}`}
+                                        style={{ padding: '14px 16px', animation: `ddItem 0.3s cubic-bezier(.22,1,.36,1) ${i * 0.06}s both` }}
                                     >
+                                        {/* Left accent bar */}
+                                        <div className="absolute left-0 top-[20%] bottom-[20%] w-[3px] rounded-r-full transition-all duration-200" style={{ backgroundColor: currentPage === l.id ? l.color : 'transparent' }}></div>
+
                                         <div
-                                            className="w-7 h-7 rounded-md flex items-center justify-center shrink-0 transition-transform duration-150 group-hover:scale-105"
-                                            style={{ backgroundColor: l.color + '14', color: l.color }}
+                                            className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 transition-all duration-200 group-hover:scale-110 group-hover:shadow-sm"
+                                            style={{ background: `linear-gradient(135deg, ${l.color}18, ${l.color}08)`, color: l.color, border: `1px solid ${l.color}15` }}
                                         >
                                             {l.svg}
                                         </div>
                                         <div className="min-w-0 flex-1">
-                                            <div className={`text-[13px] font-semibold leading-tight ${currentPage === l.id ? 'text-[#6d28d9]' : 'text-[#1c1814]'}`}>
+                                            <div className={`text-[13.5px] font-semibold tracking-[-0.01em] ${currentPage === l.id ? 'text-[#1c1814]' : 'text-[#2c2520] group-hover:text-[#1c1814]'}`} style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
                                                 {l.label}
                                             </div>
-                                            <div className="text-[10.5px] text-[#9e978e] leading-tight mt-px">
+                                            <div className="text-[11px] text-[#9e978e] mt-0.5 tracking-[0.01em]" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
                                                 {l.desc}
                                             </div>
                                         </div>
+                                        <svg className={`w-3.5 h-3.5 shrink-0 transition-all duration-200 ${currentPage === l.id ? 'text-[#1c1814] opacity-50' : 'text-[#d0cbc2] group-hover:text-[#a09890] group-hover:translate-x-0.5'}`} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" /></svg>
                                     </button>
                                 ))}
                             </div>
@@ -119,9 +121,13 @@ export default function Navbar({ currentPage, showPage }) {
 
                     <style dangerouslySetInnerHTML={{
                         __html: `
-                        @keyframes ddSlide {
-                            from { opacity: 0; transform: translateY(-6px); }
-                            to { opacity: 1; transform: translateY(0); }
+                        @keyframes ddFade {
+                            from { opacity: 0; transform: translateY(-10px) scale(0.97); }
+                            to { opacity: 1; transform: translateY(0) scale(1); }
+                        }
+                        @keyframes ddItem {
+                            from { opacity: 0; transform: translateX(-6px); }
+                            to { opacity: 1; transform: translateX(0); }
                         }
                     `}} />
                 </div>
