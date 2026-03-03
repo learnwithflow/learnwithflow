@@ -4,6 +4,25 @@ import Script from 'next/script';
 export const metadata = {
   title: 'LearnWithFlow',
   description: 'AI career guidance, mock exams, voice interview practice — all in one place.',
+  openGraph: {
+    title: 'LearnWithFlow',
+    description: 'Your path from Inter to Career starts here',
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'LearnWithFlow Preview Image',
+      },
+    ],
+  },
+  verification: {
+    google: 'your-google-verification-code', // Replace with your actual verification code
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function RootLayout({ children }) {

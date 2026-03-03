@@ -1,5 +1,5 @@
 'use client';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 
 const DAILY_TASKS = [
     { text: '📚 Chapter Practice — 10 Qs', pts: '+10 pts' },
@@ -9,20 +9,69 @@ const DAILY_TASKS = [
 ];
 
 export default function Dashboard({ showPage }) {
-    const [streak, setStreak] = useState(1);
-    const [bestStreak, setBestStreak] = useState(1);
-    const [qs, setQs] = useState(0);
-    const [score, setScore] = useState('--');
-    const [rmPct, setRmPct] = useState(0);
+    const [streak, setStreak] = useState(() => {
+        if (typeof window !== 'undefined') {
+            const today = new Date().toDateString();
+            const last = localStorage.getItem('lwf_last_visit');
+            let s = parseInt(localStorage.getItem('lwf_streak') || '1');
+            if (last !== today) {
+                const yesterday = new Date(Date.now() - 86400000).toDateString();
+                s = last === yesterday ? s + 1 : 1;
+            }
+            return s || 1;
+        }
+        return 1;
+    });
+
+    const [bestStreak, setBestStreak] = useState(() => {
+        if (typeof window !== 'undefined') {
+            const today = new Date().toDateString();
+            const last = localStorage.getItem('lwf_last_visit');
+            let bs = parseInt(localStorage.getItem('lwf_best_streak') || '1');
+            let s = parseInt(localStorage.getItem('lwf_streak') || '1');
+            if (last !== today) {
+                const yesterday = new Date(Date.now() - 86400000).toDateString();
+                s = last === yesterday ? s + 1 : 1;
+                if (s > bs) bs = s;
+            }
+            return bs || 1;
+        }
+        return 1;
+    });
+
+    const [qs, setQs] = useState(() => {
+        if (typeof window !== 'undefined') return parseInt(localStorage.getItem('lwf_qs') || '0');
+        return 0;
+    });
+
+    const [score, setScore] = useState(() => {
+        if (typeof window !== 'undefined') return localStorage.getItem('lwf_score') || '--';
+        return '--';
+    });
+
+    const [rmPct, setRmPct] = useState(() => {
+        if (typeof window !== 'undefined') {
+            try {
+                const rm = JSON.parse(localStorage.getItem('lwf_rm_v3') || '{}');
+                const total = Object.values(rm).reduce((a, v) => a + (v?.length || 0), 0);
+                return total > 0 ? Math.min(100, Math.round(total / 5)) : 0;
+            } catch (e) { return 0; }
+        }
+        return 0;
+    });
+
     const [tasks, setTasks] = useState(DAILY_TASKS.map(t => ({ ...t, done: false })));
-    const [history, setHistory] = useState([]);
+
+    const [history, setHistory] = useState(() => {
+        if (typeof window !== 'undefined') {
+            try { return JSON.parse(localStorage.getItem('lwf_score_history') || '[]'); } catch (e) { return []; }
+        }
+        return [];
+    });
     const chartRef = useRef(null);
     const chartInstRef = useRef(null);
 
-    useEffect(() => { loadAll(); }, []);
-    useEffect(() => { if (history.length > 0) buildChart(); }, [history]);
-
-    const loadAll = () => {
+    useEffect(() => {
         try {
             const today = new Date().toDateString();
             const last = localStorage.getItem('lwf_last_visit');
@@ -35,15 +84,10 @@ export default function Dashboard({ showPage }) {
                 localStorage.setItem('lwf_streak', s);
                 if (s > bs) { bs = s; localStorage.setItem('lwf_best_streak', bs); }
             }
-            setStreak(s || 1); setBestStreak(bs || 1);
-            setQs(parseInt(localStorage.getItem('lwf_qs') || '0'));
-            setScore(localStorage.getItem('lwf_score') || '--');
-            try { const rm = JSON.parse(localStorage.getItem('lwf_rm_v3') || '{}'); const total = Object.values(rm).reduce((a, v) => a + (v?.length || 0), 0); setRmPct(total > 0 ? Math.min(100, Math.round(total / 5)) : 0); } catch (e) { }
-            try { setHistory(JSON.parse(localStorage.getItem('lwf_score_history') || '[]')); } catch (e) { }
         } catch (e) { }
-    };
+    }, []);
 
-    const buildChart = () => {
+    const buildChart = useCallback(() => {
         if (!chartRef.current || typeof window === 'undefined' || typeof Chart === 'undefined') return;
         if (chartInstRef.current) chartInstRef.current.destroy();
         chartInstRef.current = new Chart(chartRef.current, {
@@ -51,7 +95,9 @@ export default function Dashboard({ showPage }) {
             data: { labels: history.slice(-10).map((_, i) => `Exam ${i + 1}`), datasets: [{ label: 'Score %', data: history.slice(-10).map(h => h.pct), borderColor: '#2563a8', backgroundColor: 'rgba(37,99,168,0.1)', tension: 0.4, fill: true, pointRadius: 5, pointBackgroundColor: history.slice(-10).map(h => h.pct >= 70 ? '#16a34a' : '#dc2626') }] },
             options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { min: 0, max: 100 }, x: { grid: { display: false } } } }
         });
-    };
+    }, [history]);
+
+    useEffect(() => { if (history.length > 0) buildChart(); }, [history, buildChart]);
 
     const toggleTask = (i) => setTasks(prev => prev.map((t, idx) => idx === i ? { ...t, done: !t.done } : t));
     const hour = new Date().getHours();

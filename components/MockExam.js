@@ -32,10 +32,6 @@ export default function MockExam({ showPage, showToast }) {
 
     useEffect(() => { return () => clearInterval(timerRef.current); }, []);
 
-    // Reset chapter selection when exam type changes
-    useEffect(() => {
-        setSelectedChapter('');
-    }, [examType]);
 
     const switchExamType = (type) => {
         setExamType(type);

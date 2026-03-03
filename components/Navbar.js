@@ -13,6 +13,9 @@ export default function Navbar({ currentPage, showPage }) {
         { id: 'roadmap', label: 'Roadmaps' },
         { id: 'interview', label: 'AI Interview' },
         { id: 'dashboard', label: 'Dashboard' },
+        { id: 'jobtracker', label: 'Job Tracker' },
+        { id: 'portfolio', label: 'Portfolio' },
+        { id: 'resume', label: 'Resume Builder' },
     ];
 
     return (

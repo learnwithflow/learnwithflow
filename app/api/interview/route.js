@@ -1,4 +1,4 @@
-async function callAI(messages) {
+async function callAI(messages, maxTokens = 800) {
     const providers = [
         { url: 'https://api.groq.com/openai/v1/chat/completions', key: process.env.GROQ_INTERVIEW_KEY, model: 'llama-3.3-70b-versatile', name: 'Groq' },
         { url: 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions', key: process.env.GEMINI_INTERVIEW_KEY, model: 'gemini-2.0-flash', name: 'Gemini' },
@@ -7,18 +7,24 @@ async function callAI(messages) {
     for (const p of providers) {
         if (!p.key) continue;
         try {
-            const res = await fetch(p.url, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${p.key}` }, body: JSON.stringify({ model: p.model, messages, max_tokens: 800, temperature: 0.7 }) });
+            const res = await fetch(p.url, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${p.key}` }, body: JSON.stringify({ model: p.model, messages, max_tokens: maxTokens, temperature: 0.8 }) });
             if (!res.ok) continue;
             const data = await res.json();
             return data.choices?.[0]?.message?.content || '';
         } catch (e) { continue; }
     }
-    return 'Feedback unavailable. Please try again.';
+    return '';
 }
 
 export async function POST(req) {
     try {
-        const { messages } = await req.json();
+        const { messages, action } = await req.json();
+
+        if (action === 'generateQuestions') {
+            const content = await callAI(messages, 2000);
+            return Response.json({ content });
+        }
+
         const content = await callAI(messages);
         return Response.json({ content });
     } catch (e) {

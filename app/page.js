@@ -8,6 +8,9 @@ import Roadmap from '../components/Roadmap';
 import AIInterview from '../components/AIInterview';
 import Dashboard from '../components/Dashboard';
 import Toast from '../components/Toast';
+import JobTracker from '../components/JobTracker';
+import Portfolio from '../components/Portfolio';
+import ResumeBuilder from '../components/ResumeBuilder';
 
 export default function Home() {
   const [currentPage, setCurrentPage] = useState('home');
@@ -36,6 +39,9 @@ export default function Home() {
       <div style={{ ...pageStyle('roadmap'), paddingTop: 0 }}><Roadmap showPage={showPage} showToast={showToast} /></div>
       <div style={{ ...pageStyle('interview'), paddingTop: 56 }}><AIInterview showPage={showPage} showToast={showToast} /></div>
       <div style={{ ...pageStyle('dashboard'), paddingTop: 56 }}><Dashboard showPage={showPage} /></div>
+      <div style={{ ...pageStyle('jobtracker'), paddingTop: 56 }}><JobTracker showPage={showPage} /></div>
+      <div style={{ ...pageStyle('portfolio'), paddingTop: 56 }}><Portfolio showPage={showPage} /></div>
+      <div style={{ ...pageStyle('resume'), paddingTop: 56 }}><ResumeBuilder /></div>
     </>
   );
 }
