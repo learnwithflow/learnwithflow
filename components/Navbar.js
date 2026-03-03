@@ -78,13 +78,13 @@ export default function Navbar({ currentPage, showPage }) {
 
                     {/* Desktop Dropdown */}
                     {desktopMenuOpen && (
-                        <div className="hidden md:block absolute top-[52px] right-4 w-52 bg-white rounded-xl shadow-[0_8px_30px_rgb(0,0,0,0.12)] border border-gray-100 py-2 animate-in fade-in slide-in-from-top-2 z-50">
-                            <div className="px-4 py-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest">Career Copilot</div>
+                        <div className="hidden md:block absolute top-[56px] right-4 w-52 bg-[#faf8f4] rounded-xl shadow-xl border border-[#e2ddd4] py-2 animate-in fade-in slide-in-from-top-2 z-50">
+                            <div className="px-4 py-2 text-[11px] font-bold text-[#8b8278] uppercase tracking-widest mb-1">Career Copilot</div>
                             {featureLinks.map(l => (
                                 <button
                                     key={l.id}
                                     onClick={() => handleNav(l.id)}
-                                    className={`w-full text-left px-4 py-2.5 text-sm font-semibold transition-colors flex items-center gap-2 ${currentPage === l.id ? 'text-blue-700 bg-blue-50/70 border-l-2 border-blue-600' : 'text-gray-700 hover:bg-gray-50 border-l-2 border-transparent hover:text-blue-600'}`}
+                                    className={`w-full text-left px-4 py-2.5 text-sm font-bold transition-colors flex items-center gap-2 ${currentPage === l.id ? 'text-white bg-[#1c1814]' : 'text-[#3d3830] hover:bg-[#ede9e0] hover:text-[#1c1814]'}`}
                                 >
                                     {l.label}
                                 </button>
