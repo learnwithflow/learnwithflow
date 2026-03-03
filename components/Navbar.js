@@ -19,14 +19,7 @@ export default function Navbar({ currentPage, showPage }) {
             id: 'dashboard', label: 'Dashboard', desc: 'Progress & analytics', color: '#8b5cf6',
             svg: <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 13h4v8H3zm7-5h4v13h-4zm7-5h4v18h-4z" /></svg>
         },
-        {
-            id: 'portfolio', label: 'Portfolio', desc: 'Skills & projects', color: '#2563a8',
-            svg: <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zm-4 7a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
-        },
-        {
-            id: 'resume', label: 'Resume Builder', desc: 'ATS-ready PDF', color: '#06b6a0',
-            svg: <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-        },
+
     ];
 
     const handleNav = (id, isMobile = false) => {
