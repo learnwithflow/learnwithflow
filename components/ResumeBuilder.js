@@ -3,13 +3,13 @@ import React, { useState } from 'react';
 
 export default function ResumeBuilder() {
     const [resumeData, setResumeData] = useState({
-        name: 'Ganesh P',
-        email: 'ganesh@example.com',
-        phone: '+91 9876543210',
-        linkedin: 'linkedin.com/in/ganesh',
-        summary: 'Aspiring Full Stack Developer with experience in React and Node.js. Passionate about building scalable applications and solving complex problems.',
+        name: 'Your Name',
+        email: 'your.email@example.com',
+        phone: '+1 234 567 8900',
+        linkedin: 'linkedin.com/in/username',
+        summary: 'Passionate and driven professional with a strong foundation in [Your Field]. Eager to apply my skills to real-world challenges and build innovative solutions.',
         experience: [
-            { id: 1, role: 'Frontend Intern', company: 'Tech Solutions', duration: 'Jan 2023 - Present', desc: 'Developed responsive UI components using React and Tailwind CSS. Improved page load speed by 15%.' }
+            { id: 1, role: 'Software Engineer Intern', company: 'Tech Solutions Inc.', duration: 'Jan 2023 - Present', desc: 'Developed responsive UI components using React and Tailwind CSS. Improved page load speed by 15%.' }
         ],
         education: [
             { id: 1, degree: 'B.Tech Computer Science', school: 'University of Engineering', year: '2020 - 2024' }
@@ -31,20 +31,20 @@ export default function ResumeBuilder() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 py-12 px-4 sm:px-6 lg:px-8 print:bg-white print:py-0 print:px-0">
+        <div className="min-h-screen bg-[#f5f2eb] py-12 px-4 sm:px-6 lg:px-8 font-sans print:bg-white print:py-0 print:px-0">
             <div className="max-w-7xl mx-auto flex flex-col lg:flex-row gap-8 print:block">
 
                 {/* Left Column - Form (Hidden on Print) */}
                 <div className="lg:w-1/3 space-y-6 print:hidden">
-                    <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 sticky top-6">
-                        <h2 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-2">
-                            <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
+                    <div className="bg-[#faf8f4] p-6 rounded-2xl shadow-sm border border-[#e2ddd4] sticky top-6">
+                        <h2 className="text-2xl font-bold text-[#1c1814] mb-6 flex items-center gap-2" style={{ fontFamily: "'Instrument Serif', serif" }}>
+                            <svg className="w-6 h-6 text-[#2563a8]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                             Resume Editor
                         </h2>
 
                         <button
                             onClick={autoFillFromPortfolio}
-                            className="w-full mb-6 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 py-2.5 rounded-lg font-semibold flex items-center justify-center gap-2 transition-colors border border-indigo-200"
+                            className="w-full mb-6 bg-[#2563a8]/10 text-[#2563a8] hover:bg-[#2563a8]/20 py-2.5 rounded-lg font-bold flex items-center justify-center gap-2 transition-colors border border-transparent"
                         >
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
                             Auto-fill from Portfolio
@@ -53,29 +53,29 @@ export default function ResumeBuilder() {
                         <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2 custom-scrollbar">
                             {/* Personal Info */}
                             <div className="space-y-3">
-                                <h3 className="font-semibold text-gray-700 border-b pb-1">Personal Info</h3>
-                                <input type="text" value={resumeData.name} onChange={e => setResumeData({ ...resumeData, name: e.target.value })} className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Full Name" />
-                                <input type="email" value={resumeData.email} onChange={e => setResumeData({ ...resumeData, email: e.target.value })} className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Email" />
-                                <input type="text" value={resumeData.phone} onChange={e => setResumeData({ ...resumeData, phone: e.target.value })} className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Phone" />
-                                <input type="text" value={resumeData.linkedin} onChange={e => setResumeData({ ...resumeData, linkedin: e.target.value })} className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:ring-blue-500 focus:border-blue-500" placeholder="LinkedIn URL" />
+                                <h3 className="font-bold text-[#1c1814] border-b border-[#e2ddd4] pb-1">Personal Info</h3>
+                                <input type="text" value={resumeData.name} onChange={e => setResumeData({ ...resumeData, name: e.target.value })} className="w-full border border-[#e2ddd4] bg-white rounded px-3 py-2 text-sm font-medium focus:ring-2 focus:ring-[#2563a8] focus:border-[#2563a8] outline-none" placeholder="Full Name" />
+                                <input type="email" value={resumeData.email} onChange={e => setResumeData({ ...resumeData, email: e.target.value })} className="w-full border border-[#e2ddd4] bg-white rounded px-3 py-2 text-sm font-medium focus:ring-2 focus:ring-[#2563a8] focus:border-[#2563a8] outline-none" placeholder="Email" />
+                                <input type="text" value={resumeData.phone} onChange={e => setResumeData({ ...resumeData, phone: e.target.value })} className="w-full border border-[#e2ddd4] bg-white rounded px-3 py-2 text-sm font-medium focus:ring-2 focus:ring-[#2563a8] focus:border-[#2563a8] outline-none" placeholder="Phone" />
+                                <input type="text" value={resumeData.linkedin} onChange={e => setResumeData({ ...resumeData, linkedin: e.target.value })} className="w-full border border-[#e2ddd4] bg-white rounded px-3 py-2 text-sm font-medium focus:ring-2 focus:ring-[#2563a8] focus:border-[#2563a8] outline-none" placeholder="LinkedIn URL" />
                             </div>
 
                             {/* Summary */}
                             <div className="space-y-3">
-                                <h3 className="font-semibold text-gray-700 border-b pb-1">Summary</h3>
-                                <textarea rows="3" value={resumeData.summary} onChange={e => setResumeData({ ...resumeData, summary: e.target.value })} className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Professional Summary"></textarea>
+                                <h3 className="font-bold text-[#1c1814] border-b border-[#e2ddd4] pb-1">Summary</h3>
+                                <textarea rows="3" value={resumeData.summary} onChange={e => setResumeData({ ...resumeData, summary: e.target.value })} className="w-full border border-[#e2ddd4] bg-white rounded px-3 py-2 text-sm font-medium focus:ring-2 focus:ring-[#2563a8] focus:border-[#2563a8] outline-none" placeholder="Professional Summary"></textarea>
                             </div>
 
                             {/* Skills */}
                             <div className="space-y-3">
-                                <h3 className="font-semibold text-gray-700 border-b pb-1">Skills</h3>
-                                <input type="text" value={resumeData.skills} onChange={e => setResumeData({ ...resumeData, skills: e.target.value })} className="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:ring-blue-500 focus:border-blue-500" placeholder="Comma separated skills" />
+                                <h3 className="font-bold text-[#1c1814] border-b border-[#e2ddd4] pb-1">Skills</h3>
+                                <input type="text" value={resumeData.skills} onChange={e => setResumeData({ ...resumeData, skills: e.target.value })} className="w-full border border-[#e2ddd4] bg-white rounded px-3 py-2 text-sm font-medium focus:ring-2 focus:ring-[#2563a8] focus:border-[#2563a8] outline-none" placeholder="Comma separated skills" />
                             </div>
                         </div>
 
                         <button
                             onClick={handlePrint}
-                            className="w-full mt-6 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-bold transition-colors shadow-sm flex items-center justify-center gap-2"
+                            className="w-full mt-6 bg-[#2563a8] hover:bg-[#1f5088] text-white py-3 rounded-lg font-bold transition-colors shadow-sm flex items-center justify-center gap-2"
                         >
                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
                             Download PDF / Print

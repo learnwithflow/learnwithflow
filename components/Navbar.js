@@ -78,13 +78,13 @@ export default function Navbar({ currentPage, showPage }) {
 
                     {/* Desktop Dropdown */}
                     {desktopMenuOpen && (
-                        <div className="hidden md:block absolute top-[56px] right-4 w-52 bg-[#faf8f4] rounded-xl shadow-xl border border-[#e2ddd4] py-2 animate-in fade-in slide-in-from-top-2 z-50">
-                            <div className="px-4 py-2 text-[11px] font-bold text-[#8b8278] uppercase tracking-widest mb-1">Career Copilot</div>
+                        <div className="hidden md:block absolute top-[56px] right-4 w-56 bg-[#161311]/95 backdrop-blur-xl rounded-2xl shadow-[0_20px_40px_rgba(0,0,0,0.3)] border border-white/10 py-3 animate-in fade-in slide-in-from-top-3 z-50">
+                            <div className="px-5 py-2 text-[10px] font-extrabold text-[#8b8278] uppercase tracking-[0.2em] mb-1">Career Copilot</div>
                             {featureLinks.map(l => (
                                 <button
                                     key={l.id}
                                     onClick={() => handleNav(l.id)}
-                                    className={`w-full text-left px-4 py-2.5 text-sm font-bold transition-colors flex items-center gap-2 ${currentPage === l.id ? 'text-white bg-[#1c1814]' : 'text-[#3d3830] hover:bg-[#ede9e0] hover:text-[#1c1814]'}`}
+                                    className={`w-full text-left px-5 py-2.5 text-sm font-bold transition-all flex items-center gap-2 ${currentPage === l.id ? 'text-white bg-white/10' : 'text-[#d6d0c4] hover:bg-white/5 hover:text-white'}`}
                                 >
                                     {l.label}
                                 </button>
@@ -96,15 +96,15 @@ export default function Navbar({ currentPage, showPage }) {
 
             {/* Mobile Drawer */}
             <div className={`mobile-drawer${mobileMenuOpen ? ' open' : ''}`}>
-                <div className="text-xs font-bold text-gray-500 uppercase tracking-wider pl-2 pt-2">Main Features</div>
+                <div className="text-[10px] font-extrabold text-[#8b8278] uppercase tracking-[0.2em] pl-3 pt-4 mb-2">Main Features</div>
                 {mainLinks.map(l => (
-                    <button key={l.id} className={`mob-btn ${currentPage === l.id ? 'text-blue-700 bg-blue-50' : 'text-gray-800'}`} onClick={() => handleNav(l.id, true)}>{l.label}</button>
+                    <button key={l.id} className={`mob-btn font-bold transition-all ${currentPage === l.id ? 'text-[#2563a8] bg-[#2563a8]/10' : 'text-[#3d3830] hover:bg-[#ede9e0]'}`} onClick={() => handleNav(l.id, true)}>{l.label}</button>
                 ))}
 
-                <div className="border-t border-gray-200 my-2"></div>
-                <div className="text-xs font-bold text-gray-500 uppercase tracking-wider pl-2 pt-2">Career Tools</div>
+                <div className="border-t border-[#e2ddd4] my-3"></div>
+                <div className="text-[10px] font-extrabold text-[#8b8278] uppercase tracking-[0.2em] pl-3 pt-2 mb-2">Career Tools</div>
                 {featureLinks.map(l => (
-                    <button key={l.id} className={`mob-btn ${currentPage === l.id ? 'text-blue-700 bg-blue-50' : 'text-gray-800'}`} onClick={() => handleNav(l.id, true)}>{l.label}</button>
+                    <button key={l.id} className={`mob-btn font-bold transition-all ${currentPage === l.id ? 'text-[#2563a8] bg-[#2563a8]/10' : 'text-[#3d3830] hover:bg-[#ede9e0]'}`} onClick={() => handleNav(l.id, true)}>{l.label}</button>
                 ))}
             </div>
         </>
