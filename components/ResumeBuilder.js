@@ -89,10 +89,10 @@ export default function ResumeBuilder() {
                     <div className="bg-white shadow-lg mx-auto print:shadow-none print:w-[210mm] print:min-h-[297mm] w-full min-h-[842px] max-w-[794px] p-10 sm:p-12 font-sans text-gray-800 border box-border flex flex-col">
 
                         {/* Header */}
-                        <header className="text-center border-b-2 border-gray-300 pb-6 mb-6">
-                            <h1 className="text-4xl font-bold uppercase tracking-wider text-gray-900 mb-2">{resumeData.name || 'Your Name'}</h1>
-                            <div className="flex justify-center flex-wrap gap-4 text-sm text-gray-600 font-medium">
-                                {resumeData.email && <span>{resumeData.email}</span>}
+                        <header className="text-center border-b-2 border-[#e2ddd4] pb-6 mb-6">
+                            <h1 className="text-4xl font-extrabold tracking-tight text-[#1c1814] mb-2 font-sans" style={{ fontFamily: "'Inter', 'Plus Jakarta Sans', sans-serif" }}>{resumeData.name || 'Your Name'}</h1>
+                            <div className="flex justify-center flex-wrap gap-4 text-sm text-[#8b8278] font-bold">
+                                {resumeData.email && <span className="text-[#2563a8]">{resumeData.email}</span>}
                                 {resumeData.phone && <span>• {resumeData.phone}</span>}
                                 {resumeData.linkedin && <span>• {resumeData.linkedin}</span>}
                             </div>
@@ -101,31 +101,31 @@ export default function ResumeBuilder() {
                         {/* Summary */}
                         {resumeData.summary && (
                             <section className="mb-6">
-                                <h2 className="text-lg font-bold uppercase text-gray-900 border-b border-gray-300 tracking-wider mb-3 pb-1">Professional Summary</h2>
-                                <p className="text-sm leading-relaxed">{resumeData.summary}</p>
+                                <h2 className="text-lg font-bold uppercase text-[#1c1814] border-b border-[#e2ddd4] tracking-wider mb-3 pb-1">Professional Summary</h2>
+                                <p className="text-sm leading-relaxed text-[#3d3830] font-medium">{resumeData.summary}</p>
                             </section>
                         )}
 
                         {/* Skills */}
                         {resumeData.skills && (
                             <section className="mb-6">
-                                <h2 className="text-lg font-bold uppercase text-gray-900 border-b border-gray-300 tracking-wider mb-3 pb-1">Technical Skills</h2>
-                                <p className="text-sm leading-relaxed font-medium">{resumeData.skills}</p>
+                                <h2 className="text-lg font-bold uppercase text-[#1c1814] border-b border-[#e2ddd4] tracking-wider mb-3 pb-1">Technical Skills</h2>
+                                <p className="text-sm leading-relaxed font-bold text-[#3d3830]">{resumeData.skills}</p>
                             </section>
                         )}
 
                         {/* Experience */}
                         <section className="mb-6">
-                            <h2 className="text-lg font-bold uppercase text-gray-900 border-b border-gray-300 tracking-wider mb-3 pb-1">Experience</h2>
+                            <h2 className="text-lg font-bold uppercase text-[#1c1814] border-b border-[#e2ddd4] tracking-wider mb-3 pb-1">Experience</h2>
                             <div className="space-y-4">
                                 {resumeData.experience.map(exp => (
                                     <div key={exp.id}>
                                         <div className="flex justify-between items-baseline mb-1">
-                                            <h3 className="font-bold text-gray-900">{exp.role}</h3>
-                                            <span className="text-sm font-semibold text-gray-600">{exp.duration}</span>
+                                            <h3 className="font-bold text-[#1c1814]">{exp.role}</h3>
+                                            <span className="text-sm font-bold text-[#8b8278]">{exp.duration}</span>
                                         </div>
-                                        <div className="font-medium text-blue-700 italic text-sm mb-2">{exp.company}</div>
-                                        <ul className="list-disc list-inside text-sm space-y-1 ml-1 text-gray-700">
+                                        <div className="font-bold text-[#2563a8] text-sm mb-2">{exp.company}</div>
+                                        <ul className="list-disc list-inside text-sm space-y-1 ml-1 text-[#3d3830] font-medium">
                                             <li>{exp.desc}</li>
                                         </ul>
                                     </div>
@@ -135,15 +135,15 @@ export default function ResumeBuilder() {
 
                         {/* Education */}
                         <section>
-                            <h2 className="text-lg font-bold uppercase text-gray-900 border-b border-gray-300 tracking-wider mb-3 pb-1">Education</h2>
+                            <h2 className="text-lg font-bold uppercase text-[#1c1814] border-b border-[#e2ddd4] tracking-wider mb-3 pb-1">Education</h2>
                             <div className="space-y-4">
                                 {resumeData.education.map(edu => (
                                     <div key={edu.id}>
                                         <div className="flex justify-between items-baseline mb-1">
-                                            <h3 className="font-bold text-gray-900">{edu.degree}</h3>
-                                            <span className="text-sm font-semibold text-gray-600">{edu.year}</span>
+                                            <h3 className="font-bold text-[#1c1814]">{edu.degree}</h3>
+                                            <span className="text-sm font-bold text-[#8b8278]">{edu.year}</span>
                                         </div>
-                                        <div className="text-sm text-gray-700">{edu.school}</div>
+                                        <div className="text-sm font-medium text-[#3d3830]">{edu.school}</div>
                                     </div>
                                 ))}
                             </div>

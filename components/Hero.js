@@ -17,13 +17,13 @@ export default function Hero({ showPage }) {
                     <button className="btn-big btn-outline" onClick={() => showPage('exam')}>Try Mock Exam</button>
                 </div>
                 <div className="hero-stats">
-                    <div className="hstat cursor-pointer hover:bg-gray-50 transition-colors" onClick={() => showPage('jobtracker')}>
-                        <div className="hstat-num">Track.</div>
-                        <div className="hstat-label">Your Job Applications</div>
+                    <div className="hstat">
+                        <div className="hstat-num">5K+</div>
+                        <div className="hstat-label">Students</div>
                     </div>
                     <div className="hstat">
-                        <div className="hstat-num">10K+</div>
-                        <div className="hstat-label">Questions Solved</div>
+                        <div className="hstat-num">94%</div>
+                        <div className="hstat-label">Pass Rate</div>
                     </div>
                 </div>
             </div>
@@ -38,7 +38,6 @@ export default function Hero({ showPage }) {
                             { icon: '🧭', title: 'AI Career Compass', desc: '5-min quiz → personalized path.', page: 'quiz' },
                             { icon: '🗺️', title: 'Career Roadmaps', desc: 'Interactive, click to track progress.', page: 'roadmap' },
                             { icon: '🎤', title: 'AI Interview Coach', desc: 'Voice + code + confidence analysis.', page: 'interview' },
-                            { icon: '📋', title: 'Job Tracker', desc: 'Kanban board for job applications.', page: 'jobtracker' },
                             { icon: '📊', title: 'Progress Dashboard', desc: 'Streaks, graphs, weak areas.', page: 'dashboard' },
                         ].map(f => (
                             <div key={f.page} className="feat-cell" onClick={() => showPage(f.page)}>

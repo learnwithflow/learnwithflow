@@ -28,11 +28,13 @@ export default function Portfolio({ showPage }) {
 
     return (
         <div className="min-h-screen bg-[#f5f2eb] py-12 px-4 sm:px-6 lg:px-8 font-sans">
-            <div className="max-w-4xl mx-auto space-y-8">
+            <div className="max-w-5xl mx-auto space-y-8">
 
                 {/* Profile Header Card */}
                 <div className="bg-[#faf8f4] rounded-2xl shadow-sm border border-[#e2ddd4] overflow-hidden">
-                    <div className="h-32 bg-gradient-to-r from-[#2563a8] to-[#06d6a0]"></div>
+                    <div className="h-32 bg-[#2563a8] relative overflow-hidden">
+                        <div className="absolute inset-0 opacity-20 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-white to-transparent"></div>
+                    </div>
                     <div className="px-8 pb-8">
                         <div className="relative flex justify-between items-end -mt-12 mb-6">
                             <div className="w-24 h-24 bg-[#faf8f4] rounded-full p-1 border-4 border-[#faf8f4] shadow-md flex items-center justify-center text-3xl font-bold text-[#2563a8]">

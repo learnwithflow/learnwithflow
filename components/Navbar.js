@@ -16,7 +16,6 @@ export default function Navbar({ currentPage, showPage }) {
 
     const featureLinks = [
         { id: 'dashboard', label: 'Dashboard' },
-        { id: 'jobtracker', label: 'Job Tracker' },
         { id: 'portfolio', label: 'Portfolio' },
         { id: 'resume', label: 'Resume Builder' },
     ];
@@ -78,13 +77,13 @@ export default function Navbar({ currentPage, showPage }) {
 
                     {/* Desktop Dropdown */}
                     {desktopMenuOpen && (
-                        <div className="hidden md:block absolute top-[56px] right-4 w-56 bg-[#161311]/95 backdrop-blur-xl rounded-2xl shadow-[0_20px_40px_rgba(0,0,0,0.3)] border border-white/10 py-3 animate-in fade-in slide-in-from-top-3 z-50">
-                            <div className="px-5 py-2 text-[10px] font-extrabold text-[#8b8278] uppercase tracking-[0.2em] mb-1">Career Copilot</div>
+                        <div className="hidden md:block absolute top-[56px] right-4 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-2 animate-in fade-in slide-in-from-top-2 z-50">
+                            <div className="px-4 py-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Career Copilot</div>
                             {featureLinks.map(l => (
                                 <button
                                     key={l.id}
                                     onClick={() => handleNav(l.id)}
-                                    className={`w-full text-left px-5 py-2.5 text-sm font-bold transition-all flex items-center gap-2 ${currentPage === l.id ? 'text-white bg-white/10' : 'text-[#d6d0c4] hover:bg-white/5 hover:text-white'}`}
+                                    className={`w-full text-left px-4 py-2 text-sm font-semibold transition-colors flex items-center gap-2 ${currentPage === l.id ? 'text-blue-600 bg-blue-50/50' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}`}
                                 >
                                     {l.label}
                                 </button>
