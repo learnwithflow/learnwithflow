@@ -15,9 +15,9 @@ export default function Navbar({ currentPage, showPage }) {
     ];
 
     const featureLinks = [
-        { id: 'dashboard', label: 'Dashboard' },
-        { id: 'portfolio', label: 'Portfolio' },
-        { id: 'resume', label: 'Resume Builder' },
+        { id: 'dashboard', label: 'Dashboard', desc: 'Streaks, progress & analytics', icon: '📊', color: '#8b5cf6' },
+        { id: 'portfolio', label: 'Portfolio', desc: 'Showcase your skills & projects', icon: '🎨', color: '#2563a8' },
+        { id: 'resume', label: 'Resume Builder', desc: 'ATS-ready PDF in one click', icon: '📄', color: '#06b6a0' },
     ];
 
     const handleNav = (id, isMobile = false) => {
@@ -77,19 +77,49 @@ export default function Navbar({ currentPage, showPage }) {
 
                     {/* Desktop Dropdown */}
                     {desktopMenuOpen && (
-                        <div className="hidden md:block absolute top-[56px] right-4 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-2 animate-in fade-in slide-in-from-top-2 z-50">
-                            <div className="px-4 py-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">Career Copilot</div>
-                            {featureLinks.map(l => (
-                                <button
-                                    key={l.id}
-                                    onClick={() => handleNav(l.id)}
-                                    className={`w-full text-left px-4 py-2 text-sm font-semibold transition-colors flex items-center gap-2 ${currentPage === l.id ? 'text-blue-600 bg-blue-50/50' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'}`}
-                                >
-                                    {l.label}
-                                </button>
-                            ))}
+                        <div className="hidden md:block absolute top-[60px] right-4 w-64 bg-white rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] border border-[#e8e4dc] overflow-hidden z-50" style={{ animation: 'dropdownSlide 0.2s ease-out' }}>
+                            {/* Gradient accent bar */}
+                            <div className="h-1 bg-gradient-to-r from-[#8b5cf6] via-[#2563a8] to-[#06b6a0]"></div>
+
+                            <div className="px-4 pt-4 pb-2">
+                                <div className="text-[10px] font-extrabold text-[#b0a99e] uppercase tracking-[0.15em]">Career Copilot</div>
+                            </div>
+
+                            <div className="px-2 pb-3 space-y-1">
+                                {featureLinks.map(l => (
+                                    <button
+                                        key={l.id}
+                                        onClick={() => handleNav(l.id)}
+                                        className={`w-full text-left px-3 py-3 rounded-xl transition-all duration-200 flex items-center gap-3 group ${currentPage === l.id ? 'bg-[#f0edff] ring-1 ring-[#8b5cf6]/20' : 'hover:bg-[#f8f6f2]'}`}
+                                    >
+                                        <div
+                                            className="w-9 h-9 rounded-lg flex items-center justify-center text-base shrink-0 transition-transform duration-200 group-hover:scale-110"
+                                            style={{ backgroundColor: l.color + '12' }}
+                                        >
+                                            {l.icon}
+                                        </div>
+                                        <div className="min-w-0">
+                                            <div className={`text-sm font-bold leading-tight ${currentPage === l.id ? 'text-[#8b5cf6]' : 'text-[#1c1814] group-hover:text-[#2563a8]'}`}>
+                                                {l.label}
+                                            </div>
+                                            <div className="text-[11px] text-[#8b8278] leading-tight mt-0.5 font-medium">
+                                                {l.desc}
+                                            </div>
+                                        </div>
+                                        <svg className={`w-4 h-4 shrink-0 ml-auto transition-all duration-200 ${currentPage === l.id ? 'text-[#8b5cf6]' : 'text-[#d6d0c4] group-hover:text-[#2563a8] group-hover:translate-x-0.5'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5l7 7-7 7"></path></svg>
+                                    </button>
+                                ))}
+                            </div>
                         </div>
                     )}
+
+                    <style dangerouslySetInnerHTML={{
+                        __html: `
+                        @keyframes dropdownSlide {
+                            from { opacity: 0; transform: translateY(-8px) scale(0.96); }
+                            to { opacity: 1; transform: translateY(0) scale(1); }
+                        }
+                    `}} />
                 </div>
             </nav>
 
