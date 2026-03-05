@@ -1,7 +1,7 @@
 import './globals.css';
 import Script from 'next/script';
 
-import { Plus_Jakarta_Sans, Syne, DM_Mono } from 'next/font/google';
+import { Plus_Jakarta_Sans, Inter } from 'next/font/google';
 
 const jakarta = Plus_Jakarta_Sans({
   subsets: ['latin'],
@@ -9,16 +9,10 @@ const jakarta = Plus_Jakarta_Sans({
   variable: '--font-jakarta',
 });
 
-const syne = Syne({
+const inter = Inter({
   subsets: ['latin'],
-  weight: ['700', '800'],
-  variable: '--font-syne',
-});
-
-const dmMono = DM_Mono({
-  subsets: ['latin'],
-  weight: ['400', '500'],
-  variable: '--font-mono',
+  weight: ['400', '500', '600', '700', '800'],
+  variable: '--font-inter',
 });
 
 export const metadata = {
@@ -54,7 +48,7 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`${jakarta.variable} ${syne.variable} ${dmMono.variable}`}>
+    <html lang="en" className={`${jakarta.variable} ${inter.variable}`}>
       <body>
         {children}
         <Script
