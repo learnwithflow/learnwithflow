@@ -63,7 +63,7 @@ export default function Hero({ showPage }) {
             {/* ── HERO ── */}
             <section className="hw-hero">
                 <div className="hw-hero-inner">
-                    <div className="hw-badge">🇮🇳 Built for Telugu &amp; AP Students</div>
+
                     <h1 className="hw-h1">
                         Your path from <em>Inter</em> to <em>Career</em> — guided by AI
                     </h1>
