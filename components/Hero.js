@@ -32,8 +32,6 @@ const FEATURES = [
 ];
 
 const STATS = [
-    { num: '5,000+', label: 'Students Guided' },
-    { num: '94%', label: 'Exam Pass Rate' },
     { num: '12+', label: 'Career Paths' },
     { num: '1,200+', label: 'Practice Questions' },
 ];
