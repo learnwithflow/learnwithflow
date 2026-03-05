@@ -90,30 +90,63 @@ export default function MockExam({ showPage, showToast }) {
         launchExam(questions, '🌙 Full Mock Exam (90 Qs)', 90 * 60, 'full');
     };
 
-    const selectAns = (i) => {
+    const selectAns = async (i) => {
         if (answers[qIdx] !== null) return;
         const newAns = [...answers]; newAns[qIdx] = i; setAnswers(newAns);
         const q = qs[qIdx];
         const isCorrect = i === q.a;
+        const labels = ['A', 'B', 'C', 'D'];
 
-        let feedbackHTML = (
-            <div style={{
-                marginTop: 20, padding: 16, borderRadius: 12, border: `1px solid ${isCorrect ? 'rgba(16, 185, 129, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`,
-                background: isCorrect ? 'rgba(16, 185, 129, 0.05)' : 'rgba(239, 68, 68, 0.05)', animation: 'slideUp 0.3s ease'
-            }}>
-                <div style={{ fontWeight: 700, fontSize: 16, color: isCorrect ? '#059669' : '#dc2626', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
-                    {isCorrect ? '✨ Correct!' : `❌ Incorrect`}
+        if (isCorrect) {
+            setFeedback(
+                <div style={{ marginTop: 20, padding: 16, borderRadius: 12, border: '1px solid rgba(16,185,129,0.3)', background: 'rgba(16,185,129,0.06)', animation: 'slideUp 0.3s ease' }}>
+                    <div style={{ fontWeight: 700, fontSize: 16, color: '#059669', marginBottom: q.e ? 8 : 0 }}>✨ Correct! Great job!</div>
+                    {q.e && <div style={{ fontSize: 14, color: '#4b5563', lineHeight: 1.6, borderTop: '1px solid rgba(0,0,0,0.05)', paddingTop: 8 }}><span style={{ fontWeight: 700, color: '#059669' }}>💡 Why: </span>{q.e}</div>}
                 </div>
-                {!isCorrect && <div style={{ fontWeight: 600, color: '#374151', marginBottom: 6 }}>Correct Answer: {['A', 'B', 'C', 'D'][q.a]}) {q.o[q.a]}</div>}
+            );
+            return;
+        }
 
-                {(q.e && q.e.trim() !== '') && (
-                    <div style={{ fontSize: 14, color: '#4b5563', lineHeight: 1.5, borderTop: '1px solid rgba(0,0,0,0.05)', paddingTop: 8, marginTop: 4 }}>
-                        <span style={{ fontWeight: 600 }}>💡 Explanation:</span> {q.e}
-                    </div>
-                )}
+        const correctLetter = labels[q.a];
+        const correctText = q.o[q.a];
+        const staticExp = q.e && q.e.trim() !== '' ? q.e : null;
+
+        // Show immediate result with loading spinner
+        setFeedback(
+            <div style={{ marginTop: 20, padding: 16, borderRadius: 12, border: '1px solid rgba(239,68,68,0.3)', background: 'rgba(239,68,68,0.04)', animation: 'slideUp 0.3s ease' }}>
+                <div style={{ fontWeight: 700, fontSize: 16, color: '#dc2626', marginBottom: 8 }}>❌ Incorrect</div>
+                <div style={{ fontWeight: 600, color: '#1f2937', fontSize: 15, marginBottom: 10 }}>✅ Correct Answer: {correctLetter}) {correctText}</div>
+                <div style={{ fontSize: 13, color: '#6b7280', display: 'flex', alignItems: 'center', gap: 8, borderTop: '1px solid rgba(0,0,0,0.06)', paddingTop: 10 }}>
+                    <span style={{ width: 16, height: 16, border: '2px solid #2563a8', borderTopColor: 'transparent', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.7s linear infinite', flexShrink: 0 }} />
+                    Generating AI explanation...
+                </div>
             </div>
         );
-        setFeedback(feedbackHTML);
+
+        let explanation = staticExp;
+        if (!explanation) {
+            try {
+                const res = await fetch('/api/explain', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ question: q.b, options: q.o, correctIndex: q.a, wrongIndex: i, subject: q.s })
+                });
+                const data = await res.json();
+                explanation = data.explanation || `The correct answer is ${correctLetter}) ${correctText}.`;
+            } catch {
+                explanation = `The correct answer is ${correctLetter}) ${correctText}.`;
+            }
+        }
+
+        setFeedback(
+            <div style={{ marginTop: 20, padding: 16, borderRadius: 12, border: '1px solid rgba(239,68,68,0.3)', background: 'rgba(239,68,68,0.04)', animation: 'slideUp 0.3s ease' }}>
+                <div style={{ fontWeight: 700, fontSize: 16, color: '#dc2626', marginBottom: 8 }}>❌ Incorrect</div>
+                <div style={{ fontWeight: 600, color: '#1f2937', fontSize: 15, marginBottom: 12 }}>✅ Correct Answer: {correctLetter}) {correctText}</div>
+                <div style={{ fontSize: 14, color: '#374151', lineHeight: 1.65, background: 'rgba(37,99,168,0.05)', borderRadius: 8, padding: '10px 14px' }}>
+                    <span style={{ fontWeight: 700, color: '#2563a8' }}>💡 Explanation: </span>{explanation}
+                </div>
+            </div>
+        );
     };
 
     const submitExam = () => {

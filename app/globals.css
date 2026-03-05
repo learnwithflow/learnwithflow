@@ -671,6 +671,12 @@ h1 em {
   }
 }
 
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .exam-nav {
   display: flex;
   justify-content: space-between;
