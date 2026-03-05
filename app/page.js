@@ -9,6 +9,8 @@ import AIInterview from '../components/AIInterview';
 import Dashboard from '../components/Dashboard';
 import Toast from '../components/Toast';
 import JobTracker from '../components/JobTracker';
+import About from '../components/About';
+import Terms from '../components/Terms';
 
 export default function Home() {
   const [currentPage, setCurrentPage] = useState('home');
@@ -38,6 +40,8 @@ export default function Home() {
       <div style={{ ...pageStyle('interview'), paddingTop: 56 }}><AIInterview showPage={showPage} showToast={showToast} /></div>
       <div style={{ ...pageStyle('dashboard'), paddingTop: 56 }}><Dashboard showPage={showPage} /></div>
       <div style={{ ...pageStyle('jobtracker'), paddingTop: 56 }}><JobTracker showPage={showPage} /></div>
+      <div style={{ ...pageStyle('about'), paddingTop: 0 }}><About showPage={showPage} /></div>
+      <div style={{ ...pageStyle('terms'), paddingTop: 0 }}><Terms showPage={showPage} /></div>
 
     </>
   );

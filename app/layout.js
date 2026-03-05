@@ -4,6 +4,13 @@ import Script from 'next/script';
 export const metadata = {
   title: 'LearnWithFlow',
   description: 'AI career guidance, mock exams, voice interview practice — all in one place.',
+  icons: {
+    icon: [
+      { url: '/favicon.ico' },
+      { url: '/icon.png', type: 'image/png' },
+    ],
+    apple: '/icon.png',
+  },
   openGraph: {
     title: 'LearnWithFlow',
     description: 'Your path from Inter to Career starts here',

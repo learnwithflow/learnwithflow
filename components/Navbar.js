@@ -19,7 +19,14 @@ export default function Navbar({ currentPage, showPage }) {
             id: 'dashboard', label: 'Dashboard', desc: 'Progress & analytics', color: '#8b5cf6',
             svg: <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 13h4v8H3zm7-5h4v13h-4zm7-5h4v18h-4z" /></svg>
         },
-
+        {
+            id: 'about', label: 'About Us', desc: 'Learn more about us', color: '#10b981',
+            svg: <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+        },
+        {
+            id: 'terms', label: 'Terms & Conditions', desc: 'Platform policies', color: '#f59e0b',
+            svg: <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+        },
     ];
 
     const handleNav = (id, isMobile = false) => {
