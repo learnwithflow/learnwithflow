@@ -1,6 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  /* config options here */
+  eslint: {
+    // ESLint runs locally via `npm run lint` — skip during Vercel production builds
+    // to prevent FlatCompat / parser serialization errors from failing deploys.
+    ignoreDuringBuilds: true,
+  },
 };
 
 export default nextConfig;
