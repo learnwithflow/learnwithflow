@@ -17,7 +17,7 @@ export default function Terms({ showPage }) {
                     <h2 className="text-2xl font-bold mt-8 mb-4 text-[#1c1814]" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>1. Use of the Platform</h2>
                     <p>
                         You must be at least 13 years old to use this platform. You agree to use the platform only for lawful purposes
-                        and in a way that does not infringe the rights of, restrict, or inhibit anyone else's use and enjoyment of the platform.
+                        and in a way that does not infringe the rights of, restrict, or inhibit anyone else&apos;s use and enjoyment of the platform.
                     </p>
 
                     <h2 className="text-2xl font-bold mt-8 mb-4 text-[#1c1814]" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>2. Intellectual Property</h2>
