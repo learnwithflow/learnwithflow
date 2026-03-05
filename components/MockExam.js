@@ -57,7 +57,7 @@ export default function MockExam({ showPage, showToast }) {
         try {
             const msgs = [{
                 role: 'system',
-                content: `Generate exactly ${shortfall} MCQ questions for ${type} exam${chapter ? ` on topic: ${chapter}` : ''}. Return ONLY a JSON array. Each: {"s":"Subject","b":"Question?","o":["A","B","C","D"],"a":0} where "a" is correct index.`
+                content: `Generate exactly ${shortfall} MCQ questions for ${type} exam${chapter ? ` on topic: ${chapter}` : ''}. Return ONLY a JSON array. Each: {"s":"Subject","b":"Question?","o":["A","B","C","D"],"a":0,"e":"Short 1-sentence explanation of why it is correct"} where "a" is correct index.`
             }, { role: 'user', content: `Generate ${shortfall} unique questions now.` }];
             const res = await fetch('/api/exam', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: msgs, action: 'generate' }) });
             const json = await res.json();
@@ -94,7 +94,26 @@ export default function MockExam({ showPage, showToast }) {
         if (answers[qIdx] !== null) return;
         const newAns = [...answers]; newAns[qIdx] = i; setAnswers(newAns);
         const q = qs[qIdx];
-        setFeedback(i === q.a ? '✅ Correct!' : `❌ Wrong — ${['A', 'B', 'C', 'D'][q.a]}) ${q.o[q.a]}`);
+        const isCorrect = i === q.a;
+
+        let feedbackHTML = (
+            <div style={{
+                marginTop: 20, padding: 16, borderRadius: 12, border: `1px solid ${isCorrect ? 'rgba(16, 185, 129, 0.3)' : 'rgba(239, 68, 68, 0.3)'}`,
+                background: isCorrect ? 'rgba(16, 185, 129, 0.05)' : 'rgba(239, 68, 68, 0.05)', animation: 'slideUp 0.3s ease'
+            }}>
+                <div style={{ fontWeight: 700, fontSize: 16, color: isCorrect ? '#059669' : '#dc2626', marginBottom: 8, display: 'flex', alignItems: 'center', gap: 6 }}>
+                    {isCorrect ? '✨ Correct!' : `❌ Incorrect`}
+                </div>
+                {!isCorrect && <div style={{ fontWeight: 600, color: '#374151', marginBottom: 6 }}>Correct Answer: {['A', 'B', 'C', 'D'][q.a]}) {q.o[q.a]}</div>}
+
+                {(q.e && q.e.trim() !== '') && (
+                    <div style={{ fontSize: 14, color: '#4b5563', lineHeight: 1.5, borderTop: '1px solid rgba(0,0,0,0.05)', paddingTop: 8, marginTop: 4 }}>
+                        <span style={{ fontWeight: 600 }}>💡 Explanation:</span> {q.e}
+                    </div>
+                )}
+            </div>
+        );
+        setFeedback(feedbackHTML);
     };
 
     const submitExam = () => {
@@ -185,7 +204,7 @@ export default function MockExam({ showPage, showToast }) {
                                 return <button key={i} className={cls} onClick={() => selectAns(i)}>{['A', 'B', 'C', 'D'][i]}) {o}</button>;
                             })}
                         </div>
-                        {feedback && <div style={{ marginTop: 12, fontWeight: 700, color: feedback.startsWith('✅') ? 'var(--accent3)' : '#dc2626' }}>{feedback}</div>}
+                        {feedback && feedback}
                         <div className="exam-nav">
                             <button className="btn-sm btn-sm-outline" onClick={() => { if (qIdx > 0) { setQIdx(qIdx - 1); setFeedback(''); } }}>← Prev</button>
                             <button className="btn-sm btn-sm-primary" style={{ background: 'rgba(220,38,38,0.9)' }} onClick={submitExam}>Submit Exam</button>
