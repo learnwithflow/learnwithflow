@@ -11,7 +11,7 @@ const FEATURES = [
     {
         icon: '📋',
         title: 'Mock Exams',
-        desc: 'EAMCET, NEET, APPSC, IT, Diploma — timed exams with instant AI explanations on wrong answers.',
+        desc: 'Engg. Entrance, Medical Entrance, Govt. Exams, IT, Diploma — timed exams with instant AI explanations on wrong answers.',
         page: 'exam',
         tag: 'AI-Powered'
     },
@@ -37,9 +37,9 @@ const STATS = [
 ];
 
 const EXAMS = [
-    { name: 'EAMCET', icon: '⚗️', desc: 'Engineering & Medicine' },
-    { name: 'NEET', icon: '🩺', desc: 'Medical Entrance' },
-    { name: 'APPSC', icon: '🏛️', desc: 'Govt Group Exams' },
+    { name: 'Engg. Entrance', icon: '⚗️', desc: 'Engineering & Medicine' },
+    { name: 'Medical Entrance', icon: '🩺', desc: 'NEET Preparation' },
+    { name: 'Govt. Exams', icon: '🏛️', desc: 'APPSC & Group Exams' },
     { name: 'IT/Coding', icon: '💻', desc: 'Software Jobs' },
     { name: 'Diploma', icon: '📐', desc: 'Polytechnic Exams' },
 ];

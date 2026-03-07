@@ -11,6 +11,8 @@ import Toast from '../components/Toast';
 import JobTracker from '../components/JobTracker';
 import About from '../components/About';
 import Terms from '../components/Terms';
+import PrivacyPolicy from '../components/PrivacyPolicy';
+import Footer from '../components/Footer';
 
 export default function Home() {
   const [currentPage, setCurrentPage] = useState('home');
@@ -42,7 +44,8 @@ export default function Home() {
       <div style={{ ...pageStyle('jobtracker'), paddingTop: 56 }}><JobTracker showPage={showPage} /></div>
       <div style={{ ...pageStyle('about'), paddingTop: 0 }}><About showPage={showPage} /></div>
       <div style={{ ...pageStyle('terms'), paddingTop: 0 }}><Terms showPage={showPage} /></div>
-
+      <div style={{ ...pageStyle('privacy'), paddingTop: 0 }}><PrivacyPolicy showPage={showPage} /></div>
+      <Footer showPage={showPage} />
     </>
   );
 }

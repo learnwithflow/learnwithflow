@@ -2,28 +2,28 @@
 
 const sections = [
     {
-        title: 'Use of the Platform',
-        body: "You must be at least 13 years old to use this platform. You agree to use the platform only for lawful purposes and in a way that does not infringe the rights of, restrict, or inhibit anyone else's use and enjoyment of the platform.",
+        title: 'Information We Collect',
+        body: 'This website does not require users to create accounts and does not intentionally collect personal information such as names, email addresses, phone numbers, or login credentials.',
     },
     {
-        title: 'Intellectual Property',
-        body: 'All content, features, and functionality on this platform — including text, graphics, logos, icons, and images — are the exclusive property of learnwithflow and are protected by international copyright and intellectual property laws.',
+        title: 'Technical Data',
+        body: 'Like most websites, our servers may automatically record basic technical information such as IP address, device type, browser type, and access time for security, analytics, and system maintenance purposes.',
     },
     {
-        title: 'Limitation of Liability',
-        body: 'learnwithflow provides educational content and resources for informational purposes only. We do not guarantee that the use of our platform will result in employment or a specific career outcome. In no event shall we be liable for any indirect, incidental, or consequential damages arising out of your use of the platform.',
+        title: 'Cookies',
+        body: 'This website does not use tracking cookies to identify individual users. Any cookies that may be set are strictly necessary for the platform to function correctly.',
     },
     {
-        title: 'AI-Generated Content',
-        isAI: true,
+        title: 'Third-Party Services',
+        body: 'The platform may rely on third-party hosting or infrastructure providers to operate the website. These providers may process limited technical data required for hosting and security. We do not sell or share your data with third-party advertisers.',
     },
     {
-        title: 'No Official Affiliation',
-        body: 'learnwithflow does not claim affiliation with any examination authority, government organization, or regulatory body. All practice questions are original AI-assisted learning material designed for skill development and are not official examination papers.',
+        title: 'User Responsibility',
+        body: 'Users should avoid submitting personal or sensitive information while using the platform. Any information voluntarily provided through contact forms or similar features is used solely to respond to your inquiry.',
     },
     {
-        title: 'Changes to Terms',
-        body: 'We reserve the right to modify these Terms at any time. We will indicate at the top of this page the date the terms were last revised. Your continued use of the platform after any such changes constitutes your acceptance of the new Terms.',
+        title: 'Contact',
+        isContact: true,
     },
 ];
 
@@ -124,44 +124,42 @@ const S = {
         fontFamily: "'Plus Jakarta Sans', sans-serif",
         transition: 'all 0.15s ease',
     },
+    mailLink: {
+        color: '#2563a8',
+        fontWeight: 600,
+        textDecoration: 'none',
+        fontSize: '15px',
+    },
 };
 
-export default function Terms({ showPage }) {
+export default function PrivacyPolicy({ showPage }) {
     const lastUpdated = new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 
     return (
         <div style={S.page}>
             <div style={S.wrap}>
                 <span style={S.eyebrow}>Legal</span>
-                <h1 style={S.title}>Terms &amp; Conditions</h1>
+                <h1 style={S.title}>Privacy Policy</h1>
                 <span style={S.date}>Last Updated: {lastUpdated}</span>
                 <hr style={S.rule} />
 
                 <p style={S.lead}>
-                    By accessing or using our website and services, you agree to be bound by these Terms and Conditions.
-                    Please read them carefully before using the platform.
+                    Your privacy matters to us. This policy explains what data we collect, how we use it,
+                    and the choices you have. By using learnwithflow, you agree to the practices described below.
                 </p>
 
                 {sections.map((s, i) => (
                     <div key={s.title}>
                         <span style={S.sectionNum}>0{i + 1}</span>
                         <span style={S.sectionTitle}>{s.title}</span>
-                        {s.isAI ? (
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                                <p style={S.sectionBody}>
-                                    Practice questions, quizzes, explanations, interview simulations, and roadmap suggestions on this
-                                    platform may be{' '}
-                                    <strong style={{ color: '#27272a', fontWeight: 600 }}>generated using artificial intelligence systems</strong>.
-                                    These materials are created for educational and practice purposes only and are not official examination papers.
-                                </p>
-                                <p style={S.sectionBody}>
-                                    AI-generated content may contain inaccuracies or errors. Users are advised to independently verify
-                                    important information before relying on it for academic or professional decisions.
-                                </p>
-                                <p style={S.sectionBody}>
-                                    All practice questions are original AI-assisted learning material designed for skill development.
-                                </p>
-                            </div>
+                        {s.isContact ? (
+                            <p style={S.sectionBody}>
+                                For privacy concerns or questions, you can contact the website owner at{' '}
+                                <a href="mailto:learnwithfloww@gmail.com" style={S.mailLink}>
+                                    learnwithfloww@gmail.com
+                                </a>
+                                . We aim to respond within 48 hours.
+                            </p>
                         ) : (
                             <p style={S.sectionBody}>{s.body}</p>
                         )}
