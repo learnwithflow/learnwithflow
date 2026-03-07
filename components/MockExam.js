@@ -1,7 +1,8 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
 import { CHAPTERS, QBANKS_RAW, shuffleArr } from '../lib/examData';
-
+import { experimental_useObject } from '@ai-sdk/react';
+import { z } from 'zod';
 function fmtTime(s) { return `${Math.floor(s / 60).toString().padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}`; }
 
 function repeatAndShuffle(pool, needed) {
@@ -51,20 +52,49 @@ export default function MockExam({ showPage, showToast }) {
         timerRef.current = setInterval(() => { setTimeLeft(t => { if (t <= 1) { clearInterval(timerRef.current); return 0; } return t - 1; }); }, 1000);
     };
 
+    const { submit: generateAIQuestions, object: generatedQuestions, isLoading: isGenerating } = experimental_useObject({
+        api: '/api/exam',
+        schema: z.object({
+            questions: z.array(z.object({
+                s: z.string(),
+                b: z.string(),
+                o: z.array(z.string()),
+                a: z.number(),
+                e: z.string().optional()
+            }))
+        })
+    });
+
     const generateMoreQuestions = async (existing, needed, type, chapter) => {
         const shortfall = needed - existing.length;
         if (shortfall <= 0) return existing.slice(0, needed);
         try {
-            const msgs = [{
-                role: 'system',
-                content: `Generate exactly ${shortfall} MCQ questions for ${type} exam${chapter ? ` on topic: ${chapter}` : ''}. Return ONLY a JSON array. Each: {"s":"Subject","b":"Question?","o":["A","B","C","D"],"a":0,"e":"Short 1-sentence explanation of why it is correct"} where "a" is correct index.`
-            }, { role: 'user', content: `Generate ${shortfall} unique questions now.` }];
-            const res = await fetch('/api/exam', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: msgs, action: 'generate' }) });
-            const json = await res.json();
-            if (json.questions && Array.isArray(json.questions)) {
-                return [...existing, ...json.questions].slice(0, needed);
+            // Need a way to await the result or listen to completion
+            // Since `submit` doesn't return a promise in older versions, we might need a custom fetch.
+            // Let's use simple custom stream decoding to avoid hook complexity in imperative code
+            const res = await fetch('/api/exam', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'generate', examType: type, chapter, count: shortfall }) });
+            if (!res.ok) throw new Error('API failed');
+
+            const reader = res.body.getReader();
+            const decoder = new TextDecoder();
+            let fullText = '';
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                fullText += decoder.decode(value, { stream: true });
             }
-        } catch (e) { }
+
+            // Extract the final JSON string from the text stream
+            // Vercel AI SDK streamObject sends format like: 
+            // 0:{"questions":...} 
+            // We can just regex out the JSON array.
+            const match = fullText.match(/\[[\s\S]*\]/);
+            if (match) {
+                const questions = JSON.parse(match[0]);
+                return [...existing, ...questions].slice(0, needed);
+            }
+        } catch (e) { console.error('Gen error:', e); }
         return repeatAndShuffle(existing, needed);
     };
 
@@ -131,8 +161,17 @@ export default function MockExam({ showPage, showToast }) {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ question: q.b, options: q.o, correctIndex: q.a, wrongIndex: i, subject: q.s })
                 });
-                const data = await res.json();
-                explanation = data.explanation || `The correct answer is ${correctLetter}) ${correctText}.`;
+                if (!res.ok) throw new Error('API failed');
+
+                const reader = res.body.getReader();
+                const decoder = new TextDecoder();
+                let raw = '';
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    raw += decoder.decode(value, { stream: true });
+                }
+                explanation = raw || `The correct answer is ${correctLetter}) ${correctText}.`;
             } catch {
                 explanation = `The correct answer is ${correctLetter}) ${correctText}.`;
             }
@@ -169,6 +208,8 @@ export default function MockExam({ showPage, showToast }) {
     const q = qs[qIdx];
     const answered = answers.filter(a => a !== null).length;
     const currentChapters = CHAPTERS[examType] || [];
+    const EXAM_LABELS = { eamcet: 'Engg. Entrance', it: 'IT & Coding', diploma: 'Diploma', neet: 'Medical Entrance', appsc: 'Govt. Exams' };
+    const examLabel = EXAM_LABELS[examType] || examType.toUpperCase();
 
     return (
         <div className="exam-wrap">
@@ -177,10 +218,11 @@ export default function MockExam({ showPage, showToast }) {
                 <h2 style={{ fontFamily: "'Instrument Serif', serif", fontSize: 34, marginBottom: 6 }}>Today&apos;s Study Plan</h2>
             </div>
             <div className="exam-type-tabs">
-                {[['eamcet', 'EAMCET'], ['it', 'IT/Coding'], ['diploma', 'Diploma'], ['neet', 'NEET'], ['appsc', 'APPSC']].map(([id, label]) => (
+                {[['eamcet', 'Engg. Entrance'], ['it', 'IT & Coding'], ['diploma', 'Diploma'], ['neet', 'Medical Entrance'], ['appsc', 'Govt. Exams']].map(([id, label]) => (
                     <button key={id} className={`exam-tab${examType === id ? ' active' : ''}`} onClick={() => switchExamType(id)}>{label}</button>
                 ))}
             </div>
+
 
             {view === 'daily' && (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
@@ -190,7 +232,7 @@ export default function MockExam({ showPage, showToast }) {
                         </div>
                     )}
                     <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 14, padding: 20 }}>
-                        <div style={{ fontWeight: 700, marginBottom: 4 }}>📚 Chapter Practice — {examType.toUpperCase()}</div>
+                        <div style={{ fontWeight: 700, marginBottom: 4 }}>📚 Chapter Practice — {examLabel}</div>
                         <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 10 }}>30 Questions · 30 minutes</div>
                         <select className="form-input" style={{ width: '100%', marginBottom: 10 }} value={selectedChapter} onChange={e => setSelectedChapter(e.target.value)}>
                             <option value="">Select chapter...</option>
@@ -200,13 +242,13 @@ export default function MockExam({ showPage, showToast }) {
                     </div>
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                         <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 14, padding: 20 }}>
-                            <div style={{ fontWeight: 700, marginBottom: 4 }}>☀️ Weak Area — {examType.toUpperCase()}</div>
+                            <div style={{ fontWeight: 700, marginBottom: 4 }}>☀️ Weak Area — {examLabel}</div>
                             <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 6 }}>60 Questions · 60 minutes</div>
                             <div style={{ fontSize: 11, color: 'var(--accent)', marginBottom: 12 }}>AI generates extra questions!</div>
                             <button className="btn-sm btn-sm-primary" disabled={loading} onClick={startWeakExam}>Start (60 Qs) →</button>
                         </div>
                         <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 14, padding: 20 }}>
-                            <div style={{ fontWeight: 700, marginBottom: 4 }}>🌙 Full Mock — {examType.toUpperCase()}</div>
+                            <div style={{ fontWeight: 700, marginBottom: 4 }}>🌙 Full Mock — {examLabel}</div>
                             <div style={{ fontSize: 12, color: 'var(--muted)', marginBottom: 6 }}>90 Questions · 90 minutes</div>
                             <div style={{ fontSize: 11, color: 'var(--accent)', marginBottom: 12 }}>Real exam simulation!</div>
                             <button className="btn-sm btn-sm-primary" disabled={loading} onClick={startFullExam}>Start (90 Qs) →</button>

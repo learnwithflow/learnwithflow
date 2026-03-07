@@ -24,31 +24,17 @@ Write a clear, short (2-3 sentences max) explanation of EXACTLY WHY "${correctAn
             return Response.json({ explanation: `The correct answer is ${correctAnswer}. This is the standard result for this type of question.` });
         }
 
-        const res = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
-            {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    contents: [{ parts: [{ text: prompt }] }],
-                    generationConfig: { temperature: 0.2, maxOutputTokens: 200 }
-                })
-            }
-        );
+        const { streamText } = await import('ai');
+        const { google } = await import('@ai-sdk/google');
 
-        if (!res.ok) {
-            const errorData = await res.json().catch(() => ({}));
-            console.error('Gemini API error:', errorData);
-            return Response.json({
-                explanation: `The correct answer is ${correctAnswer}. Review this topic to understand why.`
-            });
-        }
+        const result = streamText({
+            model: google('gemini-2.0-flash', { apiKey }),
+            prompt,
+            temperature: 0.2,
+            maxTokens: 200
+        });
 
-        const data = await res.json();
-        const explanation = data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() ||
-            `The correct answer is ${correctAnswer}.`;
-
-        return Response.json({ explanation });
+        return result.toTextStreamResponse();
     } catch (e) {
         console.error('Explain API error:', e);
         return Response.json({ explanation: 'Explanation unavailable at the moment.' }, { status: 500 });

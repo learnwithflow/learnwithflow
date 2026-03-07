@@ -19,8 +19,18 @@ async function callAI(messages) {
 export async function POST(req) {
     try {
         const { messages } = await req.json();
-        const content = await callAI(messages);
-        return Response.json({ content });
+
+        const { streamText } = await import('ai');
+        const { google } = await import('@ai-sdk/google');
+
+        const result = streamText({
+            model: google('gemini-2.0-flash', { apiKey: process.env.GEMINI_ROADMAP_KEY }),
+            messages,
+            maxTokens: 500,
+            temperature: 0.7
+        });
+
+        return result.toTextStreamResponse();
     } catch (e) {
         return Response.json({ content: 'Error processing request.' }, { status: 500 });
     }

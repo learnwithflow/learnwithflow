@@ -20,13 +20,26 @@ export async function POST(req) {
     try {
         const { messages, action } = await req.json();
 
+        const { streamText } = await import('ai');
+        const { google } = await import('@ai-sdk/google');
+
         if (action === 'generateQuestions') {
-            const content = await callAI(messages, 2000);
-            return Response.json({ content });
+            const result = streamText({
+                model: google('gemini-2.0-flash', { apiKey: process.env.GEMINI_INTERVIEW_KEY }),
+                messages,
+                maxTokens: 2000,
+                temperature: 0.8
+            });
+            return result.toTextStreamResponse();
         }
 
-        const content = await callAI(messages);
-        return Response.json({ content });
+        const result = streamText({
+            model: google('gemini-2.0-flash', { apiKey: process.env.GEMINI_INTERVIEW_KEY }),
+            messages,
+            maxTokens: 800,
+            temperature: 0.8
+        });
+        return result.toTextStreamResponse();
     } catch (e) {
         return Response.json({ content: 'Error processing request.' }, { status: 500 });
     }

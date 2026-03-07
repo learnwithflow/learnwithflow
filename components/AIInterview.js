@@ -90,8 +90,17 @@ Output ONLY the questions, one per line. Nothing else.`;
                     ]
                 })
             });
-            const json = await res.json();
-            const raw = json.content || '';
+            if (!res.ok) throw new Error('API failed');
+
+            const reader = res.body.getReader();
+            const decoder = new TextDecoder();
+            let raw = '';
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                raw += decoder.decode(value, { stream: true });
+            }
+
             const questions = raw.split('\n')
                 .map(l => l.trim())
                 .filter(l => l.length > 10 && l.endsWith('?'))
@@ -231,8 +240,16 @@ TIP: <one specific thing they should do differently next time>`
             }];
 
             const res = await fetch('/api/interview', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: msgs }) });
-            const json = await res.json();
-            const raw = json.content || '';
+            if (!res.ok) throw new Error('API failed');
+
+            const reader = res.body.getReader();
+            const decoder = new TextDecoder();
+            let raw = '';
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                raw += decoder.decode(value, { stream: true });
+            }
 
             const sm = raw.match(/SCORE:\s*(\d+)/i);
             if (sm) score = Math.max(25, Math.min(100, parseInt(sm[1])));
@@ -303,8 +320,17 @@ Give exactly 3 pieces of specific, honest feedback:
 Be real. If they did poorly, say so. Start each point with a dash (-). NO EMOJIS.`
             }];
             const res = await fetch('/api/interview', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: msgs }) });
-            const json = await res.json();
-            const lines = (json.content || '').split('\n').filter(l => l.trim()).slice(0, 3);
+            if (!res.ok) throw new Error('API failed');
+
+            const reader = res.body.getReader();
+            const decoder = new TextDecoder();
+            let raw = '';
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                raw += decoder.decode(value, { stream: true });
+            }
+            const lines = raw.split('\n').filter(l => l.trim()).slice(0, 3);
             if (lines.length >= 2) feedback = lines;
         } catch (e) { }
 

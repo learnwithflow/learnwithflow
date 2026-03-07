@@ -23,27 +23,27 @@ export async function POST(req) {
         // Generate exam questions dynamically
         if (action === 'generate') {
             const { examType, chapter, count } = await req.json().catch(() => ({}));
-            const genMsgs = messages || [{
-                role: 'system',
-                content: `You are an exam question generator. Generate exactly ${count || 10} multiple choice questions for ${examType || 'general'} exam${chapter ? ` on topic: ${chapter}` : ''}.
+            const { streamObject } = await import('ai');
+            const { google } = await import('@ai-sdk/google');
+            const { z } = await import('zod');
 
-Return ONLY a JSON array, no other text. Each question must have this format:
-[{"s":"Subject","b":"Question text?","o":["Option A","Option B","Option C","Option D"],"a":0}]
+            const result = streamObject({
+                model: google('gemini-2.0-flash', { apiKey: process.env.GEMINI_EXAM_KEY }),
+                system: `You are an exam question generator. Generate exactly ${count || 10} multiple choice questions for ${examType || 'general'} exam${chapter ? ` on topic: ${chapter}` : ''}. Make questions challenging but fair.`,
+                prompt: `Generate ${count || 10} questions now.`,
+                schema: z.object({
+                    questions: z.array(z.object({
+                        s: z.string().describe("Subject"),
+                        b: z.string().describe("Question text"),
+                        o: z.array(z.string()).describe("4 options for the multiple choice question"),
+                        a: z.number().describe("Index (0-3) of the correct option"),
+                        e: z.string().optional().describe("Short 1-sentence explanation of why it is correct")
+                    }))
+                }),
+                temperature: 0.7,
+            });
 
-Where "a" is the index (0-3) of the correct answer. Make questions challenging but fair.`
-            }, { role: 'user', content: `Generate ${count || 10} questions now.` }];
-
-            const content = await callAI(genMsgs);
-            if (content) {
-                try {
-                    const match = content.match(/\[[\s\S]*\]/);
-                    if (match) {
-                        const questions = JSON.parse(match[0]);
-                        return Response.json({ questions });
-                    }
-                } catch (e) { }
-            }
-            return Response.json({ questions: null });
+            return result.toTextStreamResponse();
         }
 
         // Regular AI call

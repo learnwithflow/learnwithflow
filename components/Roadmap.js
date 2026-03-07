@@ -77,8 +77,16 @@ export default function Roadmap({ showPage, showToast }) {
             if (hiddenSysText) apiMsgs.push({ role: 'user', content: hiddenSysText });
 
             const res = await fetch('/api/roadmap', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: apiMsgs }) });
-            const json = await res.json();
-            setChatMsgs(prev => [...prev, { role: 'ai', text: json.content || 'Sorry, I encountered an error explaining that.' }]);
+            if (!res.ok) throw new Error('API failed');
+            const reader = res.body.getReader();
+            const decoder = new TextDecoder();
+            let raw = '';
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                raw += decoder.decode(value, { stream: true });
+            }
+            setChatMsgs(prev => [...prev, { role: 'ai', text: raw || 'Sorry, I encountered an error explaining that.' }]);
         } catch (e) {
             setChatMsgs(prev => [...prev, { role: 'ai', text: 'Network error. Please try again.' }]);
         }
@@ -113,8 +121,15 @@ TIP: <text>` }
             ];
 
             const res = await fetch('/api/roadmap', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: apiMsgs }) });
-            const json = await res.json();
-            const raw = json.content || '';
+            if (!res.ok) throw new Error('API failed');
+            const reader = res.body.getReader();
+            const decoder = new TextDecoder();
+            let raw = '';
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                raw += decoder.decode(value, { stream: true });
+            }
 
             const descMatch = raw.match(/DESCRIPTION:\s*(.+?)(?=RESOURCES:|$)/s);
             const tipMatch = raw.match(/TIP:\s*(.+?)$/s);
@@ -174,8 +189,15 @@ SKILLS: <comma-separated skills>
             ];
 
             const res = await fetch('/api/roadmap', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: apiMsgs }) });
-            const json = await res.json();
-            const raw = json.content || '';
+            if (!res.ok) throw new Error('API failed');
+            const reader = res.body.getReader();
+            const decoder = new TextDecoder();
+            let raw = '';
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                raw += decoder.decode(value, { stream: true });
+            }
 
             const projectBlocks = raw.split('---').filter(b => b.trim());
             const parsed = projectBlocks.map(block => {
