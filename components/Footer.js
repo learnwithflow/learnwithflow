@@ -85,6 +85,15 @@ const S = {
         textDecoration: 'none',
         transition: 'color 0.15s ease',
     },
+    instaLink: {
+        fontSize: '12px',
+        color: '#a1a1aa',
+        textDecoration: 'none',
+        display: 'inline-flex',
+        alignItems: 'center',
+        gap: '4px',
+        transition: 'color 0.15s ease',
+    },
 };
 
 const navLinks = [
@@ -151,14 +160,32 @@ export default function Footer({ showPage }) {
                 {/* Copyright + contact */}
                 <div style={S.legal}>
                     <p style={S.copyright}>© {year} learnwithflow. All rights reserved.</p>
-                    <a
-                        href="mailto:learnwithfloww@gmail.com"
-                        style={S.mailLink}
-                        onMouseEnter={e => { e.currentTarget.style.color = '#2563a8'; }}
-                        onMouseLeave={e => { e.currentTarget.style.color = '#a1a1aa'; }}
-                    >
-                        learnwithfloww@gmail.com
-                    </a>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '14px', flexWrap: 'wrap', justifyContent: 'center' }}>
+                        <a
+                            href="mailto:learnwithfloww@gmail.com"
+                            style={S.mailLink}
+                            onMouseEnter={e => { e.currentTarget.style.color = '#2563a8'; }}
+                            onMouseLeave={e => { e.currentTarget.style.color = '#a1a1aa'; }}
+                        >
+                            learnwithfloww@gmail.com
+                        </a>
+                        <div style={S.sep} />
+                        <a
+                            href="https://instagram.com/learnwithflow.online"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={S.instaLink}
+                            onMouseEnter={e => { e.currentTarget.style.color = '#e1306c'; }}
+                            onMouseLeave={e => { e.currentTarget.style.color = '#a1a1aa'; }}
+                        >
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+                                <circle cx="12" cy="12" r="4" />
+                                <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
+                            </svg>
+                            @learnwithflow.online
+                        </a>
+                    </div>
                 </div>
             </div>
         </footer>
