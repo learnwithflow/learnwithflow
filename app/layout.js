@@ -20,14 +20,14 @@ export const metadata = {
   description: 'AI career guidance, mock exams, voice interview practice — all in one place.',
   icons: {
     icon: [
-      { url: '/favicon.ico' },
       { url: '/icon.png', type: 'image/png' },
     ],
     apple: '/icon.png',
+    shortcut: '/icon.png',
   },
   openGraph: {
     title: 'LearnWithFlow',
-    description: 'Your path from Inter to Career starts here',
+    description: 'Your path from learning to career starts here',
     images: [
       {
         url: '/og-image.png',
@@ -36,9 +36,6 @@ export const metadata = {
         alt: 'LearnWithFlow Preview Image',
       },
     ],
-  },
-  verification: {
-    google: 'your-google-verification-code', // Replace with your actual verification code
   },
   robots: {
     index: true,
