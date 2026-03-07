@@ -2,66 +2,112 @@
 
 export default function About({ showPage }) {
     return (
-        <div className="min-h-screen bg-[#fafafa] flex flex-col justify-center items-center px-6 py-24 md:py-32 font-sans text-slate-800">
-            <div className="w-full max-w-3xl bg-white p-10 md:p-16 rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] ring-1 ring-slate-100">
-                <div className="mb-12">
-                    <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-slate-900" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>About Us</h1>
-                    <div className="h-1 w-12 bg-slate-900 mt-6 rounded-full"></div>
+        <div style={{
+            minHeight: '100vh',
+            background: '#fafafa',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '100px 24px 60px',
+            fontFamily: "'Plus Jakarta Sans', sans-serif",
+        }}>
+            <div style={{
+                width: '100%',
+                maxWidth: '720px',
+                background: '#ffffff',
+                borderRadius: '24px',
+                padding: '56px 64px',
+                boxShadow: '0 4px 6px -1px rgba(0,0,0,0.04), 0 2px 4px -2px rgba(0,0,0,0.03)',
+                border: '1px solid #f1f5f9',
+            }}>
+                {/* Header */}
+                <div style={{ marginBottom: '40px' }}>
+                    <div style={{
+                        fontSize: '13px',
+                        fontWeight: 700,
+                        letterSpacing: '2px',
+                        textTransform: 'uppercase',
+                        color: '#64748b',
+                        marginBottom: '14px',
+                    }}>LEARNWITHFLOW</div>
+                    <div style={{
+                        fontSize: '40px',
+                        fontWeight: 800,
+                        color: '#0f172a',
+                        lineHeight: 1.15,
+                        letterSpacing: '-1px',
+                        marginBottom: '16px',
+                        fontFamily: "'Plus Jakarta Sans', sans-serif",
+                    }}>About Us</div>
+                    <div style={{ width: '40px', height: '3px', background: '#0f172a', borderRadius: '99px' }} />
                 </div>
 
-                <div className="space-y-8 text-lg font-medium leading-relaxed text-slate-600">
-                    <p>
-                        Welcome to <span className="font-bold text-slate-900">learnwithflow</span>, your ultimate platform for career growth and learning.
+                {/* Body */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '32px', color: '#475569', fontSize: '16px', lineHeight: 1.75 }}>
+                    <p style={{ margin: 0 }}>
+                        Welcome to <strong style={{ color: '#0f172a' }}>learnwithflow</strong>, your ultimate platform for career growth and learning.
                         We believe in empowering individuals with the right tools, roadmaps, and resources to navigate their professional journeys effectively.
                     </p>
 
                     <div>
-                        <h2 className="text-2xl font-bold mb-3 text-slate-900 tracking-tight" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Our Mission</h2>
-                        <p>
+                        <div style={{ fontSize: '18px', fontWeight: 700, color: '#0f172a', marginBottom: '10px', letterSpacing: '-0.3px' }}>Our Mission</div>
+                        <p style={{ margin: 0 }}>
                             Our mission is to bridge the gap between education and industry requirements. We aim to provide clear, actionable
                             learning paths and intelligent interview preparation tools that help landing your dream job within reach.
                         </p>
                     </div>
 
                     <div>
-                        <h2 className="text-2xl font-bold mb-4 text-slate-900 tracking-tight" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>What We Offer</h2>
-                        <ul className="space-y-4">
-                            <li className="flex items-start">
-                                <span className="text-slate-400 mr-3 mt-1">•</span>
-                                <span><strong className="text-slate-800">Comprehensive Roadmaps:</strong> Step-by-step guides for various tech and non-tech career paths.</span>
-                            </li>
-                            <li className="flex items-start">
-                                <span className="text-slate-400 mr-3 mt-1">•</span>
-                                <span><strong className="text-slate-800">AI Interview Practice:</strong> Mock interviews powered by AI to help you build confidence and improve your skills.</span>
-                            </li>
-                            <li className="flex items-start">
-                                <span className="text-slate-400 mr-3 mt-1">•</span>
-                                <span><strong className="text-slate-800">Career Quizzes:</strong> Discover the best career paths aligned with your interests and strengths.</span>
-                            </li>
-                            <li className="flex items-start">
-                                <span className="text-slate-400 mr-3 mt-1">•</span>
-                                <span><strong className="text-slate-800">Mock Exams:</strong> Prepare for certifications and assessments with our realistic mock exams.</span>
-                            </li>
-                        </ul>
+                        <div style={{ fontSize: '18px', fontWeight: 700, color: '#0f172a', marginBottom: '14px', letterSpacing: '-0.3px' }}>What We Offer</div>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                            {[
+                                ['Comprehensive Roadmaps', 'Step-by-step guides for various tech and non-tech career paths.'],
+                                ['AI Interview Practice', 'Mock interviews powered by AI to help you build confidence and improve your skills.'],
+                                ['Career Quizzes', 'Discover the best career paths aligned with your interests and strengths.'],
+                                ['Mock Exams', 'Prepare for certifications and assessments with our realistic mock exams.'],
+                            ].map(([title, desc]) => (
+                                <div key={title} style={{ display: 'flex', gap: '12px', alignItems: 'flex-start' }}>
+                                    <span style={{ color: '#94a3b8', marginTop: '2px', flexShrink: 0, fontSize: '18px' }}>›</span>
+                                    <span><strong style={{ color: '#1e293b' }}>{title}:</strong> {desc}</span>
+                                </div>
+                            ))}
+                        </div>
                     </div>
 
                     <div>
-                        <h2 className="text-2xl font-bold mb-3 text-slate-900 tracking-tight" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>Join Our Community</h2>
-                        <p>
+                        <div style={{ fontSize: '18px', fontWeight: 700, color: '#0f172a', marginBottom: '10px', letterSpacing: '-0.3px' }}>Join Our Community</div>
+                        <p style={{ margin: 0 }}>
                             Whether you are just starting out or looking to make a career switch, learnwithflow is here to support you at every step.
                             Let&apos;s learn, grow, and achieve our goals together.
                         </p>
                     </div>
                 </div>
 
-                <div className="mt-16 pt-8 border-t border-slate-100 flex justify-start">
+                {/* Footer */}
+                <div style={{ marginTop: '48px', paddingTop: '32px', borderTop: '1px solid #f1f5f9' }}>
                     <button
                         onClick={() => showPage('home')}
-                        className="group flex items-center gap-2 px-6 py-3 bg-white text-slate-800 font-bold rounded-full shadow-sm ring-1 ring-slate-200 hover:bg-slate-50 hover:ring-slate-300 transition-all focus:outline-none focus:ring-2 focus:ring-slate-900 focus:ring-offset-2"
-                        style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}
+                        style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            padding: '10px 22px',
+                            background: '#ffffff',
+                            color: '#334155',
+                            fontWeight: 700,
+                            fontSize: '14px',
+                            borderRadius: '99px',
+                            border: '1px solid #e2e8f0',
+                            cursor: 'pointer',
+                            fontFamily: "'Plus Jakarta Sans', sans-serif",
+                            boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
+                            transition: 'all 0.2s',
+                        }}
+                        onMouseEnter={e => { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.borderColor = '#cbd5e1'; }}
+                        onMouseLeave={e => { e.currentTarget.style.background = '#ffffff'; e.currentTarget.style.borderColor = '#e2e8f0'; }}
                     >
-                        <span className="text-slate-400 group-hover:-translate-x-1 transition-transform">←</span>
-                        Back to Home
+                        <span style={{ color: '#94a3b8' }}>←</span> Back to Home
                     </button>
                 </div>
             </div>
