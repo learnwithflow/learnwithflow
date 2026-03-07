@@ -18,24 +18,9 @@ const inter = Inter({
 export const metadata = {
   title: 'LearnWithFlow',
   description: 'AI career guidance, mock exams, voice interview practice — all in one place.',
-  icons: {
-    icon: [
-      { url: '/icon.png', type: 'image/png' },
-    ],
-    apple: '/icon.png',
-    shortcut: '/icon.png',
-  },
   openGraph: {
     title: 'LearnWithFlow',
     description: 'Your path from learning to career starts here',
-    images: [
-      {
-        url: '/og-image.png',
-        width: 1200,
-        height: 630,
-        alt: 'LearnWithFlow Preview Image',
-      },
-    ],
   },
   robots: {
     index: true,
