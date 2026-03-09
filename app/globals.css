@@ -1,17 +1,28 @@
 @import "tailwindcss";
 
 :root {
-  --bg: #f5f2eb;
-  --bg2: #ede9e0;
-  --surface: #faf8f4;
-  --border: #e2ddd4;
-  --ink: #1c1814;
-  --ink2: #3d3830;
-  --muted: #8b8278;
+  --bg: #fdfcf7;
+  /* Cleaner, brighter paper-like background */
+  --bg2: #f2efe6;
+  /* Slightly deeper background for offset cards */
+  --surface: #ffffff;
+  /* Pure white for foreground elements */
+  --border: #e6e0d4;
+  /* Softer borders for a premium feel */
+  --ink: #111827;
+  /* High contrast dark text (Tailwind raw gray-900) */
+  --ink2: #4a5568;
+  /* Deep readable gray for secondary typography */
+  --muted: #94a3b8;
+  /* Soft gray for metadata */
   --accent: #2563a8;
-  --accent2: #7c3aed;
-  --accent3: #16a34a;
-  --gold: #d4a017;
+  /* Primary Brand Blue */
+  --accent2: #06b6a0;
+  /* Primary Brand Teal */
+  /* Re-aliasing extra chaotic colors to primary brand for cohesion */
+  --accent3: #06b6a0;
+  --gold: #f59e0b;
+
   --loop-bg: #0d1117;
   --loop-surface: #161b22;
   --loop-surface2: #1c2333;
@@ -27,14 +38,18 @@
 * {
   box-sizing: border-box;
   margin: 0;
-  padding: 0
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  /* Crisp font rendering specifically for Macs */
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
-  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   background: var(--bg);
   color: var(--ink);
-  line-height: 1.5
+  line-height: 1.6;
+  /* Increased line height for global text readability */
 }
 
 .page {
@@ -70,10 +85,12 @@ nav#main-nav {
 }
 
 .nav-logo-text {
-  font-family: 'Syne', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  /* Standardized to brand font */
   font-weight: 800;
-  font-size: 17px;
-  color: var(--ink)
+  font-size: 19px;
+  color: var(--ink);
+  letter-spacing: -0.5px;
 }
 
 .nav-logo-text .flow {
@@ -222,25 +239,29 @@ h1 em {
 }
 
 .btn-big {
-  padding: 13px 26px;
+  padding: 14px 28px;
   border-radius: 12px;
   font-size: 15px;
   font-weight: 700;
   cursor: pointer;
   border: none;
   font-family: 'Plus Jakarta Sans', sans-serif;
-  transition: all 0.2s
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, #2563a8, #7c3aed);
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
   color: white;
-  box-shadow: 0 4px 20px rgba(37, 99, 168, 0.3)
+  box-shadow: 0 4px 14px rgba(37, 99, 168, 0.25);
 }
 
 .btn-primary:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 28px rgba(37, 99, 168, 0.4)
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 12px 32px rgba(37, 99, 168, 0.3);
+}
+
+.btn-primary:active {
+  transform: translateY(0) scale(0.98);
 }
 
 .btn-outline {
@@ -250,8 +271,10 @@ h1 em {
 }
 
 .btn-outline:hover {
-  border-color: #2563a8;
-  transform: translateY(-1px)
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: translateY(-1px);
+  background: rgba(37, 99, 168, 0.04);
 }
 
 .hero-stats {
@@ -347,7 +370,8 @@ h1 em {
 ═══════════════════════════════════════════════ */
 
 .hw-hero {
-  padding: 120px 24px 80px;
+  padding: 180px 24px 100px;
+  /* Massively increased top padding for airy feel */
   background: var(--bg);
   position: relative;
   overflow: hidden;
@@ -430,9 +454,15 @@ h1 em {
 }
 
 .hw-btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 28px rgba(37, 99, 168, 0.38);
-  background: #1d4ed8;
+  transform: translateY(-2px) scale(1.02);
+  /* Scale up micro animation */
+  box-shadow: 0 12px 32px rgba(37, 99, 168, 0.3);
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+}
+
+.hw-btn-primary:active {
+  transform: translateY(0) scale(0.98);
+  /* Click down micro animation */
 }
 
 .hw-btn-outline {
@@ -452,6 +482,11 @@ h1 em {
   border-color: var(--accent);
   color: var(--accent);
   transform: translateY(-2px);
+  background: rgba(37, 99, 168, 0.04);
+}
+
+.hw-btn-outline:active {
+  transform: translateY(0) scale(0.98);
 }
 
 .hw-stats-row {
@@ -485,7 +520,8 @@ h1 em {
 
 /* ── Sections ── */
 .hw-section {
-  padding: 80px 24px;
+  padding: 120px 24px;
+  /* Enhanced vertical rhythm */
 }
 
 .hw-container {
@@ -550,8 +586,9 @@ h1 em {
 
 .hw-feature-card:hover {
   border-color: var(--accent);
-  transform: translateY(-3px);
-  box-shadow: 0 12px 32px rgba(37, 99, 168, 0.08);
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(37, 99, 168, 0.08);
+  /* Smoother, larger ethereal shadow */
   background: white;
 }
 
@@ -636,9 +673,14 @@ h1 em {
 }
 
 .hw-exam-chip:hover {
-  background: rgba(37, 99, 168, 0.3);
-  border-color: rgba(37, 99, 168, 0.5);
-  transform: translateY(-2px);
+  background: rgba(37, 99, 168, 0.35);
+  border-color: rgba(37, 99, 168, 0.6);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+}
+
+.hw-exam-chip:active {
+  transform: translateY(-1px) scale(0.98);
 }
 
 .hw-exam-icon {
@@ -743,7 +785,7 @@ h1 em {
 
 /* ── CTA Banner ── */
 .hw-cta-banner {
-  padding: 80px 24px;
+  padding: 120px 24px;
   background: var(--accent);
 }
 
@@ -782,11 +824,11 @@ h1 em {
 
 @media (max-width: 768px) {
   .hw-hero {
-    padding: 100px 20px 60px;
+    padding: 140px 20px 80px;
   }
 
   .hw-section {
-    padding: 60px 20px;
+    padding: 80px 20px;
   }
 
   .hw-stats-row {
@@ -826,25 +868,42 @@ h1 em {
 }
 
 .progress-bar {
-  height: 4px;
+  height: 8px;
   background: var(--border);
   border-radius: 4px;
-  margin: 16px 0
+  margin-bottom: 24px;
+  overflow: hidden;
+  position: relative;
 }
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, #2563a8, #06d6a0);
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
   border-radius: 4px;
-  transition: width 0.4s ease
+  transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 0 10px rgba(6, 182, 160, 0.4);
+  /* Glowing leading edge effect */
 }
 
 .quiz-card {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 20px;
-  padding: 34px;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.05)
+  padding: 32px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.03);
+  animation: slideUpQuiz 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideUpQuiz {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .q-num {
@@ -869,29 +928,37 @@ h1 em {
 }
 
 .q-option {
-  padding: 13px 18px;
-  border-radius: 11px;
+  padding: 16px 20px;
+  border-radius: 12px;
   border: 2px solid var(--border);
   background: var(--bg);
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 15px;
   cursor: pointer;
-  transition: all 0.18s;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   text-align: left;
   font-family: 'Plus Jakarta Sans', sans-serif;
-  color: var(--ink)
+  color: var(--ink2);
+  font-weight: 600
 }
 
 .q-option:hover {
-  border-color: #2563a8;
-  background: rgba(37, 99, 168, 0.04);
-  transform: translateX(4px)
+  border-color: var(--accent);
+  background: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(37, 99, 168, 0.08);
+  /* Hover float effect */
+}
+
+.q-option:active {
+  transform: translateY(0) scale(0.98);
 }
 
 .q-option.selected {
-  border-color: #2563a8;
-  background: rgba(37, 99, 168, 0.08);
-  color: #2563a8
+  border-color: var(--accent2);
+  background: rgba(6, 182, 160, 0.08);
+  /* Soft teal pulse */
+  color: var(--accent2);
+  transform: scale(0.98);
 }
 
 .result-card {

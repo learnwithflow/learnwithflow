@@ -52,7 +52,7 @@ export default function Navbar({ currentPage, showPage }) {
 
     return (
         <>
-            <nav id="main-nav" className="flex items-center justify-between px-6 h-14 bg-[#f5f2eb]/90 backdrop-blur-md border-b border-[#e2ddd4] fixed top-0 left-0 right-0 z-50">
+            <nav id="main-nav" className="flex items-center justify-between px-6 h-14 bg-[#fdfcf7]/75 backdrop-blur-[24px] border-b border-[#e6e0d4]/60 fixed top-0 left-0 right-0 z-50 transition-all duration-300 shadow-[0_4px_30px_rgba(0,0,0,0.02)]">
                 <div className="nav-logo flex items-center gap-2 cursor-pointer" onClick={() => handleNav('home')}>
                     <svg width="28" height="18" viewBox="0 0 36 20" fill="none" style={{ flexShrink: 0 }}>
                         <defs>
@@ -90,14 +90,14 @@ export default function Navbar({ currentPage, showPage }) {
 
                     {/* Desktop Dropdown */}
                     {desktopMenuOpen && (
-                        <div className="hidden md:block absolute top-[62px] right-3 w-[260px] z-50" style={{ animation: 'ddFade 0.25s cubic-bezier(.22,1,.36,1)' }}>
-                            <div className="rounded-2xl p-1.5" style={{ background: 'rgba(255,255,255,0.85)', backdropFilter: 'blur(24px) saturate(1.4)', WebkitBackdropFilter: 'blur(24px) saturate(1.4)', boxShadow: '0 12px 40px -8px rgba(0,0,0,0.12), 0 0 0 1px rgba(0,0,0,0.04)', border: '1px solid rgba(255,255,255,0.6)' }}>
+                        <div className="hidden md:block absolute top-[62px] right-3 w-[260px] z-50" style={{ animation: 'ddFade 0.3s cubic-bezier(0.16, 1, 0.3, 1)' }}>
+                            <div className="rounded-2xl p-1.5" style={{ background: 'rgba(253,252,247,0.85)', backdropFilter: 'blur(24px) saturate(1.4)', WebkitBackdropFilter: 'blur(24px) saturate(1.4)', boxShadow: '0 12px 40px -8px rgba(0,0,0,0.08), 0 0 0 1px rgba(0,0,0,0.04)', border: '1px solid rgba(230,224,212,0.6)' }}>
                                 {featureLinks.map((l, i) => (
                                     <button
                                         key={l.id}
                                         onClick={() => handleNav(l.id)}
-                                        className={`w-full text-left rounded-xl transition-all duration-200 flex items-center gap-3.5 group relative overflow-hidden ${currentPage === l.id ? 'bg-white shadow-sm' : 'hover:bg-white/80'}`}
-                                        style={{ padding: '14px 16px', animation: `ddItem 0.3s cubic-bezier(.22,1,.36,1) ${i * 0.06}s both` }}
+                                        className={`w-full text-left rounded-xl transition-all duration-300 flex items-center gap-3.5 group relative overflow-hidden ${currentPage === l.id ? 'bg-white shadow-[0_2px_8px_rgba(0,0,0,0.04)]' : 'hover:bg-white/90 active:scale-[0.98]'}`}
+                                        style={{ padding: '14px 16px', animation: `ddItem 0.4s cubic-bezier(0.16, 1, 0.3, 1) ${i * 0.05}s both` }}
                                     >
                                         {/* Left accent bar */}
                                         <div className="absolute left-0 top-[20%] bottom-[20%] w-[3px] rounded-r-full transition-all duration-200" style={{ backgroundColor: currentPage === l.id ? l.color : 'transparent' }}></div>
@@ -126,11 +126,11 @@ export default function Navbar({ currentPage, showPage }) {
                     <style dangerouslySetInnerHTML={{
                         __html: `
                         @keyframes ddFade {
-                            from { opacity: 0; transform: translateY(-10px) scale(0.97); }
+                            from { opacity: 0; transform: translateY(-12px) scale(0.96); }
                             to { opacity: 1; transform: translateY(0) scale(1); }
                         }
                         @keyframes ddItem {
-                            from { opacity: 0; transform: translateX(-6px); }
+                            from { opacity: 0; transform: translateX(-8px); }
                             to { opacity: 1; transform: translateX(0); }
                         }
                     `}} />

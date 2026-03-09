@@ -61,7 +61,7 @@ export default function Hero({ showPage }) {
     return (
         <>
             {/* ── HERO ── */}
-            <section className="hw-hero">
+            <section className="hw-hero" style={{ animation: 'heroReveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) both' }}>
                 <div className="hw-hero-inner">
 
                     <h1 className="hw-h1">
@@ -176,6 +176,21 @@ export default function Hero({ showPage }) {
                     </button>
                 </div>
             </section>
+
+            <style dangerouslySetInnerHTML={{
+                __html: `
+                @keyframes heroReveal {
+                    from { opacity: 0; transform: translateY(20px); filter: blur(4px); }
+                    to { opacity: 1; transform: translateY(0); filter: blur(0); }
+                }
+                .hw-hero-inner > * {
+                    animation: heroReveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+                }
+                .hw-hero-inner > *:nth-child(1) { animation-delay: 0.1s; }
+                .hw-hero-inner > *:nth-child(2) { animation-delay: 0.2s; }
+                .hw-hero-inner > *:nth-child(3) { animation-delay: 0.3s; }
+                .hw-hero-inner > *:nth-child(4) { animation-delay: 0.4s; }
+            `}} />
         </>
     );
 }
