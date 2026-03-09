@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from 'react';
 import { CHAPTERS, QBANKS_RAW, shuffleArr } from '../lib/examData';
 import { experimental_useObject } from '@ai-sdk/react';
 import { z } from 'zod';
+import { supabase, getAnonId } from '../lib/supabase';
 function fmtTime(s) { return `${Math.floor(s / 60).toString().padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}`; }
 
 function repeatAndShuffle(pool, needed) {
@@ -188,7 +189,7 @@ export default function MockExam({ showPage, showToast }) {
         );
     };
 
-    const submitExam = () => {
+    const submitExam = async () => {
         clearInterval(timerRef.current);
         const correct = answers.reduce((acc, a, i) => acc + (a === qs[i]?.a ? 1 : 0), 0);
         const pct = Math.round(correct / qs.length * 100);
@@ -201,6 +202,22 @@ export default function MockExam({ showPage, showToast }) {
             const prev = parseInt(localStorage.getItem('lwf_qs') || '0');
             localStorage.setItem('lwf_qs', prev + qs.length);
         } catch (e) { }
+        // Save to Supabase
+        try {
+            const uid = getAnonId();
+            if (uid) {
+                const currentQ = qs[0];
+                await supabase.from('exam_results').insert({
+                    user_id: uid,
+                    exam_type: examType,
+                    exam_mode: activeMode,
+                    subject: currentQ?.s || examType,
+                    score: correct,
+                    total: qs.length,
+                    percentage: pct,
+                });
+            }
+        } catch (e) { console.error('Supabase save error:', e); }
         showToast?.(`Score: ${correct}/${qs.length} (${pct}%) — Saved! 🎯`);
         setView('daily');
     };

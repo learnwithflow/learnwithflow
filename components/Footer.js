@@ -171,7 +171,7 @@ export default function Footer({ showPage }) {
                         </a>
                         <div style={S.sep} />
                         <a
-                            href="https://instagram.com/learnwithflow.online"
+                            href="https://instagram.com/learnwithflow1"
                             target="_blank"
                             rel="noopener noreferrer"
                             style={S.instaLink}
@@ -183,7 +183,7 @@ export default function Footer({ showPage }) {
                                 <circle cx="12" cy="12" r="4" />
                                 <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
                             </svg>
-                            @learnwithflow.online
+                            @learnwithflow1
                         </a>
                     </div>
                 </div>

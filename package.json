@@ -13,6 +13,7 @@
     "@ai-sdk/groq": "^3.0.29",
     "@ai-sdk/openai": "^3.0.41",
     "@ai-sdk/react": "^3.0.118",
+    "@supabase/supabase-js": "^2.98.0",
     "ai": "^6.0.116",
     "next": "15.5.12",
     "react": "19.0.0",

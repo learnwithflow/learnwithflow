@@ -13,10 +13,12 @@ import About from '../components/About';
 import Terms from '../components/Terms';
 import PrivacyPolicy from '../components/PrivacyPolicy';
 import Footer from '../components/Footer';
+import Profile from '../components/Profile';
 
 export default function Home() {
   const [currentPage, setCurrentPage] = useState('home');
   const [toastMsg, setToastMsg] = useState('');
+  const [userName, setUserName] = useState('');
   const toastKey = useRef(0);
 
   const showPage = useCallback((page) => {
@@ -33,6 +35,7 @@ export default function Home() {
 
   return (
     <>
+      <Profile onProfileReady={setUserName} />
       <Navbar currentPage={currentPage} showPage={showPage} />
       <Toast message={toastMsg} />
       <div style={pageStyle('home')}><Hero showPage={showPage} /></div>
@@ -40,7 +43,7 @@ export default function Home() {
       <div style={{ ...pageStyle('exam'), paddingTop: 56 }}><MockExam showPage={showPage} showToast={showToast} /></div>
       <div style={{ ...pageStyle('roadmap'), paddingTop: 0 }}><Roadmap showPage={showPage} showToast={showToast} /></div>
       <div style={{ ...pageStyle('interview'), paddingTop: 56 }}><AIInterview showPage={showPage} showToast={showToast} /></div>
-      <div style={{ ...pageStyle('dashboard'), paddingTop: 56 }}><Dashboard showPage={showPage} /></div>
+      <div style={{ ...pageStyle('dashboard'), paddingTop: 56 }}><Dashboard showPage={showPage} userName={userName} /></div>
       <div style={{ ...pageStyle('jobtracker'), paddingTop: 56 }}><JobTracker showPage={showPage} /></div>
       <div style={{ ...pageStyle('about'), paddingTop: 0 }}><About showPage={showPage} /></div>
       <div style={{ ...pageStyle('terms'), paddingTop: 0 }}><Terms showPage={showPage} /></div>
