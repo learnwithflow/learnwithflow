@@ -2,13 +2,15 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 
-export default function Leaderboard() {
+export default function Leaderboard({ currentPage }) {
     const [leaders, setLeaders] = useState([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetchLeaders();
-    }, []);
+        if (currentPage === 'leaderboard' || !currentPage) {
+            fetchLeaders();
+        }
+    }, [currentPage]);
 
     async function fetchLeaders() {
         setLoading(true);

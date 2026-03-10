@@ -356,9 +356,9 @@ SKILLS: <comma-separated skills>
             )}
 
             {view === 'detail' && data && (
-                <div className="rm-split-layout">
+                <div style={{ maxWidth: 1000, margin: '0 auto', padding: '40px 24px 80px' }}>
                     {/* Main Roadmap Area (Left) */}
-                    <div className="rm-main-area">
+                    <div>
                         <div className="rm-hdr">
                             <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexWrap: 'wrap' }}>
                                 <button className="rm-back-badge" onClick={closeDetail}>← All Roadmaps</button>
@@ -472,122 +472,116 @@ SKILLS: <comma-separated skills>
                         )}
                     </div>
 
-                    {/* Right Sidebar */}
-                    <div className="rm-ai-sidebar" style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
-
-                        {/* Topic Detail Panel (appears above chat when a node is clicked) */}
-                        {detailPanel && (
-                            <div style={{ borderBottom: '1px solid #eee', padding: 16, maxHeight: '50vh', overflow: 'auto' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
-                                    <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, fontFamily: "'DM Sans', sans-serif", color: '#111' }}>{detailPanel.label}</h3>
-                                    <button onClick={() => setDetailPanel(null)} style={{ background: 'none', border: 'none', fontSize: 18, cursor: 'pointer', color: '#999', padding: 0, lineHeight: 1 }}>×</button>
+                    {/* Topic Detail Popup (Replacing Sidebar) */}
+                    {detailPanel && (
+                        <div className="rm-popup-overlay" onClick={() => { setDetailPanel(null); setChatInput(''); }}>
+                            <div className="rm-popup-content" onClick={e => e.stopPropagation()}>
+                                <div className="rm-popup-header">
+                                    <h3 style={{ margin: 0, fontSize: 18, fontWeight: 700, fontFamily: "'DM Sans', sans-serif", color: '#111' }}>{detailPanel.label}</h3>
+                                    <button onClick={() => { setDetailPanel(null); setChatInput(''); }} style={{ background: 'none', border: 'none', fontSize: 24, cursor: 'pointer', color: '#999', padding: 0, lineHeight: 1 }}>×</button>
                                 </div>
-
-                                {/* Status selector */}
-                                <div style={{ display: 'flex', gap: 6, marginBottom: 12 }}>
-                                    {['pending', 'done', 'skip'].map(s => {
-                                        const isDone = rmProg?.has(detailPanel.nodeId);
-                                        const isActive = (s === 'done' && isDone) || (s === 'pending' && !isDone);
-                                        return (
-                                            <button key={s} onClick={() => setNodeStatus(detailPanel.nodeId, s)} style={{
-                                                padding: '4px 12px', borderRadius: 6, border: '1px solid #eee', fontSize: 11, cursor: 'pointer',
-                                                fontFamily: "'DM Mono', monospace", fontWeight: 600, textTransform: 'capitalize',
-                                                background: isActive ? (s === 'done' ? '#d4f5e9' : s === 'skip' ? '#fde2e2' : '#f5f5f5') : '#fff',
-                                                color: isActive ? (s === 'done' ? '#06976b' : s === 'skip' ? '#c53030' : '#333') : '#999'
-                                            }}>{s === 'done' ? '✓ Done' : s === 'skip' ? '⏭ Skip' : '● Pending'}</button>
-                                        );
-                                    })}
-                                </div>
-
-                                {detailLoading && (
-                                    <div style={{ textAlign: 'center', padding: 20 }}>
-                                        <div style={{ width: 24, height: 24, border: '2px solid #eee', borderTopColor: '#06d6a0', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto' }} />
-                                        <p style={{ color: '#999', fontSize: 12, marginTop: 8 }}>Loading resources...</p>
+                                <div className="rm-popup-body">
+                                    {/* Status selector */}
+                                    <div style={{ display: 'flex', gap: 6, marginBottom: 16 }}>
+                                        {['pending', 'done', 'skip'].map(s => {
+                                            const isDone = rmProg?.has(detailPanel.nodeId);
+                                            const isActive = (s === 'done' && isDone) || (s === 'pending' && !isDone);
+                                            return (
+                                                <button key={s} onClick={() => setNodeStatus(detailPanel.nodeId, s)} style={{
+                                                    padding: '6px 14px', borderRadius: 8, border: '1px solid #eee', fontSize: 12, cursor: 'pointer',
+                                                    fontFamily: "'DM Mono', monospace", fontWeight: 600, textTransform: 'capitalize',
+                                                    background: isActive ? (s === 'done' ? '#d4f5e9' : s === 'skip' ? '#fde2e2' : '#f5f5f5') : '#fff',
+                                                    color: isActive ? (s === 'done' ? '#06976b' : s === 'skip' ? '#c53030' : '#333') : '#999'
+                                                }}>{s === 'done' ? '✓ Done' : s === 'skip' ? '⏭ Skip' : '● Pending'}</button>
+                                            );
+                                        })}
                                     </div>
-                                )}
 
-                                {detailContent && (
-                                    <>
-                                        <p style={{ fontSize: 13, color: '#555', lineHeight: 1.6, margin: '0 0 14px' }}>{detailContent.description}</p>
-
-                                        <div style={{ marginBottom: 12 }}>
-                                            <p style={{ fontSize: 11, color: '#06d6a0', fontWeight: 700, fontFamily: "'DM Mono', monospace", marginBottom: 6 }}>💚 Free Resources</p>
-                                            {detailContent.resources.map((r, i) => (
-                                                <a key={i} href={r.url} target="_blank" rel="noopener noreferrer" style={{
-                                                    display: 'flex', alignItems: 'center', gap: 8, padding: '8px 10px', background: '#fafafa', borderRadius: 8,
-                                                    marginBottom: 4, textDecoration: 'none', fontSize: 13, color: '#333', border: '1px solid #eee',
-                                                    transition: 'background 0.15s'
-                                                }}>
-                                                    <span style={{ fontSize: 10, fontFamily: "'DM Mono', monospace", color: '#999', background: '#f0f0f0', padding: '2px 6px', borderRadius: 4 }}>{r.type}</span>
-                                                    <span style={{ fontWeight: 500 }}>{r.title}</span>
-                                                </a>
-                                            ))}
+                                    {detailLoading && (
+                                        <div style={{ textAlign: 'center', padding: 30 }}>
+                                            <div style={{ width: 28, height: 28, border: '3px solid #eee', borderTopColor: '#06d6a0', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto' }} />
+                                            <p style={{ color: '#999', fontSize: 13, marginTop: 12 }}>Loading resources...</p>
                                         </div>
+                                    )}
 
-                                        {detailContent.tip && (
-                                            <div style={{ background: 'rgba(6,214,160,0.06)', border: '1px solid rgba(6,214,160,0.15)', borderRadius: 8, padding: '10px 12px', fontSize: 12, color: '#333', lineHeight: 1.5 }}>
-                                                💡 <strong>Tip:</strong> {detailContent.tip}
+                                    {detailContent && (
+                                        <>
+                                            <p style={{ fontSize: 14, color: '#333', lineHeight: 1.6, margin: '0 0 16px' }}>{detailContent.description}</p>
+
+                                            <div style={{ marginBottom: 16 }}>
+                                                <p style={{ fontSize: 12, color: '#06d6a0', fontWeight: 700, fontFamily: "'DM Mono', monospace", marginBottom: 8 }}>💚 Free Resources</p>
+                                                {detailContent.resources.map((r, i) => (
+                                                    <a key={i} href={r.url} target="_blank" rel="noopener noreferrer" style={{
+                                                        display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', background: '#fafafa', borderRadius: 10,
+                                                        marginBottom: 6, textDecoration: 'none', fontSize: 14, color: '#111', border: '1px solid #eee',
+                                                        transition: 'background 0.15s'
+                                                    }}>
+                                                        <span style={{ fontSize: 11, fontFamily: "'DM Mono', monospace", color: '#888', background: '#f0f0f0', padding: '3px 8px', borderRadius: 6 }}>{r.type}</span>
+                                                        <span style={{ fontWeight: 500 }}>{r.title}</span>
+                                                    </a>
+                                                ))}
                                             </div>
-                                        )}
-                                    </>
-                                )}
-                            </div>
-                        )}
 
-                        {/* Related Roadmaps */}
-                        {relatedIds.length > 0 && (
-                            <div style={{ borderBottom: '1px solid #eee', padding: '12px 16px' }}>
-                                <p style={{ fontSize: 11, fontWeight: 700, fontFamily: "'DM Mono', monospace", color: '#999', marginBottom: 8 }}>RELATED ROADMAPS</p>
-                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                                    {relatedIds.map(id => (
-                                        <button key={id} onClick={() => openDetail(id)} style={{
-                                            padding: '5px 12px', borderRadius: 20, border: '1px solid #eee', background: '#fafafa',
-                                            fontSize: 12, cursor: 'pointer', fontFamily: "'DM Sans', sans-serif", fontWeight: 500, color: '#555',
-                                            transition: 'all 0.15s'
-                                        }}>
-                                            {ROADMAP_DATA[id]?.title}
-                                        </button>
-                                    ))}
+                                            {detailContent.tip && (
+                                                <div style={{ background: 'rgba(6,214,160,0.06)', border: '1px solid rgba(6,214,160,0.15)', borderRadius: 10, padding: '12px 14px', fontSize: 13, color: '#333', lineHeight: 1.5 }}>
+                                                    💡 <strong>Tip:</strong> {detailContent.tip}
+                                                </div>
+                                            )}
+
+                                            {/* AI Chat Toggle Button */}
+                                            <button
+                                                className="rm-popup-ai-toggle"
+                                                onClick={() => setIntroOpen(!introOpen)} // Reusing introOpen state for chat toggle
+                                            >
+                                                <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                                    <span style={{ display: 'flex', width: 20, height: 20, position: 'relative' }}>
+                                                        <Image src="/logo-icon.jpg" alt="AI Learn" fill style={{ borderRadius: '50%', objectFit: 'cover' }} />
+                                                    </span>
+                                                    Ask AI About "{detailPanel.label}"
+                                                </span>
+                                                <span style={{ transform: introOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.2s', color: '#888' }}>▼</span>
+                                            </button>
+
+                                            {/* Mini AI Chat */}
+                                            {introOpen && (
+                                                <div className="rm-mini-chat-container">
+                                                    <div className="rm-ai-chat" ref={chatRef} style={{ flex: 1, padding: '12px', border: 'none', background: 'transparent' }}>
+                                                        {chatMsgs.map((m, i) => (
+                                                            <div key={i} className={`rm-ai-msg ${m.role}`}>
+                                                                <div className="rm-ai-ava" style={{ ...(m.role === 'ai' ? { padding: 0, border: 'none', background: 'transparent' } : {}), width: 24, height: 24, position: 'relative' }}>
+                                                                    {m.role === 'ai' ? <Image src="/logo-icon.jpg" alt="AI" fill style={{ borderRadius: '50%', objectFit: 'cover' }} /> : 'U'}
+                                                                </div>
+                                                                <div className="rm-ai-bub">{m.text}</div>
+                                                            </div>
+                                                        ))}
+                                                        {aiThinking && (
+                                                            <div className="rm-ai-msg ai">
+                                                                <div className="rm-ai-ava" style={{ padding: 0, border: 'none', background: 'transparent', width: 24, height: 24, position: 'relative' }}>
+                                                                    <Image src="/logo-icon.jpg" alt="AI" fill style={{ borderRadius: '50%', objectFit: 'cover' }} />
+                                                                </div>
+                                                                <div className="rm-ai-bub" style={{ fontStyle: 'italic', opacity: 0.7 }}>Thinking...</div>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                    <div className="rm-ai-input" style={{ borderTop: '1px solid #eee', padding: '10px', background: '#fafafa' }}>
+                                                        <input
+                                                            type="text"
+                                                            placeholder="Ask a question..."
+                                                            value={chatInput}
+                                                            onChange={e => setChatInput(e.target.value)}
+                                                            onKeyDown={e => e.key === 'Enter' && askAI(chatInput)}
+                                                            style={{ border: '1px solid #ddd', background: '#fff' }}
+                                                        />
+                                                        <button onClick={() => askAI(chatInput)}>↗</button>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </>
+                                    )}
                                 </div>
                             </div>
-                        )}
-
-                        {/* AI Chat */}
-                        <div className="rm-ai-hdr">
-                            <span style={{ marginRight: 8, display: 'flex', alignItems: 'center', width: 22, height: 22, position: 'relative' }}>
-                                <Image src="/logo-icon.jpg" alt="AI Learn" fill style={{ borderRadius: '50%', objectFit: 'cover' }} />
-                            </span>
-                            <span style={{ fontWeight: 700, fontSize: 14 }}>AI Learn</span>
                         </div>
-                        <div className="rm-ai-chat" ref={chatRef}>
-                            {chatMsgs.map((m, i) => (
-                                <div key={i} className={`rm-ai-msg ${m.role}`}>
-                                    <div className="rm-ai-ava" style={{ ...(m.role === 'ai' ? { padding: 0, border: 'none', background: 'transparent' } : {}), width: 28, height: 28, position: 'relative' }}>
-                                        {m.role === 'ai' ? <Image src="/logo-icon.jpg" alt="AI" fill style={{ borderRadius: '50%', objectFit: 'cover' }} /> : 'U'}
-                                    </div>
-                                    <div className="rm-ai-bub">{m.text}</div>
-                                </div>
-                            ))}
-                            {aiThinking && (
-                                <div className="rm-ai-msg ai">
-                                    <div className="rm-ai-ava" style={{ padding: 0, border: 'none', background: 'transparent', width: 28, height: 28, position: 'relative' }}>
-                                        <Image src="/logo-icon.jpg" alt="AI" fill style={{ borderRadius: '50%', objectFit: 'cover' }} />
-                                    </div>
-                                    <div className="rm-ai-bub" style={{ fontStyle: 'italic', opacity: 0.7 }}>Thinking...</div>
-                                </div>
-                            )}
-                        </div>
-                        <div className="rm-ai-input">
-                            <input
-                                type="text"
-                                placeholder="Ask AI anything about the roadmap..."
-                                value={chatInput}
-                                onChange={e => setChatInput(e.target.value)}
-                                onKeyDown={e => e.key === 'Enter' && askAI(chatInput)}
-                            />
-                            <button onClick={() => askAI(chatInput)}>↗</button>
-                        </div>
-                    </div>
+                    )}
                 </div>
             )}
 

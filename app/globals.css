@@ -1676,6 +1676,86 @@ h1 em {
   color: #15803d
 }
 
+/* Roadmap Popup Styles */
+.rm-popup-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.2s ease-out;
+}
+
+.rm-popup-content {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 500px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  animation: slideUpQuiz 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+}
+
+.rm-popup-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--bg);
+}
+
+.rm-popup-body {
+  padding: 20px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* Roadmap Mini Chat inside Popup */
+.rm-popup-ai-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px;
+  background: linear-gradient(135deg, rgba(37, 99, 168, 0.05), rgba(6, 214, 160, 0.05));
+  border: 1px solid rgba(37, 99, 168, 0.15);
+  border-radius: 12px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  transition: all 0.2s;
+  margin-top: 16px;
+  justify-content: space-between;
+}
+
+.rm-popup-ai-toggle:hover {
+  background: linear-gradient(135deg, rgba(37, 99, 168, 0.1), rgba(6, 214, 160, 0.1));
+  border-color: rgba(37, 99, 168, 0.25);
+}
+
+.rm-mini-chat-container {
+  margin-top: 12px;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  height: 300px;
+  overflow: hidden;
+  animation: fadeIn 0.3s ease;
+}
+
 .dash-wrap {
   max-width: 1000px;
   margin: 0 auto;

@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { supabase, getAnonId } from '../lib/supabase';
 
-export default function Dashboard({ showPage, userName }) {
+export default function Dashboard({ showPage, userName, currentPage }) {
     const [stats, setStats] = useState({ todayExams: 0, todayAvg: 0, totalExams: 0, totalQs: 0, bestScore: 0 });
     const [weekData, setWeekData] = useState([]);
     const [subjectStats, setSubjectStats] = useState([]);
@@ -100,7 +100,11 @@ export default function Dashboard({ showPage, userName }) {
         setLoading(false);
     }, []);
 
-    useEffect(() => { loadData(); }, [loadData]);
+    useEffect(() => {
+        if (currentPage === 'dashboard' || !currentPage) {
+            loadData();
+        }
+    }, [loadData, currentPage]);
 
     // Chart
     useEffect(() => {

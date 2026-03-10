@@ -7,17 +7,7 @@ import { supabase, getAnonId } from '../lib/supabase';
 import { incrementStreak } from '../lib/streak';
 function fmtTime(s) { return `${Math.floor(s / 60).toString().padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}`; }
 
-function repeatAndShuffle(pool, needed) {
-    const result = [];
-    while (result.length < needed) {
-        const shuffled = shuffleArr([...pool]);
-        for (const q of shuffled) {
-            if (result.length >= needed) break;
-            result.push({ ...q, _id: result.length });
-        }
-    }
-    return result;
-}
+// Function repeatAndShuffle removed as questions should not be repeated
 
 export default function MockExam({ showPage, showToast }) {
     const [examType, setExamType] = useState('eamcet');
@@ -77,23 +67,54 @@ export default function MockExam({ showPage, showToast }) {
     });
 
     const generateMoreQuestions = async (existing, needed, type, chapter) => {
-        const shortfall = needed - existing.length;
-        if (shortfall <= 0) return existing.slice(0, needed);
-        try {
-            const res = await fetch('/api/exam', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'x-api-secret': process.env.NEXT_PUBLIC_API_SECRET
-                },
-                body: JSON.stringify({ action: 'generate', examType: type, chapter, count: shortfall })
-            });
-            if (!res.ok) throw new Error('API failed');
+        const uniqueQs = new Map();
 
-            const questions = await res.json();
-            return [...existing, ...questions].slice(0, needed);
-        } catch (e) { console.error('Gen error:', e); }
-        return repeatAndShuffle(existing, needed);
+        for (const q of existing) {
+            uniqueQs.set(q.b.trim().toLowerCase(), q);
+        }
+
+        let shortfall = needed - uniqueQs.size;
+        let errorCount = 0;
+        const BATCH_SIZE = 15;
+
+        while (shortfall > 0 && errorCount < 3) {
+            const currentNeeds = Math.min(BATCH_SIZE, shortfall);
+            try {
+                const res = await fetch('/api/exam', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-api-secret': process.env.NEXT_PUBLIC_API_SECRET
+                    },
+                    body: JSON.stringify({ action: 'generate', examType: type, chapter, count: currentNeeds })
+                });
+
+                if (!res.ok) throw new Error('API failed');
+
+                const questions = await res.json();
+
+                if (questions && questions.length > 0) {
+                    let added = 0;
+                    for (const q of questions) {
+                        const qKey = q.b.trim().toLowerCase();
+                        if (!uniqueQs.has(qKey)) {
+                            uniqueQs.set(qKey, q);
+                            added++;
+                        }
+                    }
+                    if (added === 0) errorCount++;
+                    shortfall = needed - uniqueQs.size;
+                } else {
+                    errorCount++;
+                }
+            } catch (e) {
+                console.error('Gen error:', e);
+                errorCount++;
+            }
+        }
+
+        const result = Array.from(uniqueQs.values());
+        return shuffleArr(result).slice(0, needed);
     };
 
     const startChapterExam = async (idx) => {
@@ -101,21 +122,21 @@ export default function MockExam({ showPage, showToast }) {
         const pool = shuffleArr([...(QBANKS_RAW[examType] || QBANKS_RAW.eamcet)]);
         const chapter = CHAPTERS[examType]?.[idx] || 'Topic';
         const questions = await generateMoreQuestions(pool, 30, examType, chapter);
-        launchExam(questions, `📚 Chapter Quiz — ${chapter} (30 Qs)`, 30 * 60, 'chapter');
+        launchExam(questions, `📚 Chapter Quiz — ${chapter} (${questions.length} Qs)`, questions.length * 60, 'chapter');
     };
 
     const startWeakExam = async () => {
         setLoading(true);
         const pool = shuffleArr([...(QBANKS_RAW[examType] || QBANKS_RAW.eamcet)]);
         const questions = await generateMoreQuestions(pool, 60, examType, null);
-        launchExam(questions, '☀️ Weak Area Quiz (60 Qs)', 60 * 60, 'weak');
+        launchExam(questions, `☀️ Weak Area Quiz (${questions.length} Qs)`, questions.length * 60, 'weak');
     };
 
     const startFullExam = async () => {
         setLoading(true);
         const pool = shuffleArr([...(QBANKS_RAW[examType] || QBANKS_RAW.eamcet)]);
-        const questions = await generateMoreQuestions(pool, 90, examType, null);
-        launchExam(questions, '🌙 Full Mock Exam (90 Qs)', 90 * 60, 'full');
+        const questions = await generateMoreQuestions(pool, 90, examType, 'FULL_MOCK');
+        launchExam(questions, `🌙 Full Mock Exam (${questions.length} Qs)`, questions.length * 60, 'full');
     };
 
     const saveToFlashcards = (qObj, explanation) => {

@@ -35,7 +35,7 @@ export async function POST(req) {
 
             const result = await generateObject({
                 model: google('gemini-2.0-flash', { apiKey: process.env.GEMINI_EXAM_KEY }),
-                system: `You are an exam question generator. Generate exactly ${count || 10} multiple choice questions for ${examType || 'general'} exam${chapter ? ` on topic: ${chapter}` : ''}. Make questions challenging but fair.`,
+                system: `You are an exam question generator. Generate exactly ${count || 10} multiple choice questions for ${examType || 'general'} exam${chapter === 'FULL_MOCK' ? '. Ensure the questions cover an equal, balanced mix of ALL subjects for this exam type (e.g. Physics, Chemistry, Maths for EAMCET)' : chapter ? ` on topic: ${chapter}` : ''}. Make questions challenging but fair.`,
                 prompt: `Generate ${count || 10} questions now.`,
                 schema: z.object({
                     questions: z.array(z.object({

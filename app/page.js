@@ -43,8 +43,8 @@ export default function Home() {
       <div style={{ ...pageStyle('exam'), paddingTop: 56 }}><MockExam showPage={showPage} showToast={showToast} /></div>
       <div style={{ ...pageStyle('roadmap'), paddingTop: 0 }}><Roadmap showPage={showPage} showToast={showToast} /></div>
       <div style={{ ...pageStyle('interview'), paddingTop: 56 }}><AIInterview showPage={showPage} showToast={showToast} /></div>
-      <div style={{ ...pageStyle('dashboard'), paddingTop: 56 }}><Dashboard showPage={showPage} userName={userName} /></div>
-      <div style={{ ...pageStyle('leaderboard'), paddingTop: 56 }}><Leaderboard /></div>
+      <div style={{ ...pageStyle('dashboard'), paddingTop: 56 }}><Dashboard showPage={showPage} userName={userName} currentPage={currentPage} /></div>
+      <div style={{ ...pageStyle('leaderboard'), paddingTop: 56 }}><Leaderboard currentPage={currentPage} /></div>
       <div style={{ ...pageStyle('about'), paddingTop: 0 }}><About showPage={showPage} /></div>
       <div style={{ ...pageStyle('terms'), paddingTop: 0 }}><Terms showPage={showPage} /></div>
       <div style={{ ...pageStyle('privacy'), paddingTop: 0 }}><PrivacyPolicy showPage={showPage} /></div>
