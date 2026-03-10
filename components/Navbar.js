@@ -112,12 +112,7 @@ export default function Navbar({ currentPage, showPage }) {
                     <span style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 700, fontSize: 18, letterSpacing: '-0.3px', background: 'linear-gradient(90deg, #2563a8, #06b6a0)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', marginLeft: -4 }}>flow</span>
                 </div>
 
-                {streak > 0 && (
-                    <div className="hidden md:flex items-center gap-1.5 ml-6 px-3 py-1.5 rounded-full" style={{ background: 'linear-gradient(135deg, rgba(239,68,68,0.1), rgba(245,158,11,0.1))', border: '1px solid rgba(239,68,68,0.15)' }} title={`${streak} Day Streak!`}>
-                        <span style={{ fontSize: 16 }}>🔥</span>
-                        <span style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 700, fontSize: 14, color: '#dc2626' }}>{streak}</span>
-                    </div>
-                )}
+
 
                 <div className="hidden md:flex items-center justify-center flex-1 gap-1">
                     {mainLinks.map(l => (
