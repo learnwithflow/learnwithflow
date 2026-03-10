@@ -76,7 +76,7 @@ export default function Roadmap({ showPage, showToast }) {
             ];
             if (hiddenSysText) apiMsgs.push({ role: 'user', content: hiddenSysText });
 
-            const res = await fetch('/api/roadmap', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: apiMsgs }) });
+            const res = await fetch('/api/roadmap', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-api-secret': process.env.NEXT_PUBLIC_API_SECRET }, body: JSON.stringify({ messages: apiMsgs }) });
             if (!res.ok) throw new Error('API failed');
             const reader = res.body.getReader();
             const decoder = new TextDecoder();
@@ -120,7 +120,7 @@ RESOURCES:
 TIP: <text>` }
             ];
 
-            const res = await fetch('/api/roadmap', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: apiMsgs }) });
+            const res = await fetch('/api/roadmap', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-api-secret': process.env.NEXT_PUBLIC_API_SECRET }, body: JSON.stringify({ messages: apiMsgs }) });
             if (!res.ok) throw new Error('API failed');
             const reader = res.body.getReader();
             const decoder = new TextDecoder();
@@ -188,7 +188,7 @@ SKILLS: <comma-separated skills>
 ---` }
             ];
 
-            const res = await fetch('/api/roadmap', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: apiMsgs }) });
+            const res = await fetch('/api/roadmap', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-api-secret': process.env.NEXT_PUBLIC_API_SECRET }, body: JSON.stringify({ messages: apiMsgs }) });
             if (!res.ok) throw new Error('API failed');
             const reader = res.body.getReader();
             const decoder = new TextDecoder();

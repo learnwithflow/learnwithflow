@@ -2,8 +2,9 @@
 import { useState, useRef, useEffect } from 'react';
 
 export default function Navbar({ currentPage, showPage }) {
-    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [desktopMenuOpen, setDesktopMenuOpen] = useState(false);
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [streak, setStreak] = useState(0);
     const dropdownRef = useRef(null);
 
     const mainLinks = [
@@ -15,6 +16,10 @@ export default function Navbar({ currentPage, showPage }) {
     ];
 
     const featureLinks = [
+        {
+            id: 'leaderboard', label: 'Leaderboard', desc: 'See how you rank against others', color: '#f59e0b',
+            svg: <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z" /></svg>
+        },
         {
             id: 'dashboard', label: 'Dashboard', desc: 'Progress & analytics', color: '#8b5cf6',
             svg: <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 13h4v8H3zm7-5h4v13h-4zm7-5h4v18h-4z" /></svg>
@@ -38,6 +43,44 @@ export default function Navbar({ currentPage, showPage }) {
         else setDesktopMenuOpen(false);
         showPage(id);
     };
+
+    // Calculate Daily Streak
+    useEffect(() => {
+        try {
+            const lastActiveStr = localStorage.getItem('lwf_last_active');
+            let currentStreak = parseInt(localStorage.getItem('lwf_streak') || '0', 10);
+
+            const now = new Date();
+            const todayStr = now.toISOString().split('T')[0];
+
+            if (lastActiveStr) {
+                const lastDate = new Date(lastActiveStr);
+
+                // Set to start of day for comparison
+                const todayMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                const lastMidnight = new Date(lastDate.getFullYear(), lastDate.getMonth(), lastDate.getDate());
+
+                const diffTime = todayMidnight.getTime() - lastMidnight.getTime();
+                const diffDays = Math.round(diffTime / (1000 * 3600 * 24));
+
+                if (diffDays === 0) {
+                    // Already active today, streak remains same
+                } else if (diffDays === 1) {
+                    // Active yesterday, but not yet today (this implies they haven't DONE anything today yet to claim, so streak stays for display until they do it, or we just keep it until tomorrow resets it)
+                    // Wait, if it's 1, they haven't lost it yet. It only resets if diffDays >= 2.
+                } else {
+                    // Missed a day(s)
+                    currentStreak = 0;
+                    localStorage.setItem('lwf_streak', '0');
+                }
+            } else {
+                currentStreak = 0;
+            }
+            setStreak(currentStreak);
+        } catch (e) {
+            console.error('Streak error', e);
+        }
+    }, []);
 
     // Close desktop dropdown on outside click
     useEffect(() => {
@@ -68,6 +111,13 @@ export default function Navbar({ currentPage, showPage }) {
                     <span style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 400, fontSize: 18, letterSpacing: '-0.3px', color: 'var(--ink)' }}>learnwith</span>
                     <span style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 700, fontSize: 18, letterSpacing: '-0.3px', background: 'linear-gradient(90deg, #2563a8, #06b6a0)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', marginLeft: -4 }}>flow</span>
                 </div>
+
+                {streak > 0 && (
+                    <div className="hidden md:flex items-center gap-1.5 ml-6 px-3 py-1.5 rounded-full" style={{ background: 'linear-gradient(135deg, rgba(239,68,68,0.1), rgba(245,158,11,0.1))', border: '1px solid rgba(239,68,68,0.15)' }} title={`${streak} Day Streak!`}>
+                        <span style={{ fontSize: 16 }}>🔥</span>
+                        <span style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 700, fontSize: 14, color: '#dc2626' }}>{streak}</span>
+                    </div>
+                )}
 
                 <div className="hidden md:flex items-center justify-center flex-1 gap-1">
                     {mainLinks.map(l => (

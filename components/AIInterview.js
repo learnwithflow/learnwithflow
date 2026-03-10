@@ -1,10 +1,11 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
 import { FILLERS, DIFF_T, DIFF_Q, Q_CATEGORIES, Q_MIX } from '../lib/interviewData';
+import { incrementStreak } from '../lib/streak';
 
 export default function AIInterview({ showPage, showToast }) {
     const [screen, setScreen] = useState('landing');
-    const [profile, setProfile] = useState({ name: '', degree: '', branch: '', role: '', exp: '', company: 'general', skills: [], diff: 'easy' });
+    const [profile, setProfile] = useState({ name: '', degree: '', branch: '', role: '', exp: '', company: 'general', skills: [], diff: 'easy', resume: '' });
     const [skillInput, setSkillInput] = useState('');
     const [messages, setMessages] = useState([]);
     const [qs, setQs] = useState([]);
@@ -57,6 +58,7 @@ Education: ${profile.degree} in ${profile.branch}
 Experience: ${profile.exp || 'Fresher'}
 Company Type: ${companyName}
 Skills: ${profile.skills.length ? profile.skills.join(', ') : 'Not specified'}
+${profile.resume ? `\nCANDIDATE'S RESUME/BACKGROUND DATA:\n"""\n${profile.resume}\n"""\n\nHIGH PRIORITY: Since the candidate provided their resume data above, absolutely make sure at least 3-4 questions are highly specific to the projects, companies, or experiences listed in their resume.` : ''}
 
 Question Mix:
 - ${mix.hr} HR/introduction questions (warm-up, motivation, culture fit)
@@ -81,7 +83,10 @@ Output ONLY the questions, one per line. Nothing else.`;
         try {
             const res = await fetch('/api/interview', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-api-secret': process.env.NEXT_PUBLIC_API_SECRET
+                },
                 body: JSON.stringify({
                     action: 'generateQuestions',
                     messages: [
@@ -239,7 +244,7 @@ TIP: <one specific thing they should do differently next time>`
                 content: `Question asked: "${qs[qIdx]}"\n\nTheir answer: "${answerText}"`
             }];
 
-            const res = await fetch('/api/interview', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: msgs }) });
+            const res = await fetch('/api/interview', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-api-secret': process.env.NEXT_PUBLIC_API_SECRET }, body: JSON.stringify({ messages: msgs }) });
             if (!res.ok) throw new Error('API failed');
 
             const reader = res.body.getReader();
@@ -319,7 +324,7 @@ Give exactly 3 pieces of specific, honest feedback:
 
 Be real. If they did poorly, say so. Start each point with a dash (-). NO EMOJIS.`
             }];
-            const res = await fetch('/api/interview', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ messages: msgs }) });
+            const res = await fetch('/api/interview', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-api-secret': process.env.NEXT_PUBLIC_API_SECRET }, body: JSON.stringify({ messages: msgs }) });
             if (!res.ok) throw new Error('API failed');
 
             const reader = res.body.getReader();
@@ -338,6 +343,7 @@ Be real. If they did poorly, say so. Start each point with a dash (-). NO EMOJIS
             const hist = JSON.parse(localStorage.getItem('lwf_score_history') || '[]');
             hist.push({ type: 'interview', score: avg, total: 100, pct: avg, time: Date.now() });
             localStorage.setItem('lwf_score_history', JSON.stringify(hist));
+            incrementStreak();
         } catch (e) { }
 
         let verdict, verdictDetail;
@@ -449,6 +455,10 @@ Be real. If they did poorly, say so. Start each point with a dash (-). NO EMOJIS
                                             ))}
                                         </div>
                                     )}
+                                </div>
+                                <div className="lform-group">
+                                    <label className="llabel">Paste Resume / LinkedIn Bio (Optional)</label>
+                                    <textarea className="linput" style={{ minHeight: 80, resize: 'vertical' }} placeholder="Paste the text from your resume here. The AI will read it and ask specific questions about your projects and experience!" value={profile.resume} onChange={e => setProfile(p => ({ ...p, resume: e.target.value }))} />
                                 </div>
                                 <div className="lform-group"><label className="llabel">Difficulty</label>
                                     <div className="ldiff-row">{['easy', 'medium', 'hard'].map(d => <div key={d} className={`ldiff-btn ${d}${profile.diff === d ? ' sel' : ''}`} onClick={() => setProfile(p => ({ ...p, diff: d }))}>{d[0].toUpperCase() + d.slice(1)}</div>)}</div>

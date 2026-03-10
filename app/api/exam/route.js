@@ -16,18 +16,24 @@ async function callAI(messages) {
     return null;
 }
 
+export const maxDuration = 60;
+
+import { checkSecurity } from '../../../lib/apiSecurity';
+
 export async function POST(req) {
+    const secError = checkSecurity(req);
+    if (secError) return secError;
+
     try {
-        const { messages, action } = await req.json();
+        const { messages, action, examType, chapter, count } = await req.json();
 
         // Generate exam questions dynamically
         if (action === 'generate') {
-            const { examType, chapter, count } = await req.json().catch(() => ({}));
-            const { streamObject } = await import('ai');
+            const { generateObject } = await import('ai');
             const { google } = await import('@ai-sdk/google');
             const { z } = await import('zod');
 
-            const result = streamObject({
+            const result = await generateObject({
                 model: google('gemini-2.0-flash', { apiKey: process.env.GEMINI_EXAM_KEY }),
                 system: `You are an exam question generator. Generate exactly ${count || 10} multiple choice questions for ${examType || 'general'} exam${chapter ? ` on topic: ${chapter}` : ''}. Make questions challenging but fair.`,
                 prompt: `Generate ${count || 10} questions now.`,
@@ -43,7 +49,7 @@ export async function POST(req) {
                 temperature: 0.7,
             });
 
-            return result.toTextStreamResponse();
+            return Response.json(result.object.questions);
         }
 
         // Regular AI call

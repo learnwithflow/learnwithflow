@@ -16,7 +16,12 @@ async function callAI(messages, maxTokens = 800) {
     return '';
 }
 
+import { checkSecurity } from '../../../lib/apiSecurity';
+
 export async function POST(req) {
+    const secError = checkSecurity(req);
+    if (secError) return secError;
+
     try {
         const { messages, action } = await req.json();
 

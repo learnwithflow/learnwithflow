@@ -4,6 +4,7 @@ import { CHAPTERS, QBANKS_RAW, shuffleArr } from '../lib/examData';
 import { experimental_useObject } from '@ai-sdk/react';
 import { z } from 'zod';
 import { supabase, getAnonId } from '../lib/supabase';
+import { incrementStreak } from '../lib/streak';
 function fmtTime(s) { return `${Math.floor(s / 60).toString().padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}`; }
 
 function repeatAndShuffle(pool, needed) {
@@ -47,7 +48,15 @@ export default function MockExam({ showPage, showToast }) {
     };
 
     const launchExam = (questions, title, timeSeconds, mode) => {
-        setQs(questions); setQIdx(0); setAnswers(Array(questions.length).fill(null));
+        // Randomize options for every single question to prevent A/B bias
+        const randomizedQs = questions.map(q => {
+            const correctText = q.o[q.a]; // The actual correct text before shuffle
+            const shuffledOptions = shuffleArr([...q.o]);
+            const newCorrectIndex = shuffledOptions.findIndex(opt => opt === correctText);
+            return { ...q, o: shuffledOptions, a: newCorrectIndex };
+        });
+
+        setQs(randomizedQs); setQIdx(0); setAnswers(Array(questions.length).fill(null));
         setTimeLeft(timeSeconds); setExamTitle(title); setActiveMode(mode); setFeedback(''); setView('run'); setLoading(false);
         clearInterval(timerRef.current);
         timerRef.current = setInterval(() => { setTimeLeft(t => { if (t <= 1) { clearInterval(timerRef.current); return 0; } return t - 1; }); }, 1000);
@@ -55,6 +64,7 @@ export default function MockExam({ showPage, showToast }) {
 
     const { submit: generateAIQuestions, object: generatedQuestions, isLoading: isGenerating } = experimental_useObject({
         api: '/api/exam',
+        headers: { 'x-api-secret': process.env.NEXT_PUBLIC_API_SECRET },
         schema: z.object({
             questions: z.array(z.object({
                 s: z.string(),
@@ -70,31 +80,18 @@ export default function MockExam({ showPage, showToast }) {
         const shortfall = needed - existing.length;
         if (shortfall <= 0) return existing.slice(0, needed);
         try {
-            // Need a way to await the result or listen to completion
-            // Since `submit` doesn't return a promise in older versions, we might need a custom fetch.
-            // Let's use simple custom stream decoding to avoid hook complexity in imperative code
-            const res = await fetch('/api/exam', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'generate', examType: type, chapter, count: shortfall }) });
+            const res = await fetch('/api/exam', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-api-secret': process.env.NEXT_PUBLIC_API_SECRET
+                },
+                body: JSON.stringify({ action: 'generate', examType: type, chapter, count: shortfall })
+            });
             if (!res.ok) throw new Error('API failed');
 
-            const reader = res.body.getReader();
-            const decoder = new TextDecoder();
-            let fullText = '';
-
-            while (true) {
-                const { done, value } = await reader.read();
-                if (done) break;
-                fullText += decoder.decode(value, { stream: true });
-            }
-
-            // Extract the final JSON string from the text stream
-            // Vercel AI SDK streamObject sends format like: 
-            // 0:{"questions":...} 
-            // We can just regex out the JSON array.
-            const match = fullText.match(/\[[\s\S]*\]/);
-            if (match) {
-                const questions = JSON.parse(match[0]);
-                return [...existing, ...questions].slice(0, needed);
-            }
+            const questions = await res.json();
+            return [...existing, ...questions].slice(0, needed);
         } catch (e) { console.error('Gen error:', e); }
         return repeatAndShuffle(existing, needed);
     };
@@ -121,8 +118,30 @@ export default function MockExam({ showPage, showToast }) {
         launchExam(questions, '🌙 Full Mock Exam (90 Qs)', 90 * 60, 'full');
     };
 
+    const saveToFlashcards = (qObj, explanation) => {
+        try {
+            const cards = JSON.parse(localStorage.getItem('lwf_flashcards') || '[]');
+            // Avoid duplicates
+            if (!cards.find(c => c.q === qObj.b)) {
+                cards.push({
+                    q: qObj.b,
+                    options: qObj.o,
+                    a: qObj.a,
+                    subj: qObj.s || examType,
+                    explanation,
+                    savedAt: Date.now(),
+                    mastery: 0
+                });
+                localStorage.setItem('lwf_flashcards', JSON.stringify(cards));
+                showToast?.('⭐ Saved to Flashcards!');
+            } else {
+                showToast?.('Already in Flashcards!');
+            }
+        } catch (e) { console.error(e); }
+    };
+
     const selectAns = async (i) => {
-        if (answers[qIdx] !== null) return;
+        if (answers[qIdx] !== null || i === null) return;
         const newAns = [...answers]; newAns[qIdx] = i; setAnswers(newAns);
         const q = qs[qIdx];
         const isCorrect = i === q.a;
@@ -159,7 +178,10 @@ export default function MockExam({ showPage, showToast }) {
             try {
                 const res = await fetch('/api/explain', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'x-api-secret': process.env.NEXT_PUBLIC_API_SECRET
+                    },
                     body: JSON.stringify({ question: q.b, options: q.o, correctIndex: q.a, wrongIndex: i, subject: q.s })
                 });
                 if (!res.ok) throw new Error('API failed');
@@ -180,7 +202,17 @@ export default function MockExam({ showPage, showToast }) {
 
         setFeedback(
             <div style={{ marginTop: 20, padding: 16, borderRadius: 12, border: '1px solid rgba(239,68,68,0.3)', background: 'rgba(239,68,68,0.04)', animation: 'slideUp 0.3s ease' }}>
-                <div style={{ fontWeight: 700, fontSize: 16, color: '#dc2626', marginBottom: 8 }}>❌ Incorrect</div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                    <div style={{ fontWeight: 700, fontSize: 16, color: '#dc2626' }}>❌ Incorrect</div>
+                    <button
+                        onClick={() => saveToFlashcards(q, explanation)}
+                        style={{ background: '#fef3c7', border: '1px solid #fde68a', color: '#d97706', padding: '4px 10px', borderRadius: 20, fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, transition: 'all 0.2s' }}
+                        onMouseOver={(e) => { e.currentTarget.style.background = '#fde68a'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
+                        onMouseOut={(e) => { e.currentTarget.style.background = '#fef3c7'; e.currentTarget.style.transform = 'translateY(0)'; }}
+                    >
+                        ⭐ Save to Flashcards
+                    </button>
+                </div>
                 <div style={{ fontWeight: 600, color: '#1f2937', fontSize: 15, marginBottom: 12 }}>✅ Correct Answer: {correctLetter}) {correctText}</div>
                 <div style={{ fontSize: 14, color: '#374151', lineHeight: 1.65, background: 'rgba(37,99,168,0.05)', borderRadius: 8, padding: '10px 14px' }}>
                     <span style={{ fontWeight: 700, color: '#2563a8' }}>💡 Explanation: </span>{explanation}
@@ -193,14 +225,31 @@ export default function MockExam({ showPage, showToast }) {
         clearInterval(timerRef.current);
         const correct = answers.reduce((acc, a, i) => acc + (a === qs[i]?.a ? 1 : 0), 0);
         const pct = Math.round(correct / qs.length * 100);
+        const subjBreakdown = {};
+        qs.forEach((q, i) => {
+            const subj = q.s || examType;
+            if (!subjBreakdown[subj]) subjBreakdown[subj] = { total: 0, correct: 0 };
+            subjBreakdown[subj].total += 1;
+            if (answers[i] === q.a) subjBreakdown[subj].correct += 1;
+        });
+
         try {
             const hist = JSON.parse(localStorage.getItem('lwf_score_history') || '[]');
-            hist.push({ type: examType, mode: activeMode, score: correct, total: qs.length, pct, time: Date.now() });
+            hist.push({
+                type: examType,
+                mode: activeMode,
+                score: correct,
+                total: qs.length,
+                pct,
+                time: Date.now(),
+                breakdown: subjBreakdown
+            });
             if (hist.length > 30) hist.splice(0, hist.length - 30);
             localStorage.setItem('lwf_score_history', JSON.stringify(hist));
             localStorage.setItem('lwf_score', `${correct}/${qs.length} (${pct}%)`);
             const prev = parseInt(localStorage.getItem('lwf_qs') || '0');
             localStorage.setItem('lwf_qs', prev + qs.length);
+            incrementStreak();
         } catch (e) { }
         // Save to Supabase
         try {
@@ -299,7 +348,9 @@ export default function MockExam({ showPage, showToast }) {
                         {feedback && feedback}
                         <div className="exam-nav">
                             <button className="btn-sm btn-sm-outline" onClick={() => { if (qIdx > 0) { setQIdx(qIdx - 1); setFeedback(''); } }}>← Prev</button>
-                            <button className="btn-sm btn-sm-primary" style={{ background: 'rgba(220,38,38,0.9)' }} onClick={submitExam}>Submit Exam</button>
+                            {qIdx === qs.length - 1 && (
+                                <button className="btn-sm btn-sm-primary" style={{ background: 'rgba(220,38,38,0.9)' }} onClick={submitExam}>Submit Exam</button>
+                            )}
                             <button className="btn-sm btn-sm-outline" onClick={() => { if (qIdx < qs.length - 1) { setQIdx(qIdx + 1); setFeedback(''); } else submitExam(); }}>
                                 {qIdx < qs.length - 1 ? 'Next →' : 'Finish →'}
                             </button>

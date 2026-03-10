@@ -8,10 +8,10 @@ import Roadmap from '../components/Roadmap';
 import AIInterview from '../components/AIInterview';
 import Dashboard from '../components/Dashboard';
 import Toast from '../components/Toast';
-import JobTracker from '../components/JobTracker';
 import About from '../components/About';
 import Terms from '../components/Terms';
 import PrivacyPolicy from '../components/PrivacyPolicy';
+import Leaderboard from '../components/Leaderboard';
 import Footer from '../components/Footer';
 import Profile from '../components/Profile';
 
@@ -44,11 +44,11 @@ export default function Home() {
       <div style={{ ...pageStyle('roadmap'), paddingTop: 0 }}><Roadmap showPage={showPage} showToast={showToast} /></div>
       <div style={{ ...pageStyle('interview'), paddingTop: 56 }}><AIInterview showPage={showPage} showToast={showToast} /></div>
       <div style={{ ...pageStyle('dashboard'), paddingTop: 56 }}><Dashboard showPage={showPage} userName={userName} /></div>
-      <div style={{ ...pageStyle('jobtracker'), paddingTop: 56 }}><JobTracker showPage={showPage} /></div>
+      <div style={{ ...pageStyle('leaderboard'), paddingTop: 56 }}><Leaderboard /></div>
       <div style={{ ...pageStyle('about'), paddingTop: 0 }}><About showPage={showPage} /></div>
       <div style={{ ...pageStyle('terms'), paddingTop: 0 }}><Terms showPage={showPage} /></div>
       <div style={{ ...pageStyle('privacy'), paddingTop: 0 }}><PrivacyPolicy showPage={showPage} /></div>
-      <Footer showPage={showPage} />
+      {!['exam', 'quiz', 'roadmap'].includes(currentPage) && <Footer showPage={showPage} />}
     </>
   );
 }

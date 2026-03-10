@@ -1,4 +1,9 @@
+import { checkSecurity } from '../../../lib/apiSecurity';
+
 export async function POST(req) {
+    const secError = checkSecurity(req);
+    if (secError) return secError;
+
     try {
         const { question, options, correctIndex, wrongIndex, subject } = await req.json();
 

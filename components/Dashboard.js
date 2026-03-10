@@ -10,6 +10,8 @@ export default function Dashboard({ showPage, userName }) {
     const [scoreHistory, setScoreHistory] = useState([]);
     const [loading, setLoading] = useState(true);
     const [activeTab, setActiveTab] = useState('overview');
+    const [weakAreas, setWeakAreas] = useState([]);
+    const [flashcards, setFlashcards] = useState([]);
     const chartRef = useRef(null);
     const chartInst = useRef(null);
 
@@ -67,6 +69,32 @@ export default function Dashboard({ showPage, userName }) {
             });
             const sorted = Object.values(subjMap).sort((a, b) => b.count - a.count);
             setSubjectStats(sorted);
+
+            // Calculate Weak Areas
+            try {
+                const lsHistory = JSON.parse(localStorage.getItem('lwf_score_history') || '[]');
+                const weakObj = {};
+                lsHistory.forEach(h => {
+                    if (h.breakdown) {
+                        for (const [subj, sData] of Object.entries(h.breakdown)) {
+                            if (!weakObj[subj]) weakObj[subj] = { total: 0, correct: 0 };
+                            weakObj[subj].total += sData.total;
+                            weakObj[subj].correct += sData.correct;
+                        }
+                    }
+                });
+                const weakArr = Object.entries(weakObj)
+                    .map(([name, s]) => ({ name, pct: s.total > 0 ? Math.round((s.correct / s.total) * 100) : 0, total: s.total }))
+                    .filter(s => s.pct < 60 && s.total >= 1) // weak if < 60%
+                    .sort((a, b) => a.pct - b.pct);
+                setWeakAreas(weakArr);
+            } catch (e) { console.error(e); }
+
+            // Load Flashcards from LocalStorage
+            try {
+                const fCards = JSON.parse(localStorage.getItem('lwf_flashcards') || '[]');
+                setFlashcards(fCards);
+            } catch (e) { }
 
         } catch (e) { console.error(e); }
         setLoading(false);
@@ -148,14 +176,14 @@ export default function Dashboard({ showPage, userName }) {
             </div>
 
             {/* Tab Switcher */}
-            <div style={S.tabs}>
-                {['overview', 'subjects', 'history'].map(tab => (
+            <div style={{ ...S.tabs, overflowX: 'auto', whiteSpace: 'nowrap', pb: 4 }}>
+                {['overview', 'subjects', 'history', 'flashcards'].map(tab => (
                     <button
                         key={tab}
                         style={{ ...S.tab, ...(activeTab === tab ? S.tabActive : {}) }}
                         onClick={() => setActiveTab(tab)}
                     >
-                        {tab === 'overview' ? '📊 Overview' : tab === 'subjects' ? '📚 Subjects' : '📈 History'}
+                        {tab === 'overview' ? '📊 Overview' : tab === 'subjects' ? '📚 Subjects' : tab === 'history' ? '📈 History' : '🃏 Flashcards'}
                     </button>
                 ))}
             </div>
@@ -227,36 +255,62 @@ export default function Dashboard({ showPage, userName }) {
 
                     {/* SUBJECTS TAB */}
                     {activeTab === 'subjects' && (
-                        <div style={S.card}>
-                            <h3 style={S.cardTitle}>Subject Performance (This Week)</h3>
-                            {subjectStats.length === 0 ? (
-                                <p style={S.emptyText}>No exam data this week. Take some exams!</p>
-                            ) : (
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-                                    {subjectStats.map((s, i) => {
-                                        const pct = s.total > 0 ? Math.round((s.correct / s.total) * 100) : 0;
-                                        const color = subjectColors[i % subjectColors.length];
-                                        return (
-                                            <div key={s.name} style={S.subjRow}>
-                                                <div style={S.subjInfo}>
-                                                    <div style={{ ...S.subjDot, background: color }} />
-                                                    <div>
-                                                        <div style={S.subjName}>{s.name}</div>
-                                                        <div style={S.subjMeta}>{s.count} exam{s.count > 1 ? 's' : ''} · {s.correct}/{s.total} correct</div>
-                                                    </div>
-                                                </div>
-                                                <div style={S.subjRight}>
-                                                    <div style={S.barBg}>
-                                                        <div style={{ ...S.barFill, width: `${pct}%`, background: color }} />
-                                                    </div>
-                                                    <div style={{ ...S.subjPct, color }}>{pct}%</div>
-                                                </div>
-                                            </div>
-                                        );
-                                    })}
+                        <>
+                            <div style={S.card}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 16 }}>
+                                    <span style={{ fontSize: 18 }}>⚠️</span>
+                                    <h3 style={{ ...S.cardTitle, margin: 0, color: '#dc2626' }}>Your Weak Areas</h3>
                                 </div>
-                            )}
-                        </div>
+                                {weakAreas.length === 0 ? (
+                                    <p style={S.emptyText}>You&apos;re doing great! No specific weak areas detected yet.</p>
+                                ) : (
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                                        {weakAreas.map((w, i) => (
+                                            <div key={i} style={{ ...S.subjRow, background: 'rgba(239,68,68,0.04)', padding: '12px 14px', borderRadius: 12, border: '1px solid rgba(239,68,68,0.1)' }}>
+                                                <div style={S.subjInfo}>
+                                                    <div>
+                                                        <div style={{ ...S.subjName, color: '#991b1b' }}>{w.name}</div>
+                                                        <div style={S.subjMeta}>Needs review · {w.pct}% average</div>
+                                                    </div>
+                                                </div>
+                                                <div style={{ ...S.subjPct, color: '#dc2626' }}>{w.pct}%</div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+
+                            <div style={S.card}>
+                                <h3 style={S.cardTitle}>Subject Performance (This Week)</h3>
+                                {subjectStats.length === 0 ? (
+                                    <p style={S.emptyText}>No exam data this week. Take some exams!</p>
+                                ) : (
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+                                        {subjectStats.map((s, i) => {
+                                            const pct = s.total > 0 ? Math.round((s.correct / s.total) * 100) : 0;
+                                            const color = subjectColors[i % subjectColors.length];
+                                            return (
+                                                <div key={s.name} style={S.subjRow}>
+                                                    <div style={S.subjInfo}>
+                                                        <div style={{ ...S.subjDot, background: color }} />
+                                                        <div>
+                                                            <div style={S.subjName}>{s.name}</div>
+                                                            <div style={S.subjMeta}>{s.count} exam{s.count > 1 ? 's' : ''} · {s.correct}/{s.total} correct</div>
+                                                        </div>
+                                                    </div>
+                                                    <div style={S.subjRight}>
+                                                        <div style={S.barBg}>
+                                                            <div style={{ ...S.barFill, width: `${pct}%`, background: color }} />
+                                                        </div>
+                                                        <div style={{ ...S.subjPct, color }}>{pct}%</div>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                )}
+                            </div>
+                        </>
                     )}
 
                     {/* HISTORY TAB */}
@@ -282,6 +336,46 @@ export default function Dashboard({ showPage, userName }) {
                                             </div>
                                         );
                                     })}
+                                </div>
+                            )}
+                        </div>
+                    )}
+
+                    {/* FLASHCARDS TAB */}
+                    {activeTab === 'flashcards' && (
+                        <div style={S.card}>
+                            <h3 style={S.cardTitle}>Spaced Repetition Review</h3>
+                            {flashcards.length === 0 ? (
+                                <p style={S.emptyText}>You haven't saved any difficult questions yet. Take a mock exam and click "Save to Flashcards" on questions you get wrong.</p>
+                            ) : (
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                                    {flashcards.map((f, i) => (
+                                        <div key={i} style={{ padding: 16, borderRadius: 12, border: '1px solid #e2ddd4', background: '#faf9f7' }}>
+                                            <div style={{ fontSize: 13, fontWeight: 700, color: '#2563a8', marginBottom: 8, textTransform: 'uppercase', letterSpacing: '0.5px' }}>{f.subj}</div>
+                                            <div style={{ fontSize: 15, fontWeight: 600, color: '#1c1814', marginBottom: 12, lineHeight: 1.5 }}>{f.q}</div>
+                                            <div style={{ background: '#fff', border: '1px solid #e6e0d4', borderRadius: 8, padding: 12, marginBottom: 12 }}>
+                                                <div style={{ fontSize: 13, color: '#8b8278', marginBottom: 4 }}>Correct Answer:</div>
+                                                <div style={{ fontSize: 14, fontWeight: 600, color: '#06b6a0' }}>{f.options[f.a]}</div>
+                                            </div>
+                                            {f.explanation && (
+                                                <div style={{ fontSize: 14, color: '#3d3830', lineHeight: 1.6, background: 'rgba(37,99,168,0.05)', padding: 12, borderRadius: 8 }}>
+                                                    <span style={{ fontWeight: 700, color: '#2563a8' }}>💡 Note: </span>{f.explanation}
+                                                </div>
+                                            )}
+                                            <div style={{ marginTop: 12, textAlign: 'right' }}>
+                                                <button
+                                                    onClick={() => {
+                                                        const fresh = flashcards.filter((_, idx) => idx !== i);
+                                                        setFlashcards(fresh);
+                                                        localStorage.setItem('lwf_flashcards', JSON.stringify(fresh));
+                                                    }}
+                                                    style={{ background: 'transparent', border: 'none', color: '#dc2626', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
+                                                >
+                                                    🗑️ Remove (Mastered)
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))}
                                 </div>
                             )}
                         </div>

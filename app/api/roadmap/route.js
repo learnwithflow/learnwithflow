@@ -16,7 +16,12 @@ async function callAI(messages) {
     return 'Explanation unavailable. Please try again later.';
 }
 
+import { checkSecurity } from '../../../lib/apiSecurity';
+
 export async function POST(req) {
+    const secError = checkSecurity(req);
+    if (secError) return secError;
+
     try {
         const { messages } = await req.json();
 
