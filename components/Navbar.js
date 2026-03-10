@@ -97,19 +97,11 @@ export default function Navbar({ currentPage, showPage }) {
         <>
             <nav id="main-nav" className="flex items-center justify-between px-6 h-14 bg-[#fdfcf7]/75 backdrop-blur-[24px] border-b border-[#e6e0d4]/60 fixed top-0 left-0 right-0 z-50 transition-all duration-300 shadow-[0_4px_30px_rgba(0,0,0,0.02)]">
                 <div className="nav-logo flex items-center gap-2 cursor-pointer" onClick={() => handleNav('home')}>
-                    <svg width="28" height="18" viewBox="0 0 36 20" fill="none" style={{ flexShrink: 0 }}>
-                        <defs>
-                            <linearGradient id="logoWave" x1="0%" y1="0%" x2="100%" y2="0%">
-                                <stop offset="0%" stopColor="#4a4a8a" />
-                                <stop offset="50%" stopColor="#2563a8" />
-                                <stop offset="100%" stopColor="#06b6a0" />
-                            </linearGradient>
-                        </defs>
-                        <path d="M2 14 C6 4, 12 4, 16 10 C20 16, 24 6, 28 4 C30 3, 33 5, 34 8 L34 6 C33 3, 30 1, 28 2 C24 4, 20 14, 16 8 C12 2, 6 2, 2 12 Z" fill="url(#logoWave)" opacity="0.85" />
-                        <path d="M28 4 C30 3, 33 5, 34 8 C34 10, 35 10, 34 12 C33 9, 31 6, 28 7 Z" fill="#06b6a0" opacity="0.7" />
-                    </svg>
-                    <span style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 400, fontSize: 18, letterSpacing: '-0.3px', color: 'var(--ink)' }}>learnwith</span>
-                    <span style={{ fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 700, fontSize: 18, letterSpacing: '-0.3px', background: 'linear-gradient(90deg, #2563a8, #06b6a0)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', marginLeft: -4 }}>flow</span>
+                    <img
+                        src="/logo-icon.jpg"
+                        alt="LearnWithFlow"
+                        style={{ height: '40px', width: 'auto', mixBlendMode: 'multiply', objectFit: 'contain' }}
+                    />
                 </div>
 
 
