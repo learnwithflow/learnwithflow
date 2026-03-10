@@ -35,7 +35,7 @@ export async function POST(req) {
                 maxTokens: 2000,
                 temperature: 0.8
             });
-            return result.toTextStreamResponse();
+            return new Response(result.textStream);
         }
 
         const result = streamText({
@@ -44,7 +44,7 @@ export async function POST(req) {
             maxTokens: 800,
             temperature: 0.8
         });
-        return result.toTextStreamResponse();
+        return new Response(result.textStream);
     } catch (e) {
         return Response.json({ content: 'Error processing request.' }, { status: 500 });
     }

@@ -183,7 +183,7 @@ Output ONLY the questions, one per line. Nothing else.`;
             setTimer(t);
             if (t <= 0) {
                 clearInterval(timerRef.current);
-                addMsg('ai', `Take your time, but we should probably move on. In a real interview, keeping your answers concise is important. Let's go to the next one.`, 'warn');
+                addMsg('ai', `We need to keep track of time, so let's move on to the next question.`, 'warn');
                 nextQ(idx, pool);
             }
         }, 1000);
@@ -267,7 +267,7 @@ TIP: <one specific thing they should do differently next time>`
 
             let feedback = reaction;
             if (tip) feedback += `\n\nTip: ${tip}`;
-            if (fillers > 2) feedback += `\n\n[Note] You used ${fillers} filler words in that answer — try pausing instead of filling with "um" or "like".`;
+            if (fillers > 2) feedback += `\n\n[Note] You used a few filler words like "um" or "like" (${fillers} times) in that answer — taking brief pauses instead can make your answer sound more confident!`;
 
             addMsg('ai', feedback);
             conversationRef.current.push({ role: 'interviewer', text: reaction });

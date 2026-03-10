@@ -39,7 +39,7 @@ Write a clear, short (2-3 sentences max) explanation of EXACTLY WHY "${correctAn
             maxTokens: 200
         });
 
-        return result.toTextStreamResponse();
+        return new Response(result.textStream);
     } catch (e) {
         console.error('Explain API error:', e);
         return Response.json({ explanation: 'Explanation unavailable at the moment.' }, { status: 500 });

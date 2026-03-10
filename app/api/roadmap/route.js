@@ -35,7 +35,7 @@ export async function POST(req) {
             temperature: 0.7
         });
 
-        return result.toTextStreamResponse();
+        return new Response(result.textStream);
     } catch (e) {
         return Response.json({ content: 'Error processing request.' }, { status: 500 });
     }
