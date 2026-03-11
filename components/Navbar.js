@@ -97,11 +97,7 @@ export default function Navbar({ currentPage, showPage }) {
         <>
             <nav id="main-nav" className="flex items-center justify-between px-6 h-14 bg-[#fdfcf7]/75 backdrop-blur-[24px] border-b border-[#e6e0d4]/60 fixed top-0 left-0 right-0 z-50 transition-all duration-300 shadow-[0_4px_30px_rgba(0,0,0,0.02)]">
                 <div className="nav-logo flex items-center gap-2 cursor-pointer" onClick={() => handleNav('home')}>
-                    <img
-                        src="/logo-icon.jpg"
-                        alt="LearnWithFlow"
-                        style={{ height: '40px', width: 'auto', mixBlendMode: 'multiply', objectFit: 'contain' }}
-                    />
+                    <span className="font-bold text-xl tracking-tight text-[#1c1814]" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>LearnWithFlow</span>
                 </div>
 
 

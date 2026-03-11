@@ -28,15 +28,20 @@ export async function POST(req) {
         const { streamText } = await import('ai');
         const { google } = await import('@ai-sdk/google');
 
+        const systemMessage = messages.find(m => m.role === 'system')?.content || 'You are an AI assistant.';
+        const chatMessages = messages.filter(m => m.role !== 'system');
+
         const result = streamText({
             model: google('gemini-2.0-flash', { apiKey: process.env.GEMINI_ROADMAP_KEY }),
-            messages,
+            system: systemMessage,
+            messages: chatMessages,
             maxTokens: 500,
             temperature: 0.7
         });
 
         return new Response(result.textStream);
     } catch (e) {
+        console.error('Roadmap API error:', e);
         return Response.json({ content: 'Error processing request.' }, { status: 500 });
     }
 }

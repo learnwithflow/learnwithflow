@@ -21,13 +21,50 @@ export default function Dashboard({ showPage, userName, currentPage }) {
 
         try {
             // All results for this user
-            const { data: all } = await supabase
+            let all = [];
+            const { data: supaData } = await supabase
                 .from('exam_results')
                 .select('*')
                 .eq('user_id', uid)
                 .order('created_at', { ascending: false });
 
-            if (!all || all.length === 0) { setLoading(false); return; }
+            if (supaData && supaData.length > 0) {
+                all = [...supaData];
+            }
+
+            // Fallback & Merge: Use local history to ensure device-taken exams ALWAYS show up immediately
+            try {
+                const lsHistory = JSON.parse(localStorage.getItem('lwf_score_history') || '[]');
+                const lsConverted = lsHistory.map(h => ({
+                    id: 'local_' + h.time,
+                    user_id: uid,
+                    created_at: new Date(h.time).toISOString(),
+                    exam_type: h.type,
+                    subject: h.type,
+                    exam_mode: h.mode || 'practise',
+                    score: h.score,
+                    total: h.total,
+                    percentage: h.pct
+                }));
+
+                const combined = [...all];
+                lsConverted.forEach(ls => {
+                    const exists = combined.find(c =>
+                        c.score === ls.score &&
+                        c.total === ls.total &&
+                        Math.abs(new Date(c.created_at).getTime() - new Date(ls.created_at).getTime()) < 120000 // within 2 mins
+                    );
+                    if (!exists) {
+                        combined.push(ls);
+                    }
+                });
+
+                // Sort combined array newly
+                combined.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+                all = combined;
+            } catch (e) { console.error('Local merge error', e); }
+
+            if (all.length === 0) { setLoading(false); return; }
 
             // Today's stats
             const today = new Date().toISOString().split('T')[0];
