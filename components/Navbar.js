@@ -96,8 +96,24 @@ export default function Navbar({ currentPage, showPage }) {
     return (
         <>
             <nav id="main-nav" className="flex items-center justify-between px-6 h-14 bg-[#fdfcf7]/75 backdrop-blur-[24px] border-b border-[#e6e0d4]/60 fixed top-0 left-0 right-0 z-50 transition-all duration-300 shadow-[0_4px_30px_rgba(0,0,0,0.02)]">
-                <div className="nav-logo flex items-center gap-2 cursor-pointer" onClick={() => handleNav('home')}>
-                    <span className="font-bold text-xl tracking-tight text-[#1c1814]" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>LearnWithFlow</span>
+                <div className="nav-logo flex flex-col justify-start cursor-pointer group pt-1.5" onClick={() => handleNav('home')}>
+                    <div className="flex items-center w-full justify-end pr-2">
+                        <svg className="h-[18px] w-[48px] -mb-[5px] transition-transform duration-300 group-hover:-translate-y-0.5" viewBox="0 0 100 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <defs>
+                                <linearGradient id="ribbonGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                    <stop offset="0%" stopColor="#312e81" />
+                                    <stop offset="30%" stopColor="#2563eb" />
+                                    <stop offset="70%" stopColor="#0d9488" />
+                                    <stop offset="100%" stopColor="#0f766e" />
+                                </linearGradient>
+                            </defs>
+                            <path d="M0,30 Q15,0 35,10 T70,20 T100,5 L100,20 Q85,35 60,25 T25,15 T0,30 Z" fill="url(#ribbonGrad)" />
+                        </svg>
+                    </div>
+                    <div className="flex items-center">
+                        <span className="text-[22px] font-medium tracking-tight text-[#1c1814]" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>learnwith</span>
+                        <span className="text-[22px] font-medium tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-[#2563eb] to-[#0d9488]" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>flow</span>
+                    </div>
                 </div>
 
 
