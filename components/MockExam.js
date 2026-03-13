@@ -66,11 +66,13 @@ export default function MockExam({ showPage, showToast }) {
         })
     });
 
-    // Generate questions: send one request for the full count; server handles dedup via exclude list
-    const generateMoreQuestions = async (existing, needed, type, chapter) => {
-        // Build exclude list from existing (starter pool) question texts
-        const excludeTexts = existing.map(q => q.b.trim().substring(0, 80));
+    // Generate questions: combine pool + AI-generated to reach the target count
+    const generateMoreQuestions = async (pool, needed, type, chapter) => {
+        // Start with shuffled pool as base
+        const poolQuestions = shuffleArr([...pool]);
+        const excludeTexts = poolQuestions.map(q => q.b.trim().substring(0, 80));
 
+        let aiQuestions = [];
         try {
             const res = await fetch('/api/exam', {
                 method: 'POST',
@@ -90,49 +92,54 @@ export default function MockExam({ showPage, showToast }) {
             if (!res.ok) throw new Error('API failed');
             const questions = await res.json();
 
-            if (questions && questions.length > 0) {
-                // Client-side dedup just in case
-                const seen = new Map();
-                for (const q of [...existing, ...questions]) {
+            if (questions && Array.isArray(questions) && questions.length > 0) {
+                // Filter out any duplicates of pool questions
+                const seen = new Set(poolQuestions.map(q => q.b.trim().toLowerCase().substring(0, 100)));
+                aiQuestions = questions.filter(q => {
+                    if (!q.b || !q.o || q.o.length < 4 || typeof q.a !== 'number') return false;
                     const key = q.b.trim().toLowerCase().substring(0, 100);
-                    if (!seen.has(key)) seen.set(key, q);
-                }
-                const allQ = Array.from(seen.values());
-                // Return only the AI-generated ones (not the starter pool), shuffled
-                const aiGenerated = questions.filter(q => {
-                    const key = q.b.trim().toLowerCase().substring(0, 100);
-                    return !existing.some(e => e.b.trim().toLowerCase().substring(0, 100) === key);
+                    if (seen.has(key)) return false;
+                    seen.add(key);
+                    return true;
                 });
-                return shuffleArr(aiGenerated).slice(0, needed);
             }
         } catch (e) {
             console.error('Gen error:', e);
         }
 
-        // Fallback: use shuffled existing pool
-        return shuffleArr(existing).slice(0, needed);
+        // Combine: AI questions first, then fill remaining from pool
+        const combined = shuffleArr([...aiQuestions, ...poolQuestions]);
+        // Deduplicate the combined list
+        const dedupMap = new Map();
+        for (const q of combined) {
+            const key = q.b.trim().toLowerCase().substring(0, 100);
+            if (!dedupMap.has(key)) dedupMap.set(key, q);
+        }
+        const final = Array.from(dedupMap.values()).slice(0, needed);
+        console.log(`Exam: requested ${needed}, got ${aiQuestions.length} AI + ${poolQuestions.length} pool = ${final.length} total`);
+        return final;
     };
 
     const startChapterExam = async (idx) => {
         setLoading(true);
-        const pool = shuffleArr([...(QBANKS_RAW[examType] || QBANKS_RAW.eamcet)]);
+        const pool = [...(QBANKS_RAW[examType] || QBANKS_RAW.eamcet)];
         const chapter = CHAPTERS[examType]?.[idx] || 'Topic';
         const questions = await generateMoreQuestions(pool, 30, examType, chapter);
-        launchExam(questions, `📚 Chapter Quiz — ${chapter} (${questions.length} Qs)`, questions.length * 60, 'chapter');
+        launchExam(questions, `📚 Chapter Quiz — ${chapter} (${questions.length} Qs)`, 30 * 60, 'chapter');
     };
 
     const startWeakExam = async () => {
         setLoading(true);
-        const pool = shuffleArr([...(QBANKS_RAW[examType] || QBANKS_RAW.eamcet)]);
+        const pool = [...(QBANKS_RAW[examType] || QBANKS_RAW.eamcet)];
         const questions = await generateMoreQuestions(pool, 60, examType, null);
-        launchExam(questions, `☀️ Weak Area Quiz (${questions.length} Qs)`, questions.length * 60, 'weak');
+        launchExam(questions, `☀️ Weak Area Quiz (${questions.length} Qs)`, 60 * 60, 'weak');
     };
 
     const startFullExam = async () => {
         setLoading(true);
-        const pool = shuffleArr([...(QBANKS_RAW[examType] || QBANKS_RAW.eamcet)]);
+        const pool = [...(QBANKS_RAW[examType] || QBANKS_RAW.eamcet)];
         const questions = await generateMoreQuestions(pool, 90, examType, 'FULL_MOCK');
-        launchExam(questions, `🌙 Full Mock Exam (${questions.length} Qs)`, questions.length * 60, 'full');
+        launchExam(questions, `🌙 Full Mock Exam (${questions.length} Qs)`, 90 * 60, 'full');
     };
 
     const saveToFlashcards = (qObj, explanation) => {

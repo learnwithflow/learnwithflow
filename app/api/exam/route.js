@@ -1,6 +1,6 @@
 import { checkSecurity } from '../../../lib/apiSecurity';
 
-export const maxDuration = 60;
+export const maxDuration = 120;
 
 // Round-robin key index stored in module scope (resets per cold start, good enough)
 let geminiKeyIndex = 0;
@@ -30,7 +30,7 @@ async function callAI(messages) {
             const res = await fetch(p.url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${p.key}` },
-                body: JSON.stringify({ model: p.model, messages, max_tokens: 2000, temperature: 0.9 })
+                body: JSON.stringify({ model: p.model, messages, max_tokens: 4000, temperature: 0.9 })
             });
             if (!res.ok) {
                 console.error(`${p.name} failed:`, res.status);
@@ -100,7 +100,7 @@ Return ONLY a valid JSON object with format:
                 system,
                 prompt,
                 temperature: 0.9,
-                maxTokens: 8192,
+                maxTokens: 16384,
             });
 
             const text = result.text.trim();
@@ -134,7 +134,7 @@ export async function POST(req) {
 
             // Track seen question texts to deduplicate within this request
             const uniqueQMap = new Map(); // key: normalized question text -> question object
-            const BATCH_SIZE = Math.min(needed, 45); // AI generates up to 45 per call
+            const BATCH_SIZE = Math.min(needed, 50); // AI generates up to 50 per call
             const MAX_ATTEMPTS = Math.ceil(needed / BATCH_SIZE) + 5; // Extra attempts to fill
 
             let attempts = 0;
