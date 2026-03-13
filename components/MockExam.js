@@ -7,7 +7,24 @@ import { supabase, getAnonId } from '../lib/supabase';
 import { incrementStreak } from '../lib/streak';
 function fmtTime(s) { return `${Math.floor(s / 60).toString().padStart(2, '0')}:${(s % 60).toString().padStart(2, '0')}`; }
 
-// Function repeatAndShuffle removed as questions should not be repeated
+// Track used questions to prevent repeats across sessions
+const USED_QS_KEY = 'lwf_used_qs_v2';
+function getUsedQuestions(examType) {
+    try {
+        const data = JSON.parse(localStorage.getItem(USED_QS_KEY) || '{}');
+        return data[examType] || [];
+    } catch { return []; }
+}
+function saveUsedQuestions(examType, questionTexts) {
+    try {
+        const data = JSON.parse(localStorage.getItem(USED_QS_KEY) || '{}');
+        const existing = data[examType] || [];
+        const combined = [...new Set([...existing, ...questionTexts])];
+        // Cap at 300 per exam type to avoid localStorage overflow
+        data[examType] = combined.slice(-300);
+        localStorage.setItem(USED_QS_KEY, JSON.stringify(data));
+    } catch (e) { console.error('Save used qs error:', e); }
+}
 
 export default function MockExam({ showPage, showToast }) {
     const [examType, setExamType] = useState('eamcet');
@@ -68,9 +85,14 @@ export default function MockExam({ showPage, showToast }) {
 
     // Generate questions: combine pool + AI-generated to reach the target count
     const generateMoreQuestions = async (pool, needed, type, chapter) => {
-        // Start with shuffled pool as base
+        // Get previously used questions to exclude them
+        const usedQTexts = getUsedQuestions(type);
         const poolQuestions = shuffleArr([...pool]);
-        const excludeTexts = poolQuestions.map(q => q.b.trim().substring(0, 80));
+        // Exclude both pool texts and previously used questions
+        const excludeTexts = [
+            ...poolQuestions.map(q => q.b.trim().substring(0, 80)),
+            ...usedQTexts.slice(0, 200) // Send up to 200 used questions as exclude
+        ];
 
         let aiQuestions = [];
         try {
@@ -93,8 +115,11 @@ export default function MockExam({ showPage, showToast }) {
             const questions = await res.json();
 
             if (questions && Array.isArray(questions) && questions.length > 0) {
-                // Filter out any duplicates of pool questions
-                const seen = new Set(poolQuestions.map(q => q.b.trim().toLowerCase().substring(0, 100)));
+                // Filter out duplicates of pool questions and used questions
+                const seen = new Set([
+                    ...poolQuestions.map(q => q.b.trim().toLowerCase().substring(0, 100)),
+                    ...usedQTexts.map(t => t.toLowerCase().substring(0, 100))
+                ]);
                 aiQuestions = questions.filter(q => {
                     if (!q.b || !q.o || q.o.length < 4 || typeof q.a !== 'number') return false;
                     const key = q.b.trim().toLowerCase().substring(0, 100);
@@ -107,7 +132,7 @@ export default function MockExam({ showPage, showToast }) {
             console.error('Gen error:', e);
         }
 
-        // Combine: AI questions first, then fill remaining from pool
+        // Combine: AI questions first (priority), then fill remaining from pool
         const combined = shuffleArr([...aiQuestions, ...poolQuestions]);
         // Deduplicate the combined list
         const dedupMap = new Map();
@@ -116,6 +141,11 @@ export default function MockExam({ showPage, showToast }) {
             if (!dedupMap.has(key)) dedupMap.set(key, q);
         }
         const final = Array.from(dedupMap.values()).slice(0, needed);
+
+        // Save used question texts for next time
+        const usedTexts = final.map(q => q.b.trim().substring(0, 80));
+        saveUsedQuestions(type, usedTexts);
+
         console.log(`Exam: requested ${needed}, got ${aiQuestions.length} AI + ${poolQuestions.length} pool = ${final.length} total`);
         return final;
     };

@@ -76,8 +76,22 @@ export default function Roadmap({ showPage, showToast }) {
             ];
             if (hiddenSysText) apiMsgs.push({ role: 'user', content: hiddenSysText });
 
-            const res = await fetch('/api/roadmap', { method: 'POST', headers: { 'Content-Type': 'application/json', 'x-api-secret': process.env.NEXT_PUBLIC_API_SECRET }, body: JSON.stringify({ messages: apiMsgs }) });
-            if (!res.ok) throw new Error('API failed');
+            // Add timeout to prevent hanging
+            const controller = new AbortController();
+            const timeout = setTimeout(() => controller.abort(), 30000);
+
+            const res = await fetch('/api/roadmap', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'x-api-secret': process.env.NEXT_PUBLIC_API_SECRET },
+                body: JSON.stringify({ messages: apiMsgs }),
+                signal: controller.signal
+            });
+            clearTimeout(timeout);
+
+            if (!res.ok) {
+                throw new Error(`Server error (${res.status})`);
+            }
+
             const reader = res.body.getReader();
             const decoder = new TextDecoder();
             let raw = '';
@@ -86,9 +100,19 @@ export default function Roadmap({ showPage, showToast }) {
                 if (done) break;
                 raw += decoder.decode(value, { stream: true });
             }
-            setChatMsgs(prev => [...prev, { role: 'ai', text: raw || 'Sorry, I encountered an error explaining that.' }]);
+
+            if (!raw || raw.trim().length === 0) {
+                throw new Error('Empty response');
+            }
+
+            setChatMsgs(prev => [...prev, { role: 'ai', text: raw }]);
         } catch (e) {
-            setChatMsgs(prev => [...prev, { role: 'ai', text: 'Network error. Please try again.' }]);
+            const errMsg = e.name === 'AbortError'
+                ? 'Request timed out. Please try again.'
+                : e.message?.includes('Server error')
+                    ? 'Server is busy. Please try again in a moment.'
+                    : 'Could not connect. Please check your internet and try again.';
+            setChatMsgs(prev => [...prev, { role: 'ai', text: `⚠️ ${errMsg}` }]);
         }
         setAiThinking(false);
     };

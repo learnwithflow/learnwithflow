@@ -134,15 +134,16 @@ export async function POST(req) {
 
             // Track seen question texts to deduplicate within this request
             const uniqueQMap = new Map(); // key: normalized question text -> question object
-            const BATCH_SIZE = Math.min(needed, 50); // AI generates up to 50 per call
-            const MAX_ATTEMPTS = Math.ceil(needed / BATCH_SIZE) + 5; // Extra attempts to fill
+            const BATCH_SIZE = Math.min(needed, 20); // AI models handle 20 per call reliably
+            const MAX_ATTEMPTS = Math.ceil(needed / BATCH_SIZE) + 4; // Enough attempts to fill
 
             let attempts = 0;
+            let consecutiveEmpty = 0;
 
             while (uniqueQMap.size < needed && attempts < MAX_ATTEMPTS) {
                 attempts++;
                 const stillNeeded = needed - uniqueQMap.size;
-                const batchCount = Math.min(BATCH_SIZE, stillNeeded + 3); // Request a few extra
+                const batchCount = Math.min(BATCH_SIZE, stillNeeded + 5); // Request a few extra
                 const currentExclude = [
                     ...excludeTexts,
                     ...Array.from(uniqueQMap.values()).map(q => q.b.substring(0, 80))
@@ -173,8 +174,19 @@ export async function POST(req) {
                 }
                 console.log(`Added ${addedThisBatch} new questions. Total: ${uniqueQMap.size}/${needed}`);
 
-                if (addedThisBatch === 0 && attempts > 3) {
-                    console.log('No new questions added, stopping early');
+                if (addedThisBatch === 0) {
+                    consecutiveEmpty++;
+                    if (consecutiveEmpty >= 2) {
+                        console.log('Two consecutive empty batches, stopping');
+                        break;
+                    }
+                } else {
+                    consecutiveEmpty = 0;
+                }
+
+                // If we have 80%+ of needed questions, accept it
+                if (uniqueQMap.size >= needed * 0.8 && attempts >= 2) {
+                    console.log(`Got ${uniqueQMap.size}/${needed} (80%+), accepting`);
                     break;
                 }
             }
