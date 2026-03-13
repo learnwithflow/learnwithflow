@@ -108,12 +108,14 @@ export default function MockExam({ showPage, showToast }) {
                 }
 
                 const { data, error } = await query;
-                if (data && !error) {
+                if (error) {
+                    console.warn(`[Graceful Degradation] Supabase history fetch skipped: ${error.message}`);
+                } else if (data) {
                     supabaseUsedQTexts = data.map(row => row.question_text);
                 }
             }
         } catch (e) {
-            console.error('Failed fetching Supabase history:', e);
+            console.error('[Graceful Degradation] Failed fetching Supabase history:', e);
         }
 
         // Combine local used and Supabase history
@@ -375,9 +377,12 @@ export default function MockExam({ showPage, showToast }) {
                     question_text: q.b
                 }));
                 
-                await supabase.from('user_question_history').insert(historyPayload);
+                const { error: histError } = await supabase.from('user_question_history').insert(historyPayload);
+                if (histError) {
+                    console.warn(`[Graceful Degradation] Failed to save question history: ${histError.message}`);
+                }
             }
-        } catch (e) { console.error('Supabase save error:', e); }
+        } catch (e) { console.error('[Graceful Degradation] Supabase save error:', e); }
         showToast?.(`Score: ${correct}/${qs.length} (${pct}%) — Saved! 🎯`);
         setView('daily');
     };
