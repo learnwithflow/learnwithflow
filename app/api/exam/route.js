@@ -165,14 +165,19 @@ async function generateAllQuestions({ examType, chapter, totalNeeded, excludeTex
         });
     }
 
-    // Execute batches sequentially with smart delays
+    // Execute batches in parallel with staggered starts to avoid rate limits and Vercel timeouts
     const delay = ms => new Promise(res => setTimeout(res, ms));
-    const batchResults = [];
+    let batchResults = [];
     
     try {
-        for (let index = 0; index < batchesData.length; index++) {
-            const batchInfo = batchesData[index];
-            // Strict rotation: Batch 1 -> Key 1, Batch 2 -> Key 2, Batch 3 -> Key 3
+        const batchPromises = batchesData.map(async (batchInfo, index) => {
+            // Stagger the start time of each batch by 2.5 seconds
+            if (index > 0) {
+                console.log(`Delaying Batch ${index + 1} by ${index * 2500}ms to stagger requests...`);
+                await delay(index * 2500);
+            }
+
+            // Strict rotation: Batch 1 -> Key 1, Batch 2 -> Key 2...
             const primaryKeyIndex = (geminiKeyIndex + index) % Math.max(1, keys.length);
             const primaryKey = keys.length > 0 ? keys[primaryKeyIndex] : null;
     
@@ -188,11 +193,9 @@ async function generateAllQuestions({ examType, chapter, totalNeeded, excludeTex
     
             if (currentBatchProviders.length === 0) {
                 console.error(`Batch ${index + 1} has no providers.`);
-                batchResults.push([]);
-                continue;
+                return [];
             }
     
-            let batchSuccess = false;
             // Attempt generation with retries using fallback providers if primary fails
             for (let attempt = 0; attempt < currentBatchProviders.length; attempt++) {
                 const provider = currentBatchProviders[attempt];
@@ -211,9 +214,7 @@ async function generateAllQuestions({ examType, chapter, totalNeeded, excludeTex
                         batchIndex: index
                     });
                     
-                    batchResults.push(questions); // Success!
-                    batchSuccess = true;
-                    break;
+                    return questions; // Success!
                 } catch (err) {
                     console.warn(`⚠️ [Batch ${index + 1} Failed] Provider: ${provider.name}. Error: ${err.message}`);
                     if (attempt < currentBatchProviders.length - 1) {
@@ -226,20 +227,14 @@ async function generateAllQuestions({ examType, chapter, totalNeeded, excludeTex
                     }
                 }
             }
-            
-            if (!batchSuccess) {
-                console.error(`Batch ${index + 1} completely failed after trying all providers.`);
-                throw new Error(`Batch ${index + 1} failed. Exam generation aborted.`);
-            }
-    
-            // Wait 2 seconds between successful key calls (unless it's the last batch)
-            if (index < batchesData.length - 1) {
-                console.log(`Waiting 2 seconds before next batch to avoid rate limits...`);
-                await delay(2000);
-            }
-        }
+            return []; // Return empty array if all providers fail for this specific batch
+        });
+        
+        // Wait for all staggered batches to complete
+        batchResults = await Promise.all(batchPromises);
+
     } catch (err) {
-        console.error("Sequential batch generation failed completely:", err.message);
+        console.error("Staggered parallel batch generation failed completely:", err.message);
         throw err; // Re-throw to fail the overall request and send 500 to frontend
     }
 
@@ -294,7 +289,7 @@ export async function POST(req) {
             
             let finalQuestions = [];
             let attempts = 0;
-            const MAX_ITERATIONS = 2; // Maximum overarching iterations of full parallel calls
+            const MAX_ITERATIONS = 3; // Maximum overarching iterations of full parallel calls
             let currentExclude = [...excludeTexts];
 
             while (finalQuestions.length < needed && attempts < MAX_ITERATIONS) {
