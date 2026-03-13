@@ -65,7 +65,11 @@ async function generateBatch({ examType, chapter, count, excludeTexts, batchSeed
             ? ` on topic: ${chapter}`
             : '';
 
-    const system = `You are an exam question generator. Generate EXACTLY ${count} brand new, UNIQUE multiple choice questions for the ${examType || 'general'} exam${chapterNote}. Every question MUST be completely different from each other and from the excluded list. Use varied difficulty levels and different subtopics. Seed: ${batchSeed}.${excludeNote}
+    const dynamicInstruction = batchSeed.includes('-') && parseInt(batchSeed.split('-')[1]) > 1 
+        ? `\nThis is a re-attempt. You MUST focus on completely DIFFERENT, rare, and obscure subtopics that you haven't used yet.` 
+        : '';
+
+    const system = `You are an exam question generator. Generate EXACTLY ${count} brand new, UNIQUE multiple choice questions for the ${examType || 'general'} exam${chapterNote}. Every question MUST be completely different from each other and from the excluded list. Use varied difficulty levels and different subtopics. Seed: ${batchSeed}.${dynamicInstruction}${excludeNote}
 
 Return ONLY a valid JSON object with format:
 {"questions": [{"s": "Subject", "b": "Question text", "o": ["Option A", "Option B", "Option C", "Option D"], "a": 0, "e": "Short explanation"}]}`;
@@ -87,7 +91,7 @@ Return ONLY a valid JSON object with format:
         })),
         { model: createGroq({ apiKey: process.env.GROQ_EXAM_KEY })('llama-3.3-70b-versatile'), name: 'Groq' },
         { model: createOpenAI({ baseURL: 'https://openrouter.ai/api/v1', apiKey: process.env.OPENROUTER_EXAM_KEY })('meta-llama/llama-3.3-70b-instruct:free'), name: 'OpenRouter' }
-    ];
+    ].sort(() => Math.random() - 0.5); // Shuffle to avoid hitting the exact same model every time
 
     for (const p of providers) {
         try {
@@ -96,7 +100,7 @@ Return ONLY a valid JSON object with format:
                 system,
                 prompt,
                 temperature: 0.9,
-                maxTokens: 3000,
+                maxTokens: 8192,
             });
 
             const text = result.text.trim();
@@ -130,7 +134,7 @@ export async function POST(req) {
 
             // Track seen question texts to deduplicate within this request
             const uniqueQMap = new Map(); // key: normalized question text -> question object
-            const BATCH_SIZE = Math.min(needed, 20); // AI generates up to 20 per call
+            const BATCH_SIZE = Math.min(needed, 45); // AI generates up to 45 per call
             const MAX_ATTEMPTS = Math.ceil(needed / BATCH_SIZE) + 5; // Extra attempts to fill
 
             let attempts = 0;

@@ -100,7 +100,7 @@ export default function Navbar({ currentPage, showPage }) {
                     <div className="flex items-center w-full justify-end pr-1 md:pr-2" style={{ overflow: 'visible' }}>
                         <svg
                             style={{ overflow: 'visible' }}
-                            className="h-[14px] w-[40px] md:h-[17px] md:w-[48px] -mb-[2px] md:-mb-[3px] transition-transform duration-300 group-hover:-translate-y-0.5"
+                            className="h-[10px] w-[30px] md:h-[12px] md:w-[34px] -mb-[2px] md:-mb-[3px] transition-transform duration-300 group-hover:-translate-y-0.5"
                             viewBox="0 0 120 36"
                             fill="none"
                             xmlns="http://www.w3.org/2000/svg"
@@ -117,8 +117,8 @@ export default function Navbar({ currentPage, showPage }) {
                         </svg>
                     </div>
                     <div className="flex items-center">
-                        <span className="text-[22px] md:text-[26px] font-semibold tracking-tight text-[#1c1814] leading-none" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>learnwith</span>
-                        <span className="text-[22px] md:text-[26px] font-semibold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-[#2563eb] to-[#0d9488] leading-none" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>flow</span>
+                        <span className="text-[18px] md:text-[22px] font-semibold tracking-tight text-[#1c1814] leading-none" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>learnwith</span>
+                        <span className="text-[18px] md:text-[22px] font-semibold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-[#2563eb] to-[#0d9488] leading-none" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>flow</span>
                     </div>
                 </div>
 

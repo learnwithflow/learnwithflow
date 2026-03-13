@@ -534,8 +534,8 @@ SKILLS: <comma-separated skills>
                                                 onClick={() => setIntroOpen(!introOpen)} // Reusing introOpen state for chat toggle
                                             >
                                                 <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                                    <span style={{ display: 'flex', width: 20, height: 20, position: 'relative' }}>
-                                                        <Image src="/logo-icon.jpg" alt="AI Learn" fill style={{ borderRadius: '50%', objectFit: 'cover' }} />
+                                                    <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', width: 22, height: 22, background: 'linear-gradient(135deg, #2563eb, #0d9488)', borderRadius: '50%', color: 'white', fontSize: 12 }}>
+                                                        🚀
                                                     </span>
                                                     Ask AI About "{detailPanel.label}"
                                                 </span>
@@ -548,16 +548,16 @@ SKILLS: <comma-separated skills>
                                                     <div className="rm-ai-chat" ref={chatRef} style={{ flex: 1, padding: '12px', border: 'none', background: 'transparent' }}>
                                                         {chatMsgs.map((m, i) => (
                                                             <div key={i} className={`rm-ai-msg ${m.role}`}>
-                                                                <div className="rm-ai-ava" style={{ ...(m.role === 'ai' ? { padding: 0, border: 'none', background: 'transparent' } : {}), width: 24, height: 24, position: 'relative' }}>
-                                                                    {m.role === 'ai' ? <Image src="/logo-icon.jpg" alt="AI" fill style={{ borderRadius: '50%', objectFit: 'cover' }} /> : 'U'}
+                                                                <div className="rm-ai-ava flex items-center justify-center shrink-0" style={{ ...(m.role === 'ai' ? { padding: 0, border: 'none', background: 'linear-gradient(135deg, #2563eb, #0d9488)' } : {}), width: 24, height: 24, borderRadius: '50%', color: 'white', fontSize: 12 }}>
+                                                                    {m.role === 'ai' ? '🚀' : 'U'}
                                                                 </div>
                                                                 <div className="rm-ai-bub">{m.text}</div>
                                                             </div>
                                                         ))}
                                                         {aiThinking && (
                                                             <div className="rm-ai-msg ai">
-                                                                <div className="rm-ai-ava" style={{ padding: 0, border: 'none', background: 'transparent', width: 24, height: 24, position: 'relative' }}>
-                                                                    <Image src="/logo-icon.jpg" alt="AI" fill style={{ borderRadius: '50%', objectFit: 'cover' }} />
+                                                                <div className="rm-ai-ava flex items-center justify-center shrink-0" style={{ padding: 0, border: 'none', background: 'linear-gradient(135deg, #2563eb, #0d9488)', width: 24, height: 24, borderRadius: '50%', color: 'white', fontSize: 12 }}>
+                                                                    🚀
                                                                 </div>
                                                                 <div className="rm-ai-bub" style={{ fontStyle: 'italic', opacity: 0.7 }}>Thinking...</div>
                                                             </div>
