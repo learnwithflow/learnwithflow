@@ -66,13 +66,27 @@ export default function MockExam({ showPage, showToast }) {
         })
     });
 
+    const getSeenQuestions = () => {
+        try {
+            return JSON.parse(localStorage.getItem('lwf_seen_qs') || '[]');
+        } catch { return []; }
+    };
+
+    const saveSeenQuestions = (newQs) => {
+        try {
+            const seen = getSeenQuestions();
+            const texts = new Set(seen);
+            newQs.forEach(q => texts.add(q.b.trim()));
+            const updated = Array.from(texts).slice(-200); // Keep last 200
+            localStorage.setItem('lwf_seen_qs', JSON.stringify(updated));
+        } catch (e) { console.error(e); }
+    };
+
     const generateMoreQuestions = async (existing, needed, type, chapter) => {
         const uniqueQs = new Map();
+        for (const q of existing) uniqueQs.set(q.b.trim().toLowerCase(), q);
 
-        for (const q of existing) {
-            uniqueQs.set(q.b.trim().toLowerCase(), q);
-        }
-
+        const seenTexts = getSeenQuestions();
         let shortfall = needed - uniqueQs.size;
         let errorCount = 0;
         const BATCH_SIZE = 15;
@@ -86,22 +100,28 @@ export default function MockExam({ showPage, showToast }) {
                         'Content-Type': 'application/json',
                         'x-api-secret': process.env.NEXT_PUBLIC_API_SECRET
                     },
-                    body: JSON.stringify({ action: 'generate', examType: type, chapter, count: currentNeeds })
+                    body: JSON.stringify({ 
+                        action: 'generate', 
+                        examType: type, 
+                        chapter, 
+                        count: currentNeeds,
+                        exclude: seenTexts.slice(-50) // Send last 50 seen to avoid
+                    })
                 });
 
                 if (!res.ok) throw new Error('API failed');
-
                 const questions = await res.json();
 
                 if (questions && questions.length > 0) {
                     let added = 0;
                     for (const q of questions) {
                         const qKey = q.b.trim().toLowerCase();
-                        if (!uniqueQs.has(qKey)) {
+                        if (!uniqueQs.has(qKey) && !seenTexts.includes(q.b.trim())) {
                             uniqueQs.set(qKey, q);
                             added++;
                         }
                     }
+                    saveSeenQuestions(questions);
                     if (added === 0) errorCount++;
                     shortfall = needed - uniqueQs.size;
                 } else {

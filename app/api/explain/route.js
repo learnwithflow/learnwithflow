@@ -1,7 +1,7 @@
 import { checkSecurity } from '../../../lib/apiSecurity';
 
 export async function POST(req) {
-    const secError = checkSecurity(req);
+    const secError = await checkSecurity(req);
     if (secError) return secError;
 
     try {
@@ -30,16 +30,32 @@ Write a clear, short (2-3 sentences max) explanation of EXACTLY WHY "${correctAn
         }
 
         const { streamText } = await import('ai');
-        const { google } = await import('@ai-sdk/google');
+        const { createGoogleGenerativeAI } = await import('@ai-sdk/google');
+        const { createGroq } = await import('@ai-sdk/groq');
+        const { createOpenAI } = await import('@ai-sdk/openai');
 
-        const result = streamText({
-            model: google('gemini-2.0-flash', { apiKey }),
-            prompt,
-            temperature: 0.2,
-            maxTokens: 200
-        });
+        const providers = [
+            { model: createGroq({ apiKey: process.env.GROQ_EXAM_KEY })('llama-3.3-70b-versatile'), name: 'Groq' },
+            { model: createGoogleGenerativeAI({ apiKey: process.env.GEMINI_EXAM_KEY })('gemini-2.0-flash'), name: 'Gemini' },
+            { model: createOpenAI({ baseURL: 'https://openrouter.ai/api/v1', apiKey: process.env.OPENROUTER_EXAM_KEY })('meta-llama/llama-3.3-70b-instruct:free'), name: 'OpenRouter' }
+        ];
 
-        return new Response(result.textStream);
+        let lastError = null;
+        for (const p of providers) {
+            try {
+                const result = streamText({
+                    model: p.model,
+                    prompt,
+                    temperature: 0.2,
+                    maxTokens: 200
+                });
+                return new Response(result.textStream);
+            } catch (err) {
+                console.error(`${p.name} explanation failed:`, err);
+                lastError = err;
+            }
+        }
+        throw lastError || new Error('All explanation providers failed');
     } catch (e) {
         console.error('Explain API error:', e);
         return Response.json({ explanation: 'Explanation unavailable at the moment.' }, { status: 500 });

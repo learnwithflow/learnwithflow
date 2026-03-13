@@ -19,27 +19,45 @@ async function callAI(messages) {
 import { checkSecurity } from '../../../lib/apiSecurity';
 
 export async function POST(req) {
-    const secError = checkSecurity(req);
+    const secError = await checkSecurity(req);
     if (secError) return secError;
 
     try {
         const { messages } = await req.json();
 
         const { streamText } = await import('ai');
-        const { google } = await import('@ai-sdk/google');
+        const { createGoogleGenerativeAI } = await import('@ai-sdk/google');
+        const { createGroq } = await import('@ai-sdk/groq');
+        const { createOpenAI } = await import('@ai-sdk/openai');
 
         const systemMessage = messages.find(m => m.role === 'system')?.content || 'You are an AI assistant.';
         const chatMessages = messages.filter(m => m.role !== 'system');
 
-        const result = streamText({
-            model: google('gemini-2.0-flash', { apiKey: process.env.GEMINI_ROADMAP_KEY }),
-            system: systemMessage,
-            messages: chatMessages,
-            maxTokens: 500,
-            temperature: 0.7
-        });
+        const providers = [
+            { model: createGroq({ apiKey: process.env.GROQ_ROADMAP_KEY })('llama-3.3-70b-versatile'), name: 'Groq' },
+            { model: createGoogleGenerativeAI({ apiKey: process.env.GEMINI_ROADMAP_KEY })('gemini-2.0-flash'), name: 'Gemini-Main' },
+            { model: createGoogleGenerativeAI({ apiKey: process.env.GEMINI_EXAM_KEY_2 })('gemini-2.0-flash'), name: 'Gemini-2' },
+            { model: createGoogleGenerativeAI({ apiKey: process.env.GEMINI_EXAM_KEY_3 })('gemini-2.0-flash'), name: 'Gemini-3' },
+            { model: createOpenAI({ baseURL: 'https://openrouter.ai/api/v1', apiKey: process.env.OPENROUTER_ROADMAP_KEY })('meta-llama/llama-3.3-70b-instruct:free'), name: 'OpenRouter' }
+        ];
 
-        return new Response(result.textStream);
+        let lastError = null;
+        for (const p of providers) {
+            try {
+                const result = streamText({
+                    model: p.model,
+                    system: systemMessage,
+                    messages: chatMessages,
+                    maxTokens: 500,
+                    temperature: 0.7
+                });
+                return new Response(result.textStream);
+            } catch (err) {
+                console.error(`${p.name} roadmap failed:`, err);
+                lastError = err;
+            }
+        }
+        throw lastError || new Error('All roadmap providers failed');
     } catch (e) {
         console.error('Roadmap API error:', e);
         return Response.json({ content: 'Error processing request.' }, { status: 500 });
