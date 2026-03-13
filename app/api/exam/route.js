@@ -19,11 +19,27 @@ function getNextGeminiKey() {
 }
 
 async function callAI(messages) {
-    const providers = [
-        { url: 'https://api.groq.com/openai/v1/chat/completions', key: process.env.GROQ_EXAM_KEY, model: 'llama-3.3-70b-versatile', name: 'Groq' },
-        { url: 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions', key: getNextGeminiKey(), model: 'gemini-2.0-flash', name: 'Gemini' },
-        { url: 'https://openrouter.ai/api/v1/chat/completions', key: process.env.OPENROUTER_EXAM_KEY, model: 'meta-llama/llama-3.3-70b-instruct:free', name: 'OpenRouter' },
-    ];
+    const keys = [
+        process.env.GEMINI_EXAM_KEY,
+        process.env.GEMINI_EXAM_KEY_2,
+        process.env.GEMINI_EXAM_KEY_3,
+        process.env.GEMINI_EXAM_KEY_4,
+    ].filter(Boolean);
+
+    // Build ordered list of providers: All available Gemini keys (rotated), then Groq, then OpenRouter
+    const providers = [];
+    
+    // Rotate Gemini keys based on global index
+    for (let i = 0; i < keys.length; i++) {
+        const keyVal = keys[(geminiKeyIndex + i) % keys.length];
+        providers.push({ url: 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions', key: keyVal, model: 'gemini-2.0-flash', name: `Gemini-${i+1}` });
+    }
+    // Increment index so next overarching call gets a different starting key
+    if (keys.length > 0) geminiKeyIndex++;
+
+    providers.push({ url: 'https://api.groq.com/openai/v1/chat/completions', key: process.env.GROQ_EXAM_KEY, model: 'llama-3.3-70b-versatile', name: 'Groq' });
+    providers.push({ url: 'https://openrouter.ai/api/v1/chat/completions', key: process.env.OPENROUTER_EXAM_KEY, model: 'meta-llama/llama-3.3-70b-instruct:free', name: 'OpenRouter' });
+
     for (const p of providers) {
         if (!p.key) continue;
         try {
@@ -76,7 +92,7 @@ Return ONLY a valid JSON object with format:
 
     const prompt = `Generate ${count} unique questions now. Return ONLY JSON.`;
 
-    // Try all available Gemini keys + Groq + OpenRouter
+    // Try all available Gemini keys + Groq + OpenRouter in STRICT sequence
     const keys = [
         process.env.GEMINI_EXAM_KEY,
         process.env.GEMINI_EXAM_KEY_2, 
@@ -84,15 +100,26 @@ Return ONLY a valid JSON object with format:
         process.env.GEMINI_EXAM_KEY_4,
     ].filter(Boolean);
 
-    const providers = [
-        ...keys.map((key, i) => ({
-            model: createGoogleGenerativeAI({ apiKey: key })('gemini-2.0-flash'),
+    const providers = [];
+    
+    // Add all valid Gemini keys, starting from the current rotating index
+    for (let i = 0; i < keys.length; i++) {
+        const keyVal = keys[(geminiKeyIndex + i) % keys.length];
+        providers.push({
+            model: createGoogleGenerativeAI({ apiKey: keyVal })('gemini-2.0-flash'),
             name: `Gemini-${i + 1}`
-        })),
-        { model: createGroq({ apiKey: process.env.GROQ_EXAM_KEY })('llama-3.3-70b-versatile'), name: 'Groq' },
-        { model: createOpenAI({ baseURL: 'https://openrouter.ai/api/v1', apiKey: process.env.OPENROUTER_EXAM_KEY })('meta-llama/llama-3.3-70b-instruct:free'), name: 'OpenRouter' }
-    ].sort(() => Math.random() - 0.5); // Shuffle to avoid hitting the exact same model every time
+        });
+    }
+    if (keys.length > 0) geminiKeyIndex++;
 
+    if (process.env.GROQ_EXAM_KEY) {
+        providers.push({ model: createGroq({ apiKey: process.env.GROQ_EXAM_KEY })('llama-3.3-70b-versatile'), name: 'Groq' });
+    }
+    if (process.env.OPENROUTER_EXAM_KEY) {
+        providers.push({ model: createOpenAI({ baseURL: 'https://openrouter.ai/api/v1', apiKey: process.env.OPENROUTER_EXAM_KEY })('meta-llama/llama-3.3-70b-instruct:free'), name: 'OpenRouter' });
+    }
+
+    // Try sequentially: primary Gemini -> fallback Gemini -> Groq -> OpenRouter
     for (const p of providers) {
         try {
             const result = await generateText({
@@ -105,6 +132,7 @@ Return ONLY a valid JSON object with format:
 
             const text = result.text.trim();
             const jsonMatch = text.match(/\{[\s\S]*\}/);
+            // Some models return empty JSON `{}` which is invalid for our format
             if (!jsonMatch) throw new Error('No JSON in response');
 
             const parsed = JSON.parse(jsonMatch[0]);
@@ -112,13 +140,13 @@ Return ONLY a valid JSON object with format:
                 console.log(`${p.name} generated ${parsed.questions.length} questions`);
                 return parsed.questions;
             }
-            throw new Error('Invalid format');
+            throw new Error('Invalid format or missing questions array');
         } catch (err) {
             console.error(`${p.name} batch failed:`, err.message);
-            continue;
+            continue; // Try next fallback provider
         }
     }
-    return [];
+    return []; // All providers failed
 }
 
 export async function POST(req) {
@@ -174,19 +202,9 @@ export async function POST(req) {
                 }
                 console.log(`Added ${addedThisBatch} new questions. Total: ${uniqueQMap.size}/${needed}`);
 
-                if (addedThisBatch === 0) {
-                    consecutiveEmpty++;
-                    if (consecutiveEmpty >= 2) {
-                        console.log('Two consecutive empty batches, stopping');
-                        break;
-                    }
-                } else {
-                    consecutiveEmpty = 0;
-                }
-
-                // If we have 80%+ of needed questions, accept it
-                if (uniqueQMap.size >= needed * 0.8 && attempts >= 2) {
-                    console.log(`Got ${uniqueQMap.size}/${needed} (80%+), accepting`);
+                // Require exact matches, only break early if completely stuck
+                if (consecutiveEmpty >= 2 && attempts > 4) {
+                    console.log(`Two consecutive empty batches after multiple attempts, stopping at ${uniqueQMap.size}/${needed}`);
                     break;
                 }
             }
