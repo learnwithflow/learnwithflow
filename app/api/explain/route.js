@@ -35,9 +35,9 @@ Write a clear, short (2-3 sentences max) explanation of EXACTLY WHY "${correctAn
         const { createOpenAI } = await import('@ai-sdk/openai');
 
         const providers = [
-            { model: createOpenAI({ baseURL: 'https://api.groq.com/openai/v1', apiKey: process.env.GROQ_EXAM_KEY })('llama3-70b-8192'), name: 'Groq' },
+            { model: createOpenAI({ baseURL: 'https://api.groq.com/openai/v1', apiKey: process.env.GROQ_EXAM_KEY })('llama-3.3-70b-versatile'), name: 'Groq' },
             { model: createGoogleGenerativeAI({ apiKey: process.env.GEMINI_EXAM_KEY })('gemini-2.0-flash'), name: 'Gemini' },
-            { model: createOpenAI({ baseURL: 'https://openrouter.ai/api/v1', apiKey: process.env.OPENROUTER_EXAM_KEY })('mistralai/mistral-7b-instruct'), name: 'OpenRouter' }
+            { model: createOpenAI({ baseURL: 'https://openrouter.ai/api/v1', apiKey: process.env.OPENROUTER_EXAM_KEY })('meta-llama/llama-3.3-70b-instruct:free'), name: 'OpenRouter' }
         ];
 
         let lastError = null;

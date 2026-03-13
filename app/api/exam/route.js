@@ -36,8 +36,8 @@ async function callAI(messages) {
     }
     // Increment index so next overarching call gets a different starting key
     if (keys.length > 0) geminiKeyIndex++;
-    providers.push({ url: 'https://api.groq.com/openai/v1/chat/completions', key: process.env.GROQ_EXAM_KEY, model: 'llama3-70b-8192', name: 'Groq' });
-    providers.push({ url: 'https://openrouter.ai/api/v1/chat/completions', key: process.env.OPENROUTER_EXAM_KEY, model: 'mistralai/mistral-7b-instruct', name: 'OpenRouter' });
+    providers.push({ url: 'https://api.groq.com/openai/v1/chat/completions', key: process.env.GROQ_EXAM_KEY, model: 'llama-3.3-70b-versatile', name: 'Groq' });
+    providers.push({ url: 'https://openrouter.ai/api/v1/chat/completions', key: process.env.OPENROUTER_EXAM_KEY, model: 'meta-llama/llama-3.3-70b-instruct:free', name: 'OpenRouter' });
 
     for (const p of providers) {
         if (!p.key) continue;
@@ -148,18 +148,17 @@ async function generateAllQuestions({ examType, chapter, totalNeeded, excludeTex
         process.env.GEMINI_EXAM_KEY_4,
     ].filter(Boolean);
 
-    // Hard fallback providers
     const fallbackProviders = [];
     if (process.env.GROQ_EXAM_KEY) {
         fallbackProviders.push({ 
-            model: createOpenAI({ baseURL: 'https://api.groq.com/openai/v1', apiKey: process.env.GROQ_EXAM_KEY })('llama3-70b-8192'), 
+            model: createOpenAI({ baseURL: 'https://api.groq.com/openai/v1', apiKey: process.env.GROQ_EXAM_KEY })('llama-3.3-70b-versatile'), 
             name: 'Groq',
             isFallback: true 
         });
     }
     if (process.env.OPENROUTER_EXAM_KEY) {
         fallbackProviders.push({ 
-            model: createOpenAI({ baseURL: 'https://openrouter.ai/api/v1', apiKey: process.env.OPENROUTER_EXAM_KEY })('mistralai/mistral-7b-instruct'), 
+            model: createOpenAI({ baseURL: 'https://openrouter.ai/api/v1', apiKey: process.env.OPENROUTER_EXAM_KEY })('meta-llama/llama-3.3-70b-instruct:free'), 
             name: 'OpenRouter',
             isFallback: true 
         });
