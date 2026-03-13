@@ -36,9 +36,8 @@ async function callAI(messages) {
     }
     // Increment index so next overarching call gets a different starting key
     if (keys.length > 0) geminiKeyIndex++;
-
-    providers.push({ url: 'https://api.groq.com/openai/v1/chat/completions', key: process.env.GROQ_EXAM_KEY, model: 'llama-3.3-70b-versatile', name: 'Groq' });
-    providers.push({ url: 'https://openrouter.ai/api/v1/chat/completions', key: process.env.OPENROUTER_EXAM_KEY, model: 'meta-llama/llama-3.3-70b-instruct:free', name: 'OpenRouter' });
+    providers.push({ url: 'https://api.groq.com/openai/v1/chat/completions', key: process.env.GROQ_EXAM_KEY, model: 'llama3-70b-8192', name: 'Groq' });
+    providers.push({ url: 'https://openrouter.ai/api/v1/chat/completions', key: process.env.OPENROUTER_EXAM_KEY, model: 'mistralai/mistral-7b-instruct', name: 'OpenRouter' });
 
     for (const p of providers) {
         if (!p.key) continue;
@@ -123,8 +122,8 @@ async function generateAllQuestions({ examType, chapter, totalNeeded, excludeTex
     const { createGroq } = await import('@ai-sdk/groq');
     const { createOpenAI } = await import('@ai-sdk/openai');
 
-    // Split total request into batches of max 30 questions each
-    const BATCH_SIZE_LIMIT = 30;
+    // Split total request into batches of max 15 questions each
+    const BATCH_SIZE_LIMIT = 15;
     const batchesData = [];
     let remaining = totalNeeded;
     
@@ -148,79 +147,90 @@ async function generateAllQuestions({ examType, chapter, totalNeeded, excludeTex
     const fallbackProviders = [];
     if (process.env.GROQ_EXAM_KEY) {
         fallbackProviders.push({ 
-            model: createGroq({ apiKey: process.env.GROQ_EXAM_KEY })('llama-3.3-70b-versatile'), 
+            model: createOpenAI({ baseURL: 'https://api.groq.com/openai/v1', apiKey: process.env.GROQ_EXAM_KEY })('llama3-70b-8192'), 
             name: 'Groq',
             isFallback: true 
         });
     }
     if (process.env.OPENROUTER_EXAM_KEY) {
         fallbackProviders.push({ 
-            model: createOpenAI({ baseURL: 'https://openrouter.ai/api/v1', apiKey: process.env.OPENROUTER_EXAM_KEY })('meta-llama/llama-3.3-70b-instruct:free'), 
+            model: createOpenAI({ baseURL: 'https://openrouter.ai/api/v1', apiKey: process.env.OPENROUTER_EXAM_KEY })('mistralai/mistral-7b-instruct'), 
             name: 'OpenRouter',
             isFallback: true 
         });
     }
 
-    // Execute batches in parallel
-    const batchPromises = batchesData.map(async (batchInfo, index) => {
-        // Strict rotation: Batch 1 -> Key 1, Batch 2 -> Key 2, Batch 3 -> Key 3
-        const primaryKeyIndex = (geminiKeyIndex + index) % Math.max(1, keys.length);
-        const primaryKey = keys.length > 0 ? keys[primaryKeyIndex] : null;
-
-        const currentBatchProviders = [];
-        if (primaryKey) {
-            currentBatchProviders.push({
-                model: createGoogleGenerativeAI({ apiKey: primaryKey })('gemini-2.0-flash'),
-                name: `Gemini-${primaryKeyIndex + 1}`,
-                isFallback: false
-            });
-        }
-        currentBatchProviders.push(...fallbackProviders);
-
-        if (currentBatchProviders.length === 0) {
-            console.error(`Batch ${index + 1} has no providers.`);
-            return [];
-        }
-
-        // Attempt generation with retries using fallback providers if primary fails
-        for (let attempt = 0; attempt < currentBatchProviders.length; attempt++) {
-            const provider = currentBatchProviders[attempt];
-            
-            try {
-                console.log(`Starting Batch ${index + 1} (${batchInfo.count} qs) using ${provider.name}. Set: ${index + 1}`);
-                const batchSeed = `${Date.now()}-${index}-${attempt}`;
-                
-                const questions = await generateBatchWorker({
-                    provider,
-                    examType,
-                    chapter,
-                    count: batchInfo.count,
-                    excludeTexts: currentExclude,
-                    batchSeed,
-                    batchIndex: index
+    // Execute batches sequentially with smart delays
+    const delay = ms => new Promise(res => setTimeout(res, ms));
+    const batchResults = [];
+    
+    try {
+        for (let index = 0; index < batchesData.length; index++) {
+            const batchInfo = batchesData[index];
+            // Strict rotation: Batch 1 -> Key 1, Batch 2 -> Key 2, Batch 3 -> Key 3
+            const primaryKeyIndex = (geminiKeyIndex + index) % Math.max(1, keys.length);
+            const primaryKey = keys.length > 0 ? keys[primaryKeyIndex] : null;
+    
+            const currentBatchProviders = [];
+            if (primaryKey) {
+                currentBatchProviders.push({
+                    model: createGoogleGenerativeAI({ apiKey: primaryKey })('gemini-2.0-flash'),
+                    name: `Gemini-${primaryKeyIndex + 1}`,
+                    isFallback: false
                 });
+            }
+            currentBatchProviders.push(...fallbackProviders);
+    
+            if (currentBatchProviders.length === 0) {
+                console.error(`Batch ${index + 1} has no providers.`);
+                batchResults.push([]);
+                continue;
+            }
+    
+            let batchSuccess = false;
+            // Attempt generation with retries using fallback providers if primary fails
+            for (let attempt = 0; attempt < currentBatchProviders.length; attempt++) {
+                const provider = currentBatchProviders[attempt];
                 
-                return questions; // Success!
-
-            } catch (err) {
-                console.warn(`Batch ${index + 1} failed with ${provider.name}. Trying next fallback...`);
+                try {
+                    console.log(`Starting Batch ${index + 1} (${batchInfo.count} qs) using ${provider.name}. Set: ${index + 1}`);
+                    const batchSeed = `${Date.now()}-${index}-${attempt}`;
+                    
+                    const questions = await generateBatchWorker({
+                        provider,
+                        examType,
+                        chapter,
+                        count: batchInfo.count,
+                        excludeTexts: excludeTexts,
+                        batchSeed,
+                        batchIndex: index
+                    });
+                    
+                    batchResults.push(questions); // Success!
+                    batchSuccess = true;
+                    break;
+                } catch (err) {
+                    console.warn(`Batch ${index + 1} failed with ${provider.name}. Trying next fallback...`);
+                    // 3 second delay between failed provider retries
+                    if (attempt < currentBatchProviders.length - 1) {
+                        await delay(3000);
+                    }
+                }
+            }
+            
+            if (!batchSuccess) {
+                console.error(`Batch ${index + 1} completely failed after trying all providers.`);
+                throw new Error(`Batch ${index + 1} failed. Exam generation aborted.`);
+            }
+    
+            // Wait 2 seconds between successful key calls (unless it's the last batch)
+            if (index < batchesData.length - 1) {
+                console.log(`Waiting 2 seconds before next batch to avoid rate limits...`);
+                await delay(2000);
             }
         }
-        
-        console.error(`Batch ${index + 1} completely failed after trying all providers.`);
-        // Note: Returning an empty array here will just reduce the final output size, 
-        // if all fail, it will be naturally handled by returning 0 questions.
-        // Or we could throw to fail the whole generation. 
-        // Failing the whole generation makes sure we never serve partial exams.
-        throw new Error(`Batch ${index + 1} failed. Exam generation aborted.`);
-    });
-
-    // Wait for all batches to finish in parallel
-    let batchResults;
-    try {
-        batchResults = await Promise.all(batchPromises);
     } catch (err) {
-        console.error("Parallel batch generation failed completely:", err.message);
+        console.error("Sequential batch generation failed completely:", err.message);
         throw err; // Re-throw to fail the overall request and send 500 to frontend
     }
 

@@ -18,12 +18,12 @@ export async function POST(req) {
         const chatMessages = messages.filter(m => m.role !== 'system');
 
         const providers = [
-            { model: createGroq({ apiKey: process.env.GROQ_ROADMAP_KEY })('llama-3.3-70b-versatile'), name: 'Groq' },
+            { model: createOpenAI({ baseURL: 'https://api.groq.com/openai/v1', apiKey: process.env.GROQ_ROADMAP_KEY })('llama3-70b-8192'), name: 'Groq' },
             { model: createGoogleGenerativeAI({ apiKey: process.env.GEMINI_ROADMAP_KEY })('gemini-2.0-flash'), name: 'Gemini-Main' },
             { model: createGoogleGenerativeAI({ apiKey: process.env.GEMINI_EXAM_KEY_2 })('gemini-2.0-flash'), name: 'Gemini-2' },
             { model: createGoogleGenerativeAI({ apiKey: process.env.GEMINI_EXAM_KEY_3 })('gemini-2.0-flash'), name: 'Gemini-3' },
             { model: createGoogleGenerativeAI({ apiKey: process.env.GEMINI_EXAM_KEY_4 })('gemini-2.0-flash'), name: 'Gemini-4' },
-            { model: createOpenAI({ baseURL: 'https://openrouter.ai/api/v1', apiKey: process.env.OPENROUTER_ROADMAP_KEY })('meta-llama/llama-3.3-70b-instruct:free'), name: 'OpenRouter' }
+            { model: createOpenAI({ baseURL: 'https://openrouter.ai/api/v1', apiKey: process.env.OPENROUTER_ROADMAP_KEY })('mistralai/mistral-7b-instruct'), name: 'OpenRouter' }
         ];
 
         let lastError = null;

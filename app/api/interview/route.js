@@ -1,8 +1,8 @@
 async function callAI(messages, maxTokens = 800) {
     const providers = [
-        { url: 'https://api.groq.com/openai/v1/chat/completions', key: process.env.GROQ_INTERVIEW_KEY, model: 'llama-3.3-70b-versatile', name: 'Groq' },
+        { url: 'https://api.groq.com/openai/v1/chat/completions', key: process.env.GROQ_INTERVIEW_KEY, model: 'llama3-70b-8192', name: 'Groq' },
         { url: 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions', key: process.env.GEMINI_INTERVIEW_KEY, model: 'gemini-2.0-flash', name: 'Gemini' },
-        { url: 'https://openrouter.ai/api/v1/chat/completions', key: process.env.OPENROUTER_INTERVIEW_KEY, model: 'meta-llama/llama-3.3-70b-instruct:free', name: 'OpenRouter' },
+        { url: 'https://openrouter.ai/api/v1/chat/completions', key: process.env.OPENROUTER_INTERVIEW_KEY, model: 'mistralai/mistral-7b-instruct', name: 'OpenRouter' },
     ];
     for (const p of providers) {
         if (!p.key) continue;
@@ -43,11 +43,11 @@ export async function POST(req) {
         const { createOpenAI } = await import('@ai-sdk/openai');
 
         const providers = [
-            { model: createGroq({ apiKey: process.env.GROQ_INTERVIEW_KEY })('llama-3.3-70b-versatile'), name: 'Groq' },
+            { model: createOpenAI({ baseURL: 'https://api.groq.com/openai/v1', apiKey: process.env.GROQ_INTERVIEW_KEY })('llama3-70b-8192'), name: 'Groq' },
             { model: createGoogleGenerativeAI({ apiKey: process.env.GEMINI_INTERVIEW_KEY })('gemini-2.0-flash'), name: 'Gemini-Main' },
             { model: createGoogleGenerativeAI({ apiKey: process.env.GEMINI_EXAM_KEY_2 })('gemini-2.0-flash'), name: 'Gemini-2' },
             { model: createGoogleGenerativeAI({ apiKey: process.env.GEMINI_EXAM_KEY_3 })('gemini-2.0-flash'), name: 'Gemini-3' },
-            { model: createOpenAI({ baseURL: 'https://openrouter.ai/api/v1', apiKey: process.env.OPENROUTER_INTERVIEW_KEY })('meta-llama/llama-3.3-70b-instruct:free'), name: 'OpenRouter' }
+            { model: createOpenAI({ baseURL: 'https://openrouter.ai/api/v1', apiKey: process.env.OPENROUTER_INTERVIEW_KEY })('mistralai/mistral-7b-instruct'), name: 'OpenRouter' }
         ];
 
         const isGenQs = action === 'generateQuestions';
