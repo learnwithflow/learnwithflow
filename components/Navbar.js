@@ -116,9 +116,9 @@ export default function Navbar({ currentPage, showPage }) {
                             <path d="M2,32 Q18,4 42,14 T84,22 T118,8 L118,22 Q102,36 78,28 T36,18 T2,32 Z" fill="url(#ribbonGrad)" />
                         </svg>
                     </div>
-                    <div className="flex items-center">
-                        <span className="text-[18px] md:text-[22px] font-semibold tracking-tight text-[#1c1814] leading-none" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>learnwith</span>
-                        <span className="text-[18px] md:text-[22px] font-semibold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-[#2563eb] to-[#0d9488] leading-none" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>flow</span>
+                    <div className="flex items-center -ml-1">
+                        <span className="text-[14px] md:text-[18px] font-semibold tracking-tight text-[#1c1814] leading-none" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>learnwith</span>
+                        <span className="text-[14px] md:text-[18px] font-semibold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-[#2563eb] to-[#0d9488] leading-none" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>flow</span>
                     </div>
                 </div>
 
