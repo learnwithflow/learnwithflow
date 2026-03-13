@@ -1,7 +1,27 @@
+import { checkSecurity } from '../../../lib/apiSecurity';
+
+export const maxDuration = 60;
+
+// Round-robin key index stored in module scope (resets per cold start, good enough)
+let geminiKeyIndex = 0;
+
+function getNextGeminiKey() {
+    const keys = [
+        process.env.GEMINI_EXAM_KEY,
+        process.env.GEMINI_EXAM_KEY_2,
+        process.env.GEMINI_EXAM_KEY_3,
+        process.env.GEMINI_EXAM_KEY_4,
+    ].filter(Boolean);
+    if (keys.length === 0) return null;
+    const key = keys[geminiKeyIndex % keys.length];
+    geminiKeyIndex++;
+    return key;
+}
+
 async function callAI(messages) {
     const providers = [
         { url: 'https://api.groq.com/openai/v1/chat/completions', key: process.env.GROQ_EXAM_KEY, model: 'llama-3.3-70b-versatile', name: 'Groq' },
-        { url: 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions', key: process.env.GEMINI_EXAM_KEY, model: 'gemini-2.0-flash', name: 'Gemini' },
+        { url: 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions', key: getNextGeminiKey(), model: 'gemini-2.0-flash', name: 'Gemini' },
         { url: 'https://openrouter.ai/api/v1/chat/completions', key: process.env.OPENROUTER_EXAM_KEY, model: 'meta-llama/llama-3.3-70b-instruct:free', name: 'OpenRouter' },
     ];
     for (const p of providers) {
@@ -10,27 +30,92 @@ async function callAI(messages) {
             const res = await fetch(p.url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${p.key}` },
-                body: JSON.stringify({ model: p.model, messages, max_tokens: 2000, temperature: 0.7 })
+                body: JSON.stringify({ model: p.model, messages, max_tokens: 2000, temperature: 0.9 })
             });
             if (!res.ok) {
-                const errData = await res.json().catch(() => ({}));
-                console.error(`${p.name} helper failed:`, res.status, errData);
+                console.error(`${p.name} failed:`, res.status);
                 continue;
             }
             const data = await res.json();
             const content = data.choices?.[0]?.message?.content;
             if (content) return content;
         } catch (e) {
-            console.error(`${p.name} helper error:`, e);
+            console.error(`${p.name} error:`, e.message);
             continue;
         }
     }
     return null;
 }
 
-export const maxDuration = 60;
+// Generate a batch of questions using a specific Gemini key
+async function generateBatch({ examType, chapter, count, excludeTexts, batchSeed }) {
+    const { generateText } = await import('ai');
+    const { createGoogleGenerativeAI } = await import('@ai-sdk/google');
+    const { createGroq } = await import('@ai-sdk/groq');
+    const { createOpenAI } = await import('@ai-sdk/openai');
+    const { z } = await import('zod');
 
-import { checkSecurity } from '../../../lib/apiSecurity';
+    const excludeNote = excludeTexts && excludeTexts.length > 0
+        ? `\nSTRICTLY AVOID generating questions similar to these (already used): ${excludeTexts.slice(0, 60).join(' | ')}`
+        : '';
+
+    const chapterNote = chapter === 'FULL_MOCK'
+        ? '. Cover an equal, balanced mix of ALL subjects for this exam type.'
+        : chapter
+            ? ` on topic: ${chapter}`
+            : '';
+
+    const system = `You are an exam question generator. Generate EXACTLY ${count} brand new, UNIQUE multiple choice questions for the ${examType || 'general'} exam${chapterNote}. Every question MUST be completely different from each other and from the excluded list. Use varied difficulty levels and different subtopics. Seed: ${batchSeed}.${excludeNote}
+
+Return ONLY a valid JSON object with format:
+{"questions": [{"s": "Subject", "b": "Question text", "o": ["Option A", "Option B", "Option C", "Option D"], "a": 0, "e": "Short explanation"}]}`;
+
+    const prompt = `Generate ${count} unique questions now. Return ONLY JSON.`;
+
+    // Try all available Gemini keys + Groq + OpenRouter
+    const keys = [
+        process.env.GEMINI_EXAM_KEY,
+        process.env.GEMINI_EXAM_KEY_2, 
+        process.env.GEMINI_EXAM_KEY_3,
+        process.env.GEMINI_EXAM_KEY_4,
+    ].filter(Boolean);
+
+    const providers = [
+        ...keys.map((key, i) => ({
+            model: createGoogleGenerativeAI({ apiKey: key })('gemini-2.0-flash'),
+            name: `Gemini-${i + 1}`
+        })),
+        { model: createGroq({ apiKey: process.env.GROQ_EXAM_KEY })('llama-3.3-70b-versatile'), name: 'Groq' },
+        { model: createOpenAI({ baseURL: 'https://openrouter.ai/api/v1', apiKey: process.env.OPENROUTER_EXAM_KEY })('meta-llama/llama-3.3-70b-instruct:free'), name: 'OpenRouter' }
+    ];
+
+    for (const p of providers) {
+        try {
+            const result = await generateText({
+                model: p.model,
+                system,
+                prompt,
+                temperature: 0.9,
+                maxTokens: 3000,
+            });
+
+            const text = result.text.trim();
+            const jsonMatch = text.match(/\{[\s\S]*\}/);
+            if (!jsonMatch) throw new Error('No JSON in response');
+
+            const parsed = JSON.parse(jsonMatch[0]);
+            if (parsed.questions && Array.isArray(parsed.questions) && parsed.questions.length > 0) {
+                console.log(`${p.name} generated ${parsed.questions.length} questions`);
+                return parsed.questions;
+            }
+            throw new Error('Invalid format');
+        } catch (err) {
+            console.error(`${p.name} batch failed:`, err.message);
+            continue;
+        }
+    }
+    return [];
+}
 
 export async function POST(req) {
     const secError = await checkSecurity(req);
@@ -39,78 +124,66 @@ export async function POST(req) {
     try {
         const { messages, action, examType, chapter, count, exclude } = await req.json();
 
-        // Generate exam questions dynamically
         if (action === 'generate') {
-            const { generateObject, generateText } = await import('ai');
-            const { createGoogleGenerativeAI } = await import('@ai-sdk/google');
-            const { createGroq } = await import('@ai-sdk/groq');
-            const { createOpenAI } = await import('@ai-sdk/openai');
-            const { z } = await import('zod');
+            const needed = count || 10;
+            const excludeTexts = exclude && Array.isArray(exclude) ? exclude : [];
 
-            const schema = z.object({
-                questions: z.array(z.object({
-                    s: z.string().describe("Subject"),
-                    b: z.string().describe("Question text"),
-                    o: z.array(z.string()).describe("4 options for the multiple choice question"),
-                    a: z.number().describe("Index (0-3) of the correct option"),
-                    e: z.string().optional().describe("Short 1-sentence explanation of why it is correct")
-                }))
-            });
+            // Track seen question texts to deduplicate within this request
+            const uniqueQMap = new Map(); // key: normalized question text -> question object
+            const BATCH_SIZE = Math.min(needed, 20); // AI generates up to 20 per call
+            const MAX_ATTEMPTS = Math.ceil(needed / BATCH_SIZE) + 5; // Extra attempts to fill
 
-            const excludeText = exclude && Array.isArray(exclude) && exclude.length > 0 
-                ? `\nCRITICAL: DO NOT generate any of the following questions (avoid these topics/questions): ${exclude.slice(0, 50).join(', ')}`
-                : '';
+            let attempts = 0;
 
-            const system = `You are an exam question generator. Generate exactly ${count || 10} multiple choice questions for ${examType || 'general'} exam${chapter === 'FULL_MOCK' ? '. Ensure the questions cover an equal, balanced mix of ALL subjects for this exam type (e.g. Physics, Chemistry, Maths for EAMCET)' : chapter ? ` on topic: ${chapter}` : ''}. Make questions challenging but fair.${excludeText}`;
-            const prompt = `Generate ${count || 10} questions now.`;
+            while (uniqueQMap.size < needed && attempts < MAX_ATTEMPTS) {
+                attempts++;
+                const stillNeeded = needed - uniqueQMap.size;
+                const batchCount = Math.min(BATCH_SIZE, stillNeeded + 3); // Request a few extra
+                const currentExclude = [
+                    ...excludeTexts,
+                    ...Array.from(uniqueQMap.values()).map(q => q.b.substring(0, 80))
+                ];
 
-            const providers = [
-                { model: createGroq({ apiKey: process.env.GROQ_EXAM_KEY })('llama-3.3-70b-versatile'), name: 'Groq' },
-                { model: createGoogleGenerativeAI({ apiKey: process.env.GEMINI_EXAM_KEY })('gemini-2.0-flash'), name: 'Gemini' },
-                { model: createGoogleGenerativeAI({ apiKey: process.env.GEMINI_EXAM_KEY_2 })('gemini-2.0-flash'), name: 'Gemini-2' },
-                { model: createGoogleGenerativeAI({ apiKey: process.env.GEMINI_EXAM_KEY_3 })('gemini-2.0-flash'), name: 'Gemini-3' },
-                { model: createGoogleGenerativeAI({ apiKey: process.env.GEMINI_EXAM_KEY_4 })('gemini-2.0-flash'), name: 'Gemini-4' },
-                { model: createOpenAI({ baseURL: 'https://openrouter.ai/api/v1', apiKey: process.env.OPENROUTER_EXAM_KEY })('meta-llama/llama-3.3-70b-instruct:free'), name: 'OpenRouter' }
-            ];
+                console.log(`Attempt ${attempts}: need ${stillNeeded} more, requesting ${batchCount}`);
 
-            const jsonInstructions = `Respond with a JSON object containing an array designated by the key "questions". Each object in the array MUST have these keys:
-- "s": Subject
-- "b": Question text
-- "o": Array of 4 options
-- "a": Index (0-3) of correct option
-- "e": Short explanation
-Return ONLY the JSON.`;
+                const batch = await generateBatch({
+                    examType,
+                    chapter,
+                    count: batchCount,
+                    excludeTexts: currentExclude,
+                    batchSeed: `${Date.now()}-${attempts}`,
+                });
 
-            let lastError = null;
-            for (const p of providers) {
-                try {
-                    const result = await generateText({
-                        model: p.model,
-                        system: system + "\n" + jsonInstructions,
-                        prompt,
-                        temperature: 0.7,
-                    });
-                    
-                    const text = result.text.trim();
-                    const jsonMatch = text.match(/\{[\s\S]*\}/);
-                    if (!jsonMatch) throw new Error("No JSON found in response");
-                    
-                    const parsed = JSON.parse(jsonMatch[0]);
-                    if (parsed.questions && Array.isArray(parsed.questions)) {
-                        return Response.json(parsed.questions);
+                let addedThisBatch = 0;
+                for (const q of batch) {
+                    if (!q.b || !q.o || q.o.length < 4 || typeof q.a !== 'number') continue;
+                    const key = q.b.trim().toLowerCase().substring(0, 100);
+                    // Check it's not already in our map and not in exclude list
+                    const alreadySeen = excludeTexts.some(ex => 
+                        ex.toLowerCase().substring(0, 80) === key.substring(0, 80)
+                    );
+                    if (!uniqueQMap.has(key) && !alreadySeen) {
+                        uniqueQMap.set(key, q);
+                        addedThisBatch++;
                     }
-                    throw new Error("Invalid response format");
-                } catch (err) {
-                    console.error(`${p.name} generation failed:`, err.message || err);
-                    lastError = err;
+                }
+                console.log(`Added ${addedThisBatch} new questions. Total: ${uniqueQMap.size}/${needed}`);
+
+                if (addedThisBatch === 0 && attempts > 3) {
+                    console.log('No new questions added, stopping early');
+                    break;
                 }
             }
-            throw lastError || new Error('All generation providers failed');
+
+            const finalQuestions = Array.from(uniqueQMap.values()).slice(0, needed);
+            console.log(`Final: returning ${finalQuestions.length} questions`);
+            return Response.json(finalQuestions);
         }
 
-        // Regular AI call
+        // Regular AI call (for explanations etc.)
         const content = await callAI(messages);
         return Response.json({ content: content || 'Explanation unavailable.' });
+
     } catch (e) {
         console.error('Exam API error:', e.message || e);
         return Response.json({ content: 'Error processing request.' }, { status: 500 });

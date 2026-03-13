@@ -66,75 +66,51 @@ export default function MockExam({ showPage, showToast }) {
         })
     });
 
-    const getSeenQuestions = () => {
-        try {
-            return JSON.parse(localStorage.getItem('lwf_seen_qs') || '[]');
-        } catch { return []; }
-    };
-
-    const saveSeenQuestions = (newQs) => {
-        try {
-            const seen = getSeenQuestions();
-            const texts = new Set(seen);
-            newQs.forEach(q => texts.add(q.b.trim()));
-            const updated = Array.from(texts).slice(-200); // Keep last 200
-            localStorage.setItem('lwf_seen_qs', JSON.stringify(updated));
-        } catch (e) { console.error(e); }
-    };
-
+    // Generate questions: send one request for the full count; server handles dedup via exclude list
     const generateMoreQuestions = async (existing, needed, type, chapter) => {
-        const uniqueQs = new Map();
-        for (const q of existing) uniqueQs.set(q.b.trim().toLowerCase(), q);
+        // Build exclude list from existing (starter pool) question texts
+        const excludeTexts = existing.map(q => q.b.trim().substring(0, 80));
 
-        const seenTexts = getSeenQuestions();
-        let shortfall = needed - uniqueQs.size;
-        let errorCount = 0;
-        const BATCH_SIZE = 15;
+        try {
+            const res = await fetch('/api/exam', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-api-secret': process.env.NEXT_PUBLIC_API_SECRET
+                },
+                body: JSON.stringify({
+                    action: 'generate',
+                    examType: type,
+                    chapter,
+                    count: needed,
+                    exclude: excludeTexts
+                })
+            });
 
-        while (shortfall > 0 && errorCount < 3) {
-            const currentNeeds = Math.min(BATCH_SIZE, shortfall);
-            try {
-                const res = await fetch('/api/exam', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'x-api-secret': process.env.NEXT_PUBLIC_API_SECRET
-                    },
-                    body: JSON.stringify({ 
-                        action: 'generate', 
-                        examType: type, 
-                        chapter, 
-                        count: currentNeeds,
-                        exclude: seenTexts.slice(-50) // Send last 50 seen to avoid
-                    })
-                });
+            if (!res.ok) throw new Error('API failed');
+            const questions = await res.json();
 
-                if (!res.ok) throw new Error('API failed');
-                const questions = await res.json();
-
-                if (questions && questions.length > 0) {
-                    let added = 0;
-                    for (const q of questions) {
-                        const qKey = q.b.trim().toLowerCase();
-                        if (!uniqueQs.has(qKey) && !seenTexts.includes(q.b.trim())) {
-                            uniqueQs.set(qKey, q);
-                            added++;
-                        }
-                    }
-                    saveSeenQuestions(questions);
-                    if (added === 0) errorCount++;
-                    shortfall = needed - uniqueQs.size;
-                } else {
-                    errorCount++;
+            if (questions && questions.length > 0) {
+                // Client-side dedup just in case
+                const seen = new Map();
+                for (const q of [...existing, ...questions]) {
+                    const key = q.b.trim().toLowerCase().substring(0, 100);
+                    if (!seen.has(key)) seen.set(key, q);
                 }
-            } catch (e) {
-                console.error('Gen error:', e);
-                errorCount++;
+                const allQ = Array.from(seen.values());
+                // Return only the AI-generated ones (not the starter pool), shuffled
+                const aiGenerated = questions.filter(q => {
+                    const key = q.b.trim().toLowerCase().substring(0, 100);
+                    return !existing.some(e => e.b.trim().toLowerCase().substring(0, 100) === key);
+                });
+                return shuffleArr(aiGenerated).slice(0, needed);
             }
+        } catch (e) {
+            console.error('Gen error:', e);
         }
 
-        const result = Array.from(uniqueQs.values());
-        return shuffleArr(result).slice(0, needed);
+        // Fallback: use shuffled existing pool
+        return shuffleArr(existing).slice(0, needed);
     };
 
     const startChapterExam = async (idx) => {

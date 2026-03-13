@@ -96,9 +96,15 @@ export default function Navbar({ currentPage, showPage }) {
     return (
         <>
             <nav id="main-nav" className="flex items-center justify-between px-6 h-14 bg-[#fdfcf7]/75 backdrop-blur-[24px] border-b border-[#e6e0d4]/60 fixed top-0 left-0 right-0 z-50 transition-all duration-300 shadow-[0_4px_30px_rgba(0,0,0,0.02)]">
-                <div className="nav-logo flex flex-col justify-start cursor-pointer group pt-1 md:pt-1.5" onClick={() => handleNav('home')}>
-                    <div className="flex items-center w-full justify-end pr-1 md:pr-1.5">
-                        <svg className="h-[12px] w-[32px] md:h-[14px] md:w-[38px] -mb-[3px] md:-mb-[4px] transition-transform duration-300 group-hover:-translate-y-0.5" viewBox="0 0 100 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <div className="nav-logo flex flex-col justify-start cursor-pointer group pt-1 md:pt-2" onClick={() => handleNav('home')}>
+                    <div className="flex items-center w-full justify-end pr-1 md:pr-2" style={{ overflow: 'visible' }}>
+                        <svg
+                            style={{ overflow: 'visible' }}
+                            className="h-[14px] w-[40px] md:h-[17px] md:w-[48px] -mb-[2px] md:-mb-[3px] transition-transform duration-300 group-hover:-translate-y-0.5"
+                            viewBox="0 0 120 36"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
                             <defs>
                                 <linearGradient id="ribbonGrad" x1="0%" y1="0%" x2="100%" y2="0%">
                                     <stop offset="0%" stopColor="#312e81" />
@@ -107,12 +113,12 @@ export default function Navbar({ currentPage, showPage }) {
                                     <stop offset="100%" stopColor="#0f766e" />
                                 </linearGradient>
                             </defs>
-                            <path d="M0,30 Q15,0 35,10 T70,20 T100,5 L100,20 Q85,35 60,25 T25,15 T0,30 Z" fill="url(#ribbonGrad)" />
+                            <path d="M2,32 Q18,4 42,14 T84,22 T118,8 L118,22 Q102,36 78,28 T36,18 T2,32 Z" fill="url(#ribbonGrad)" />
                         </svg>
                     </div>
                     <div className="flex items-center">
-                        <span className="text-[18px] md:text-[20px] font-medium tracking-tight text-[#1c1814]" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>learnwith</span>
-                        <span className="text-[18px] md:text-[20px] font-medium tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-[#2563eb] to-[#0d9488]" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>flow</span>
+                        <span className="text-[22px] md:text-[26px] font-semibold tracking-tight text-[#1c1814] leading-none" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>learnwith</span>
+                        <span className="text-[22px] md:text-[26px] font-semibold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-[#2563eb] to-[#0d9488] leading-none" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>flow</span>
                     </div>
                 </div>
 
