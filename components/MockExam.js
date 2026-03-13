@@ -85,14 +85,46 @@ export default function MockExam({ showPage, showToast }) {
 
     // Generate questions: combine pool + AI-generated to reach the target count
     const generateMoreQuestions = async (pool, needed, type, chapter) => {
-        // Get previously used questions to exclude them
+        // Get previously used questions from local storage
         const usedQTexts = getUsedQuestions(type);
         const poolQuestions = shuffleArr([...pool]);
-        // Exclude both pool texts and previously used questions
+
+        // Attempt to fetch robust online history from Supabase if user exists
+        let supabaseUsedQTexts = [];
+        try {
+            const uid = getAnonId();
+            if (uid) {
+                // Fetch up to 1000 past questions for this user + exam type + chapter combo
+                let query = supabase
+                    .from('user_question_history')
+                    .select('question_text')
+                    .eq('user_id', uid)
+                    .eq('exam_type', type)
+                    .order('created_at', { ascending: false })
+                    .limit(1000);
+                
+                if (chapter && chapter !== 'FULL_MOCK') {
+                    query = query.eq('chapter', chapter);
+                }
+
+                const { data, error } = await query;
+                if (data && !error) {
+                    supabaseUsedQTexts = data.map(row => row.question_text);
+                }
+            }
+        } catch (e) {
+            console.error('Failed fetching Supabase history:', e);
+        }
+
+        // Combine local used, pool texts, and Supabase history
         const excludeTexts = [
             ...poolQuestions.map(q => q.b.trim().substring(0, 80)),
-            ...usedQTexts.slice(0, 200) // Send up to 200 used questions as exclude
+            ...usedQTexts.slice(0, 200), // Send up to 200 local used questions
+            ...supabaseUsedQTexts // Throw in all Supabase history fetched
         ];
+
+        // Deduplicate exclusions to save payload size
+        const uniqueExcludeTexts = [...new Set(excludeTexts)];
 
         let aiQuestions = [];
         try {
@@ -107,7 +139,7 @@ export default function MockExam({ showPage, showToast }) {
                     examType: type,
                     chapter,
                     count: needed,
-                    exclude: excludeTexts
+                    exclude: uniqueExcludeTexts
                 })
             });
 
@@ -118,7 +150,8 @@ export default function MockExam({ showPage, showToast }) {
                 // Filter out duplicates of pool questions and used questions
                 const seen = new Set([
                     ...poolQuestions.map(q => q.b.trim().toLowerCase().substring(0, 100)),
-                    ...usedQTexts.map(t => t.toLowerCase().substring(0, 100))
+                    ...usedQTexts.map(t => t.toLowerCase().substring(0, 100)),
+                    ...supabaseUsedQTexts.map(t => t.toLowerCase().substring(0, 100))
                 ]);
                 aiQuestions = questions.filter(q => {
                     if (!q.b || !q.o || q.o.length < 4 || typeof q.a !== 'number') return false;
@@ -319,6 +352,17 @@ export default function MockExam({ showPage, showToast }) {
                     total: qs.length,
                     percentage: pct,
                 });
+
+                // Bulk insert newly generated questions into history to prevent repeating them
+                // Filter out questions that are just pool fallbacks? Actually, safe to just log all that were exposed.
+                const historyPayload = qs.map(q => ({
+                    user_id: uid,
+                    exam_type: examType,
+                    chapter: selectedChapter !== '' && activeMode === 'chapter' ? CHAPTERS[examType][parseInt(selectedChapter)] : 'UNKNOWN',
+                    question_text: q.b
+                }));
+                
+                await supabase.from('user_question_history').insert(historyPayload);
             }
         } catch (e) { console.error('Supabase save error:', e); }
         showToast?.(`Score: ${correct}/${qs.length} (${pct}%) — Saved! 🎯`);

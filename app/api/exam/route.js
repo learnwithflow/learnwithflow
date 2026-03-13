@@ -72,7 +72,7 @@ async function generateBatch({ examType, chapter, count, excludeTexts, batchSeed
     const { z } = await import('zod');
 
     const excludeNote = excludeTexts && excludeTexts.length > 0
-        ? `\nSTRICTLY AVOID generating questions similar to these (already used): ${excludeTexts.slice(0, 60).join(' | ')}`
+        ? `\nCRITICAL CONSTRAINT: You MUST NOT generate any questions similar to these previously used topics/questions:\n${excludeTexts.slice(0, 300).map(t => `- ${t}`).join('\n')}\nIt is strictly forbidden to repeat them.`
         : '';
 
     const chapterNote = chapter === 'FULL_MOCK'
@@ -85,7 +85,9 @@ async function generateBatch({ examType, chapter, count, excludeTexts, batchSeed
         ? `\nThis is a re-attempt. You MUST focus on completely DIFFERENT, rare, and obscure subtopics that you haven't used yet.` 
         : '';
 
-    const system = `You are an exam question generator. Generate EXACTLY ${count} brand new, UNIQUE multiple choice questions for the ${examType || 'general'} exam${chapterNote}. Every question MUST be completely different from each other and from the excluded list. Use varied difficulty levels and different subtopics. Seed: ${batchSeed}.${dynamicInstruction}${excludeNote}
+    const system = `You are an expert exam question generator. Generate EXACTLY ${count} brand new, UNIQUE multiple choice questions for the ${examType || 'general'} exam${chapterNote}. 
+Every question MUST be completely different from each other. 
+Use varied difficulty levels and explore niche subtopics. Seed: ${batchSeed}.${dynamicInstruction}${excludeNote}
 
 Return ONLY a valid JSON object with format:
 {"questions": [{"s": "Subject", "b": "Question text", "o": ["Option A", "Option B", "Option C", "Option D"], "a": 0, "e": "Short explanation"}]}`;
@@ -162,8 +164,8 @@ export async function POST(req) {
 
             // Track seen question texts to deduplicate within this request
             const uniqueQMap = new Map(); // key: normalized question text -> question object
-            const BATCH_SIZE = Math.min(needed, 20); // AI models handle 20 per call reliably
-            const MAX_ATTEMPTS = Math.ceil(needed / BATCH_SIZE) + 4; // Enough attempts to fill
+            const BATCH_SIZE = needed; // Request all questions at once
+            const MAX_ATTEMPTS = 3; // Retry a few times if it fails
 
             let attempts = 0;
             let consecutiveEmpty = 0;
@@ -202,8 +204,14 @@ export async function POST(req) {
                 }
                 console.log(`Added ${addedThisBatch} new questions. Total: ${uniqueQMap.size}/${needed}`);
 
+                if (addedThisBatch === 0) {
+                    consecutiveEmpty++;
+                } else {
+                    consecutiveEmpty = 0;
+                }
+
                 // Require exact matches, only break early if completely stuck
-                if (consecutiveEmpty >= 2 && attempts > 4) {
+                if (consecutiveEmpty >= 2 && attempts > MAX_ATTEMPTS) {
                     console.log(`Two consecutive empty batches after multiple attempts, stopping at ${uniqueQMap.size}/${needed}`);
                     break;
                 }
