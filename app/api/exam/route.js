@@ -111,7 +111,12 @@ Return ONLY a valid JSON object with format:
         }
         throw new Error('Invalid format or missing questions array');
     } catch (err) {
-        console.error(`${provider.name} batch failed:`, err.message);
+        console.error(`🚨 [generateBatchWorker Error] Provider: ${provider.name}`);
+        console.error(`   Message: ${err.message}`);
+        console.error(`   Name: ${err.name}`);
+        if (err.statusCode) console.error(`   Status Code: ${err.statusCode}`);
+        if (err.cause) console.error(`   Cause:`, err.cause);
+        
         throw err;
     }
 }
@@ -210,10 +215,14 @@ async function generateAllQuestions({ examType, chapter, totalNeeded, excludeTex
                     batchSuccess = true;
                     break;
                 } catch (err) {
-                    console.warn(`Batch ${index + 1} failed with ${provider.name}. Trying next fallback...`);
-                    // 3 second delay between failed provider retries
+                    console.warn(`⚠️ [Batch ${index + 1} Failed] Provider: ${provider.name}. Error: ${err.message}`);
                     if (attempt < currentBatchProviders.length - 1) {
+                        const nextProvider = currentBatchProviders[attempt + 1];
+                        console.log(`🔄 Proceeding to fallback: ${nextProvider.name}`);
+                        // 3 second delay between failed provider retries
                         await delay(3000);
+                    } else {
+                        console.error(`❌ [Batch ${index + 1}] All providers failed for this batch.`);
                     }
                 }
             }
