@@ -135,14 +135,15 @@ async function generateAllQuestions({ examType, chapter, totalNeeded, excludeTex
         process.env.GEMINI_EXAM_KEY_4,
     ].filter(Boolean);
 
-    // Split into batches: 1 batch per Gemini key (each generates totalNeeded/numKeys questions)
-    // For 30 qs with 4 keys: 4 parallel calls of ~8 questions each
-    // For 60 qs with 4 keys: 4 parallel calls of 15 each
-    // For 90 qs with 4 keys: 4 parallel calls of ~23 each
-    const numBatches = Math.max(1, Math.min(keys.length, 4));
-    const perBatch = Math.ceil((totalNeeded + 5) / numBatches); // +5 padding for dedup losses
+    // Use 2 batches max for reliability: each batch generates (totalNeeded * 0.8) questions
+    // so even if one fails partially, we still get enough total.
+    // For 30 qs: 2 batches × 24 = 48 raw, yields 30+ unique
+    // For 60 qs: 2 batches × 48 = 96 raw, yields 60+ unique
+    // For 90 qs: 2 batches × 72 = 144 raw, yields 90+ unique
+    const numBatches = Math.min(keys.length > 0 ? 2 : 1, 2);
+    const perBatch = Math.ceil(totalNeeded * 0.8); // 80% of total per batch = 60% overlap = safe
 
-    console.log(`Splitting ${totalNeeded} questions into ${numBatches} PARALLEL batches of ~${perBatch} each (no delays)`);
+    console.log(`Splitting ${totalNeeded} questions into ${numBatches} PARALLEL batches of ~${perBatch} each`);
 
     const fallbackProviders = getAllProviders().filter(p => !p.name.startsWith('Gemini'));
 
@@ -173,7 +174,7 @@ async function generateAllQuestions({ examType, chapter, totalNeeded, excludeTex
         })(i));
     }
 
-    // Wait for ALL batches simultaneously (no stagger!)
+    // Wait for ALL batches simultaneously
     const batchResults = await Promise.all(batchPromises);
 
     // Advance key index for next request
@@ -236,7 +237,7 @@ export async function POST(req) {
 
             let finalQuestions = [];
             let attempts = 0;
-            const MAX_ITERATIONS = 2;
+            const MAX_ITERATIONS = 3; // Up to 3 attempts to reach the target count
             let currentExclude = [...excludeTexts];
 
             while (finalQuestions.length < needed && attempts < MAX_ITERATIONS) {

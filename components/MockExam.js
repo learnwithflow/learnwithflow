@@ -263,7 +263,31 @@ export default function MockExam({ showPage, showToast }) {
         const correctText = q.o[q.a];
         const staticExp = q.e && q.e.trim() !== '' ? q.e : null;
 
-        // Show immediate result with loading spinner
+        // If we already have a static explanation, show it immediately (no API call needed!)
+        if (staticExp) {
+            setFeedback(
+                <div style={{ marginTop: 20, padding: 16, borderRadius: 12, border: '1px solid rgba(239,68,68,0.3)', background: 'rgba(239,68,68,0.04)', animation: 'slideUp 0.3s ease' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
+                        <div style={{ fontWeight: 700, fontSize: 16, color: '#dc2626' }}>❌ Incorrect</div>
+                        <button
+                            onClick={() => saveToFlashcards(q, staticExp)}
+                            style={{ background: '#fef3c7', border: '1px solid #fde68a', color: '#d97706', padding: '4px 10px', borderRadius: 20, fontSize: 12, fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4, transition: 'all 0.2s' }}
+                            onMouseOver={(e) => { e.currentTarget.style.background = '#fde68a'; e.currentTarget.style.transform = 'translateY(-1px)'; }}
+                            onMouseOut={(e) => { e.currentTarget.style.background = '#fef3c7'; e.currentTarget.style.transform = 'translateY(0)'; }}
+                        >
+                            ⭐ Save to Flashcards
+                        </button>
+                    </div>
+                    <div style={{ fontWeight: 600, color: '#1f2937', fontSize: 15, marginBottom: 12 }}>✅ Correct Answer: {correctLetter}) {correctText}</div>
+                    <div style={{ fontSize: 14, color: '#374151', lineHeight: 1.65, background: 'rgba(37,99,168,0.05)', borderRadius: 8, padding: '10px 14px' }}>
+                        <span style={{ fontWeight: 700, color: '#2563a8' }}>💡 Explanation: </span>{staticExp}
+                    </div>
+                </div>
+            );
+            return;
+        }
+
+        // No static explanation — show spinner and call AI explain API
         setFeedback(
             <div style={{ marginTop: 20, padding: 16, borderRadius: 12, border: '1px solid rgba(239,68,68,0.3)', background: 'rgba(239,68,68,0.04)', animation: 'slideUp 0.3s ease' }}>
                 <div style={{ fontWeight: 700, fontSize: 16, color: '#dc2626', marginBottom: 8 }}>❌ Incorrect</div>
@@ -275,31 +299,29 @@ export default function MockExam({ showPage, showToast }) {
             </div>
         );
 
-        let explanation = staticExp;
-        if (!explanation) {
-            try {
-                const res = await fetch('/api/explain', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'x-api-secret': process.env.NEXT_PUBLIC_API_SECRET
-                    },
-                    body: JSON.stringify({ question: q.b, options: q.o, correctIndex: q.a, wrongIndex: i, subject: q.s })
-                });
-                if (!res.ok) throw new Error('API failed');
+        let explanation = `The correct answer is ${correctLetter}) ${correctText}.`;
+        try {
+            const res = await fetch('/api/explain', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-api-secret': process.env.NEXT_PUBLIC_API_SECRET
+                },
+                body: JSON.stringify({ question: q.b, options: q.o, correctIndex: q.a, wrongIndex: i, subject: q.s })
+            });
+            if (!res.ok) throw new Error('API failed');
 
-                const reader = res.body.getReader();
-                const decoder = new TextDecoder();
-                let raw = '';
-                while (true) {
-                    const { done, value } = await reader.read();
-                    if (done) break;
-                    raw += decoder.decode(value, { stream: true });
-                }
-                explanation = raw || `The correct answer is ${correctLetter}) ${correctText}.`;
-            } catch {
-                explanation = `The correct answer is ${correctLetter}) ${correctText}.`;
+            const reader = res.body.getReader();
+            const decoder = new TextDecoder();
+            let raw = '';
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                raw += decoder.decode(value, { stream: true });
             }
+            explanation = raw || explanation;
+        } catch {
+            // Keep default explanation
         }
 
         setFeedback(
