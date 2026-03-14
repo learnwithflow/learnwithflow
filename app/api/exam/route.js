@@ -1,6 +1,6 @@
 import { checkSecurity } from '../../../lib/apiSecurity';
 
-export const maxDuration = 120;
+export const maxDuration = 60;
 
 // Round-robin key index stored in module scope (resets per cold start, good enough)
 let geminiKeyIndex = 0;
@@ -18,7 +18,73 @@ function getNextGeminiKey() {
     return key;
 }
 
-async function callAI(messages) {
+// Direct fetch to AI providers (no AI SDK overhead)
+async function callProvider(provider, systemPrompt, userPrompt) {
+    const messages = [
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt }
+    ];
+
+    try {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 45000); // 45s hard timeout per provider
+
+        const res = await fetch(provider.url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${provider.key}` },
+            body: JSON.stringify({ model: provider.model, messages, max_tokens: 16384, temperature: 0.9 }),
+            signal: controller.signal
+        });
+
+        clearTimeout(timeout);
+
+        if (!res.ok) {
+            console.error(`${provider.name} failed: ${res.status}`);
+            return null;
+        }
+
+        const data = await res.json();
+        const content = data.choices?.[0]?.message?.content;
+        if (!content) return null;
+
+        // Parse JSON from the response
+        const jsonMatch = content.match(/\{[\s\S]*\}/);
+        if (!jsonMatch) return null;
+
+        const parsed = JSON.parse(jsonMatch[0]);
+        if (parsed.questions && Array.isArray(parsed.questions) && parsed.questions.length > 0) {
+            console.log(`${provider.name} generated ${parsed.questions.length} questions`);
+            return parsed.questions;
+        }
+        return null;
+    } catch (e) {
+        console.error(`${provider.name} error:`, e.message);
+        return null;
+    }
+}
+
+// Build prompt for question generation
+function buildPrompts({ examType, chapter, count, excludeTexts, batchIndex }) {
+    const excludeNote = excludeTexts && excludeTexts.length > 0
+        ? `\nCRITICAL: Do NOT generate questions similar to these:\n${excludeTexts.slice(0, 200).map(t => `- ${t}`).join('\n')}`
+        : '';
+
+    const chapterNote = chapter === 'FULL_MOCK'
+        ? '. Cover a balanced mix of ALL subjects.'
+        : chapter ? ` on topic: ${chapter}` : '';
+
+    const system = `You are an expert exam question generator. Generate EXACTLY ${count} unique multiple choice questions for the ${examType || 'general'} exam${chapterNote}. 
+Every question MUST be completely different. Use varied difficulty levels. Batch: ${batchIndex + 1}, Seed: ${Date.now()}.${excludeNote}
+
+Return ONLY a valid JSON object:
+{"questions": [{"s": "Subject", "b": "Question text", "o": ["A", "B", "C", "D"], "a": 0, "e": "Short explanation"}]}`;
+
+    const prompt = `Generate ${count} unique questions now. Return ONLY JSON.`;
+    return { system, prompt };
+}
+
+// Get all available providers in priority order
+function getAllProviders() {
     const keys = [
         process.env.GEMINI_EXAM_KEY,
         process.env.GEMINI_EXAM_KEY_2,
@@ -26,18 +92,116 @@ async function callAI(messages) {
         process.env.GEMINI_EXAM_KEY_4,
     ].filter(Boolean);
 
-    // Build ordered list of providers: All available Gemini keys (rotated), then Groq, then OpenRouter
     const providers = [];
-    
-    // Rotate Gemini keys based on global index
+
+    // Add all Gemini keys (rotated)
     for (let i = 0; i < keys.length; i++) {
-        const keyVal = keys[(geminiKeyIndex + i) % keys.length];
-        providers.push({ url: 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions', key: keyVal, model: 'gemini-2.0-flash', name: `Gemini-${i+1}` });
+        const keyIdx = (geminiKeyIndex + i) % keys.length;
+        providers.push({
+            url: 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions',
+            key: keys[keyIdx],
+            model: 'gemini-2.0-flash',
+            name: `Gemini-${keyIdx + 1}`
+        });
     }
-    // Increment index so next overarching call gets a different starting key
-    if (keys.length > 0) geminiKeyIndex++;
-    providers.push({ url: 'https://api.groq.com/openai/v1/chat/completions', key: process.env.GROQ_EXAM_KEY, model: 'llama-3.3-70b-versatile', name: 'Groq' });
-    providers.push({ url: 'https://openrouter.ai/api/v1/chat/completions', key: process.env.OPENROUTER_EXAM_KEY, model: 'meta-llama/llama-3.3-70b-instruct:free', name: 'OpenRouter' });
+
+    if (process.env.GROQ_EXAM_KEY) {
+        providers.push({
+            url: 'https://api.groq.com/openai/v1/chat/completions',
+            key: process.env.GROQ_EXAM_KEY,
+            model: 'llama-3.3-70b-versatile',
+            name: 'Groq'
+        });
+    }
+
+    if (process.env.OPENROUTER_EXAM_KEY) {
+        providers.push({
+            url: 'https://openrouter.ai/api/v1/chat/completions',
+            key: process.env.OPENROUTER_EXAM_KEY,
+            model: 'meta-llama/llama-3.3-70b-instruct:free',
+            name: 'OpenRouter'
+        });
+    }
+
+    return providers;
+}
+
+// Generate questions using parallel calls with NO delays
+async function generateAllQuestions({ examType, chapter, totalNeeded, excludeTexts }) {
+    const keys = [
+        process.env.GEMINI_EXAM_KEY,
+        process.env.GEMINI_EXAM_KEY_2,
+        process.env.GEMINI_EXAM_KEY_3,
+        process.env.GEMINI_EXAM_KEY_4,
+    ].filter(Boolean);
+
+    // Split into batches: 1 batch per Gemini key (each generates totalNeeded/numKeys questions)
+    // For 30 qs with 4 keys: 4 parallel calls of ~8 questions each
+    // For 60 qs with 4 keys: 4 parallel calls of 15 each
+    // For 90 qs with 4 keys: 4 parallel calls of ~23 each
+    const numBatches = Math.max(1, Math.min(keys.length, 4));
+    const perBatch = Math.ceil((totalNeeded + 5) / numBatches); // +5 padding for dedup losses
+
+    console.log(`Splitting ${totalNeeded} questions into ${numBatches} PARALLEL batches of ~${perBatch} each (no delays)`);
+
+    const fallbackProviders = getAllProviders().filter(p => !p.name.startsWith('Gemini'));
+
+    const batchPromises = [];
+    for (let i = 0; i < numBatches; i++) {
+        const keyIdx = (geminiKeyIndex + i) % Math.max(1, keys.length);
+        const primaryProvider = keys.length > 0 ? {
+            url: 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions',
+            key: keys[keyIdx],
+            model: 'gemini-2.0-flash',
+            name: `Gemini-${keyIdx + 1}`
+        } : null;
+
+        batchPromises.push((async (batchIndex) => {
+            const { system, prompt } = buildPrompts({ examType, chapter, count: perBatch, excludeTexts, batchIndex });
+
+            // Try primary provider first, then fallbacks
+            const tryProviders = primaryProvider ? [primaryProvider, ...fallbackProviders] : fallbackProviders;
+
+            for (const provider of tryProviders) {
+                const questions = await callProvider(provider, system, prompt);
+                if (questions && questions.length > 0) return questions;
+                console.warn(`Batch ${batchIndex + 1}: ${provider.name} failed, trying next...`);
+            }
+
+            console.error(`Batch ${batchIndex + 1}: ALL providers failed`);
+            return [];
+        })(i));
+    }
+
+    // Wait for ALL batches simultaneously (no stagger!)
+    const batchResults = await Promise.all(batchPromises);
+
+    // Advance key index for next request
+    if (keys.length > 0) {
+        geminiKeyIndex = (geminiKeyIndex + numBatches) % keys.length;
+    }
+
+    // Merge & deduplicate
+    const uniqueQMap = new Map();
+    const excludeSet = new Set((excludeTexts || []).map(t => t.toLowerCase().substring(0, 80)));
+
+    for (const batch of batchResults) {
+        for (const q of batch) {
+            if (!q.b || !q.o || q.o.length < 4 || typeof q.a !== 'number') continue;
+            const key = q.b.trim().toLowerCase().substring(0, 100);
+            if (!uniqueQMap.has(key) && !excludeSet.has(key.substring(0, 80))) {
+                uniqueQMap.set(key, q);
+            }
+        }
+    }
+
+    console.log(`Merged ${uniqueQMap.size} unique questions from ${numBatches} parallel batches`);
+    return Array.from(uniqueQMap.values());
+}
+
+// Regular AI call (for explanations etc.)
+async function callAI(messages) {
+    const providers = getAllProviders();
 
     for (const p of providers) {
         if (!p.key) continue;
@@ -47,225 +211,15 @@ async function callAI(messages) {
                 headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${p.key}` },
                 body: JSON.stringify({ model: p.model, messages, max_tokens: 4000, temperature: 0.9 })
             });
-            if (!res.ok) {
-                console.error(`${p.name} failed:`, res.status);
-                continue;
-            }
+            if (!res.ok) continue;
             const data = await res.json();
             const content = data.choices?.[0]?.message?.content;
             if (content) return content;
         } catch (e) {
-            console.error(`${p.name} error:`, e.message);
             continue;
         }
     }
     return null;
-}
-
-// Generate a batch of questions using a specific Provider model
-async function generateBatchWorker({ provider, examType, chapter, count, excludeTexts, batchSeed, batchIndex }) {
-    const { generateText } = await import('ai');
-
-    const excludeNote = excludeTexts && excludeTexts.length > 0
-        ? `\nCRITICAL CONSTRAINT: You MUST NOT generate any questions similar to these previously used topics/questions:\n${excludeTexts.slice(0, 300).map(t => `- ${t}`).join('\n')}\nIt is strictly forbidden to repeat them.`
-        : '';
-
-    const chapterNote = chapter === 'FULL_MOCK'
-        ? '. Cover an equal, balanced mix of ALL subjects for this exam type.'
-        : chapter
-            ? ` on topic: ${chapter}`
-            : '';
-
-    const setNote = `\nInclude completely new questions for Set ${batchIndex + 1}.`;
-    const dynamicInstruction = batchSeed.includes('-') && parseInt(batchSeed.split('-')[1]) > 1 
-        ? `\nThis is a re-attempt. You MUST focus on completely DIFFERENT, rare, and obscure subtopics that you haven't used yet.` 
-        : '';
-
-    const system = `You are an expert exam question generator. Generate EXACTLY ${count} brand new, UNIQUE multiple choice questions for the ${examType || 'general'} exam${chapterNote}. 
-Every question MUST be completely different from each other. 
-Use varied difficulty levels and explore niche subtopics. Seed: ${batchSeed}.${setNote}${dynamicInstruction}${excludeNote}
-
-Return ONLY a valid JSON object with format:
-{"questions": [{"s": "Subject", "b": "Question text", "o": ["Option A", "Option B", "Option C", "Option D"], "a": 0, "e": "Short explanation"}]}`;
-
-    const prompt = `Generate ${count} unique questions now. Set ${batchIndex + 1}. Return ONLY JSON.`;
-
-    try {
-        const result = await generateText({
-            model: provider.model,
-            system,
-            prompt,
-            temperature: 0.9,
-            maxTokens: 16384,
-        });
-
-        const text = result.text.trim();
-        const jsonMatch = text.match(/\{[\s\S]*\}/);
-        // Some models return empty JSON \`{}\` which is invalid for our format
-        if (!jsonMatch) throw new Error('No JSON in response');
-
-        const parsed = JSON.parse(jsonMatch[0]);
-        if (parsed.questions && Array.isArray(parsed.questions) && parsed.questions.length > 0) {
-            console.log(`${provider.name} generated ${parsed.questions.length} questions`);
-            return parsed.questions;
-        }
-        throw new Error('Invalid format or missing questions array');
-    } catch (err) {
-        console.error(`🚨 [generateBatchWorker Error] Provider: ${provider.name}`);
-        console.error(`   Message: ${err.message}`);
-        console.error(`   Name: ${err.name}`);
-        if (err.statusCode) console.error(`   Status Code: ${err.statusCode}`);
-        if (err.cause) console.error(`   Cause:`, err.cause);
-        
-        throw err;
-    }
-}
-
-// Generate all questions needed using parallel batching with multiple keys
-async function generateAllQuestions({ examType, chapter, totalNeeded, excludeTexts }) {
-    const { createGoogleGenerativeAI } = await import('@ai-sdk/google');
-    const { createGroq } = await import('@ai-sdk/groq');
-    const { createOpenAI } = await import('@ai-sdk/openai');
-
-    // Split total request into batches of max 15 questions each
-    const BATCH_SIZE_LIMIT = 15;
-    const batchesData = [];
-    let remaining = totalNeeded;
-    
-    while (remaining > 0) {
-        const batchSize = Math.min(remaining, BATCH_SIZE_LIMIT);
-        batchesData.push({ count: batchSize });
-        remaining -= batchSize;
-    }
-
-    console.log(`Splitting ${totalNeeded} questions into ${batchesData.length} chunks of max ${BATCH_SIZE_LIMIT} questions each.`);
-
-    // Prepare all available models/providers
-    const keys = [
-        process.env.GEMINI_EXAM_KEY,
-        process.env.GEMINI_EXAM_KEY_2, 
-        process.env.GEMINI_EXAM_KEY_3,
-        process.env.GEMINI_EXAM_KEY_4,
-    ].filter(Boolean);
-
-    const fallbackProviders = [];
-    if (process.env.GROQ_EXAM_KEY) {
-        fallbackProviders.push({ 
-            model: createOpenAI({ baseURL: 'https://api.groq.com/openai/v1', apiKey: process.env.GROQ_EXAM_KEY })('llama-3.3-70b-versatile'), 
-            name: 'Groq',
-            isFallback: true 
-        });
-    }
-    if (process.env.OPENROUTER_EXAM_KEY) {
-        fallbackProviders.push({ 
-            model: createOpenAI({ baseURL: 'https://openrouter.ai/api/v1', apiKey: process.env.OPENROUTER_EXAM_KEY })('meta-llama/llama-3.3-70b-instruct:free'), 
-            name: 'OpenRouter',
-            isFallback: true 
-        });
-    }
-
-    // Execute batches in parallel with staggered starts to avoid rate limits and Vercel timeouts
-    const delay = ms => new Promise(res => setTimeout(res, ms));
-    let batchResults = [];
-    
-    try {
-        const batchPromises = batchesData.map(async (batchInfo, index) => {
-            // Stagger the start time of each batch by 2.5 seconds
-            if (index > 0) {
-                console.log(`Delaying Batch ${index + 1} by ${index * 2500}ms to stagger requests...`);
-                await delay(index * 2500);
-            }
-
-            // Strict rotation: Batch 1 -> Key 1, Batch 2 -> Key 2...
-            const primaryKeyIndex = (geminiKeyIndex + index) % Math.max(1, keys.length);
-            const primaryKey = keys.length > 0 ? keys[primaryKeyIndex] : null;
-    
-            const currentBatchProviders = [];
-            if (primaryKey) {
-                currentBatchProviders.push({
-                    model: createGoogleGenerativeAI({ apiKey: primaryKey })('gemini-2.0-flash'),
-                    name: `Gemini-${primaryKeyIndex + 1}`,
-                    isFallback: false
-                });
-            }
-            currentBatchProviders.push(...fallbackProviders);
-    
-            if (currentBatchProviders.length === 0) {
-                console.error(`Batch ${index + 1} has no providers.`);
-                return [];
-            }
-    
-            // Attempt generation with retries using fallback providers if primary fails
-            for (let attempt = 0; attempt < currentBatchProviders.length; attempt++) {
-                const provider = currentBatchProviders[attempt];
-                
-                try {
-                    console.log(`Starting Batch ${index + 1} (${batchInfo.count} qs) using ${provider.name}. Set: ${index + 1}`);
-                    const batchSeed = `${Date.now()}-${index}-${attempt}`;
-                    
-                    const questions = await generateBatchWorker({
-                        provider,
-                        examType,
-                        chapter,
-                        count: batchInfo.count,
-                        excludeTexts: excludeTexts,
-                        batchSeed,
-                        batchIndex: index
-                    });
-                    
-                    return questions; // Success!
-                } catch (err) {
-                    console.warn(`⚠️ [Batch ${index + 1} Failed] Provider: ${provider.name}. Error: ${err.message}`);
-                    if (attempt < currentBatchProviders.length - 1) {
-                        const nextProvider = currentBatchProviders[attempt + 1];
-                        console.log(`🔄 Proceeding to fallback: ${nextProvider.name}`);
-                        // 3 second delay between failed provider retries
-                        await delay(3000);
-                    } else {
-                        console.error(`❌ [Batch ${index + 1}] All providers failed for this batch.`);
-                    }
-                }
-            }
-            return []; // Return empty array if all providers fail for this specific batch
-        });
-        
-        // Wait for all staggered batches to complete
-        batchResults = await Promise.all(batchPromises);
-
-    } catch (err) {
-        console.error("Staggered parallel batch generation failed completely:", err.message);
-        throw err; // Re-throw to fail the overall request and send 500 to frontend
-    }
-
-    // Advance the overarching index for the next request by how many batches we used
-    if (keys.length > 0) {
-        geminiKeyIndex = (geminiKeyIndex + batchesData.length) % keys.length;
-    }
-
-    const uniqueQMap = new Map();
-    let currentExclude = [...(excludeTexts || [])];
-
-    // Merge and dedupe results
-    let addedTotal = 0;
-    for (const batch of batchResults) {
-        for (const q of batch) {
-            if (!q.b || !q.o || q.o.length < 4 || typeof q.a !== 'number') continue;
-            
-            const key = q.b.trim().toLowerCase().substring(0, 100);
-            const alreadySeen = currentExclude.some(ex => 
-                ex.toLowerCase().substring(0, 80) === key.substring(0, 80)
-            );
-            
-            if (!uniqueQMap.has(key) && !alreadySeen) {
-                uniqueQMap.set(key, q);
-                addedTotal++;
-            }
-        }
-    }
-
-    console.log(`Successfully merged ${addedTotal} total unique questions from parallel batches.`);
-    
-    return Array.from(uniqueQMap.values());
 }
 
 
@@ -280,49 +234,37 @@ export async function POST(req) {
             const needed = count || 10;
             const excludeTexts = exclude && Array.isArray(exclude) ? exclude : [];
 
-            // We use the parallel batching approach, aiming to get 'needed' valid questions.
-            // Under normal circumstances, 1 parallel pass will be enough.
-            // If some fail, we fall back to short retries sequentially appended.
-            
-            let requestedTotal = needed + Math.min(10, Math.floor(needed * 0.2)); // Pad 20% to account for duplicates/bad generations
-            
             let finalQuestions = [];
             let attempts = 0;
-            const MAX_ITERATIONS = 3; // Maximum overarching iterations of full parallel calls
+            const MAX_ITERATIONS = 2;
             let currentExclude = [...excludeTexts];
 
             while (finalQuestions.length < needed && attempts < MAX_ITERATIONS) {
                 attempts++;
                 const stillNeeded = needed - finalQuestions.length;
-                console.log(`Parallel Generation Iteration ${attempts}: Need ${stillNeeded}`);
+                console.log(`Iteration ${attempts}: Need ${stillNeeded} more questions`);
 
                 const latestBatch = await generateAllQuestions({
                     examType,
                     chapter,
-                    totalNeeded: stillNeeded + (attempts === 1 ? Math.min(10, Math.floor(stillNeeded * 0.2)) : 0), 
+                    totalNeeded: stillNeeded,
                     excludeTexts: currentExclude
                 });
 
-                // Deduplicate with existing final questions
-                const newlyAdded = [];
                 for (const q of latestBatch) {
-                     const key = q.b.trim().toLowerCase().substring(0, 100);
-                     const alreadyExists = finalQuestions.some(existing => existing.b.trim().toLowerCase().substring(0, 100) === key);
-                     if (!alreadyExists && finalQuestions.length < needed) {
-                         finalQuestions.push(q);
-                         newlyAdded.push(q.b.substring(0,80));
-                     }
+                    const key = q.b.trim().toLowerCase().substring(0, 100);
+                    const alreadyExists = finalQuestions.some(ex => ex.b.trim().toLowerCase().substring(0, 100) === key);
+                    if (!alreadyExists && finalQuestions.length < needed) {
+                        finalQuestions.push(q);
+                        currentExclude.push(q.b.substring(0, 80));
+                    }
                 }
-                
-                currentExclude = [...currentExclude, ...newlyAdded];
-                console.log(`Finished Iteration ${attempts}. Current Total: ${finalQuestions.length}/${needed}`);
 
-                if (finalQuestions.length >= needed || latestBatch.length === 0) {
-                    break;
-                }
+                console.log(`Iteration ${attempts} done. Total: ${finalQuestions.length}/${needed}`);
+                if (latestBatch.length === 0) break;
             }
-            
-            console.log(`Returning final ${finalQuestions.length} questions.`);
+
+            console.log(`Returning ${finalQuestions.length} questions`);
             return Response.json(finalQuestions);
         }
 
